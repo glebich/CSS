@@ -8,7 +8,7 @@ export function Reveal() {
 
   return (
     <Page>
-      <h1 className="statement" style={{ fontSize: 44 }}>
+      <h1 className="statement statement-page">
         Repaired, <span className="quiet">and why.</span>
       </h1>
       <p style={{ color: "var(--gray-meta)", marginTop: 6 }}>

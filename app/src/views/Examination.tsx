@@ -15,7 +15,7 @@ export function Examination() {
   return (
     <Page>
       <div style={{ display: "flex", alignItems: "baseline", gap: 20 }}>
-        <h1 className="statement" style={{ fontSize: 44 }}>
+        <h1 className="statement statement-page">
           Ten lenses, <span className="quiet">one number.</span>
         </h1>
         <span className="topbar-spacer" />

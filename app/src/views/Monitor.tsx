@@ -12,7 +12,7 @@ export function Monitor() {
 
   return (
     <Page>
-      <h1 className="statement" style={{ fontSize: 44 }}>
+      <h1 className="statement statement-page">
         Watched, <span className="quiet">quietly.</span>
       </h1>
 

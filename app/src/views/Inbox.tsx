@@ -8,7 +8,7 @@ export function Inbox() {
 
   return (
     <Page>
-      <h1 className="statement" style={{ fontSize: 44 }}>
+      <h1 className="statement statement-page">
         One quiet <span className="quiet">stream.</span>
       </h1>
       <p style={{ color: "var(--gray-meta)", marginTop: 6 }}>

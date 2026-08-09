@@ -1,29 +1,35 @@
 /* ---------------------------------------------------------------------------
    Osyle design tokens
-   Source of truth: Figma yHZK6lcmzVAndYuYTmrYkF (product canvas),
-   o798c61sKzTcX4Xqtp9Icx (brand). See BRAND.md for the asset provenance note.
+   Source of truth: Figma yHZK6lcmzVAndYuYTmrYkF, page 6 (node 323:7107).
+   Values below are measured from the frames, not approximated:
+   canvas #f3f1ef, statement 120/100 weight 510 with black to #4c4c4c
+   gradient ink and a Thin quiet word, type pills 70 tall radius 91 at 50%
+   white, controls 56 tall radius 72 pure white, top bar 74 blurred,
+   resident chip #f6f6f6 radius 9. See BRAND.md.
 --------------------------------------------------------------------------- */
 
 :root {
   /* The product canvas: light, warm paper */
-  --paper: #eceae7;
-  --paper-raised: #f2f1ef;
-  --card: #f6f5f3;
+  --paper: #f3f1ef;
+  --card: rgba(255, 255, 255, 0.55);
   --card-solid: #ffffff;
-  --dot: rgba(20, 18, 16, 0.13);
+  --dot: rgba(20, 18, 16, 0.16);
 
-  /* Ink */
-  --ink: #141414;
-  --ink-soft: #3c3a38;
-  --gray-statement: #b3b0ac;
-  --gray-meta: #8e8b87;
-  --gray-faint: #c9c6c2;
+  /* Ink, measured */
+  --ink: #000000;
+  --ink-strong: #181818;
+  --ink-outline: #212121;
+  --ink-body: #262626;
+  --gray-secondary: #4f515a;
+  --gray-tertiary: rgba(79, 81, 90, 0.6);
+  --gray-small: #696a6b;
+  --statement-fade: #4c4c4c;
 
-  /* Hairlines and shadow */
+  /* Hairlines and shadow: the design is nearly flat, paper on paper */
   --hairline: rgba(20, 18, 16, 0.07);
-  --shadow-card: 0 1px 2px rgba(20, 18, 16, 0.03), 0 12px 32px rgba(20, 18, 16, 0.06);
-  --shadow-pill: 0 1px 2px rgba(20, 18, 16, 0.04), 0 6px 18px rgba(20, 18, 16, 0.07);
-  --shadow-float: 0 2px 6px rgba(20, 18, 16, 0.05), 0 24px 60px rgba(20, 18, 16, 0.1);
+  --shadow-card: 0 1px 2px rgba(20, 18, 16, 0.02), 0 10px 30px rgba(20, 18, 16, 0.05);
+  --shadow-pill: 0 1px 2px rgba(20, 18, 16, 0.03), 0 4px 14px rgba(20, 18, 16, 0.05);
+  --shadow-float: 0 2px 6px rgba(20, 18, 16, 0.04), 0 18px 48px rgba(20, 18, 16, 0.08);
 
   /* Brand surfaces: near-black with the violet-white glow */
   --brand-black: #0a0a0c;
@@ -32,23 +38,29 @@
   /* Color enters only two ways. This is one of them. */
   --pulse: #7b6bff;
   --pulse-soft: rgba(123, 107, 255, 0.16);
+  /* The selection gradient, measured from the type pills */
+  --grad-select: linear-gradient(234deg, rgba(192, 76, 221, 0.5) 15.3%, rgba(247, 104, 255, 0.5) 96%);
 
-  /* Lifecycle inks (used as text tints only, never chrome) */
+  /* Lifecycle inks (text tints only, never chrome) */
   --ok: #3d7a4e;
   --warn: #9a6b2f;
   --bad: #a04638;
 
-  /* Type */
-  --font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-    "Helvetica Neue", Arial, sans-serif;
+  /* Legacy aliases used by view code */
+  --gray-meta: #6b6d75;
+  --ink-soft: #35363c;
+  --gray-faint: rgba(79, 81, 90, 0.3);
+
+  /* Type: SF Pro on Apple metal, close metal elsewhere */
+  --font: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont,
+    "Inter", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 
   /* The motion law: 200 to 300ms, ease-out, nothing bounces */
   --t-fast: 200ms ease-out;
   --t-slow: 300ms ease-out;
 
-  /* Radii */
   --r-card: 24px;
-  --r-pill: 999px;
+  --r-pill: 72px;
 }
 
 * {
@@ -66,7 +78,7 @@ body,
 body {
   font-family: var(--font);
   background: var(--paper);
-  color: var(--ink);
+  color: var(--ink-body);
   -webkit-font-smoothing: antialiased;
   font-size: 14px;
   line-height: 1.45;
@@ -106,7 +118,7 @@ input {
 }
 
 .canvas-dotted {
-  background-image: radial-gradient(var(--dot) 1px, transparent 1px);
+  background-image: radial-gradient(var(--dot) 1.2px, transparent 1.2px);
   background-size: 44px 44px;
   background-position: 22px 22px;
 }
@@ -114,51 +126,57 @@ input {
 .canvas-inner {
   max-width: 1120px;
   margin: 0 auto;
-  padding: 56px 48px 160px;
+  padding: 48px 48px 170px;
 }
 
-/* ---------------------------------------------------------------- top bar */
+/* --------------------------------------------------- top bar, 74px, blurred */
 
 .topbar {
+  position: relative;
+  z-index: 30;
+  height: 74px;
+  flex: none;
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 14px 20px;
-  flex: none;
+  padding: 0 16px 0 27px;
+  gap: 10px;
+  backdrop-filter: blur(50px);
+  background: rgba(237, 235, 233, 0.1);
 }
 
-.topbar-divider {
-  width: 1px;
-  height: 22px;
-  background: var(--hairline);
-}
-
+/* The wordmark: 26.67 Medium, embossed by a hairline of white below the ink */
 .wordmark {
-  font-size: 21px;
-  font-weight: 650;
-  letter-spacing: -0.02em;
+  font-size: 26.67px;
+  font-weight: 510;
+  letter-spacing: -0.01em;
   color: var(--ink);
+  text-shadow: 0 0.42px 0 rgba(255, 255, 255, 0.55);
   display: inline-flex;
   align-items: baseline;
-  gap: 1px;
+  line-height: 1;
 }
 
 .wordmark sup {
-  font-size: 9px;
-  font-weight: 500;
-  transform: translateY(-1px);
+  font-size: 13.33px;
+  font-weight: 300;
+  transform: translateY(-6px);
+  margin-left: 1px;
 }
 
+/* The resident chip: #f6f6f6 multiplied onto the paper, radius 9 */
 .topbar-resident {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 7px 14px;
-  border-radius: var(--r-pill);
-  background: rgba(20, 18, 16, 0.04);
+  gap: 6px;
+  padding: 5px 10px;
+  border-radius: 9px;
+  background: #f6f6f6;
+  mix-blend-mode: multiply;
   font-size: 13px;
-  font-weight: 550;
-  color: var(--ink-soft);
+  font-weight: 510;
+  letter-spacing: 0.01em;
+  line-height: 20px;
+  color: var(--gray-secondary);
 }
 
 .topbar-spacer {
@@ -167,7 +185,7 @@ input {
 
 .topbar-quiet {
   font-size: 13px;
-  color: var(--gray-meta);
+  color: var(--gray-small);
   padding: 7px 10px;
   border-radius: var(--r-pill);
   transition: color var(--t-fast);
@@ -178,81 +196,96 @@ input {
 }
 
 .avatar-chip {
-  width: 34px;
-  height: 34px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   background: var(--card-solid);
-  border: 1px solid var(--hairline);
-  box-shadow: var(--shadow-pill);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  color: var(--ink-soft);
+  font-size: 13px;
+  font-weight: 510;
+  letter-spacing: 0.01em;
+  color: #3b3b3b;
 }
 
 /* -------------------------------------------------------------- statement */
 
+/* 120/100, weight 510, tracking -2.4px, ink fading to #4c4c4c at 65% */
 .statement {
-  font-size: clamp(44px, 6.4vw, 76px);
-  line-height: 1.04;
-  font-weight: 550;
-  letter-spacing: -0.035em;
-  color: var(--ink);
+  font-size: clamp(56px, 8.3vw, 120px);
+  line-height: 0.84;
+  font-weight: 510;
+  letter-spacing: -0.02em;
+  background: linear-gradient(90deg, var(--ink) 0%, var(--statement-fade) 65.3%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  padding-bottom: 0.08em;
 }
 
+/* The quiet word is not gray. It is Thin. */
 .statement .quiet {
-  color: var(--gray-statement);
+  font-weight: 200;
+  letter-spacing: -0.01em;
 }
 
 .statement-center {
   text-align: center;
 }
 
-/* ------------------------------------------------------------------ pills */
+.statement-page {
+  font-size: clamp(40px, 4vw, 56px);
+  line-height: 1;
+}
+
+.statement-sub {
+  color: var(--gray-tertiary);
+  font-size: 15px;
+  letter-spacing: 0.01em;
+  margin-top: 14px;
+}
+
+/* --------------------------------------- controls: 56 tall, white, radius 72 */
 
 .pill {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
-  padding: 10px 18px;
+  height: 56px;
+  padding: 0 24px;
   border-radius: var(--r-pill);
   background: var(--card-solid);
-  border: 1px solid var(--hairline);
   box-shadow: var(--shadow-pill);
-  font-size: 13px;
-  font-weight: 550;
-  color: var(--ink-soft);
+  font-size: 15px;
+  font-weight: 510;
+  letter-spacing: -0.01em;
+  color: var(--ink);
   transition: transform var(--t-fast), box-shadow var(--t-fast), color var(--t-fast);
   white-space: nowrap;
 }
 
 .pill:hover {
-  color: var(--ink);
   transform: translateY(-1px);
+  box-shadow: var(--shadow-float);
 }
 
-.pill.is-active {
-  color: var(--ink);
-  box-shadow: var(--shadow-float);
+.pill-sm {
+  height: 44px;
+  padding: 0 20px;
+  font-size: 15px;
 }
 
 /* Exactly one dark element per screen: the primary action */
 .pill-dark {
-  background: var(--ink);
+  background: var(--ink-strong);
   color: #fff;
-  border-color: var(--ink);
-  padding: 13px 24px;
-  font-size: 14px;
-  font-weight: 550;
-  box-shadow: 0 2px 8px rgba(20, 18, 16, 0.18), 0 16px 40px rgba(20, 18, 16, 0.22);
+  box-shadow: 0 2px 8px rgba(20, 18, 16, 0.16), 0 16px 40px rgba(20, 18, 16, 0.2);
 }
 
 .pill-dark:hover {
   color: #fff;
-  transform: translateY(-1px);
 }
 
 .pill-dark:disabled {
@@ -261,20 +294,84 @@ input {
   transform: none;
 }
 
+/* Icon circle: the 56px white round control from the bottom bar */
+.circle {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--card-solid);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink-strong);
+  position: relative;
+  transition: transform var(--t-fast), box-shadow var(--t-fast), opacity var(--t-fast);
+  flex: none;
+}
+
+.circle:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-pill);
+}
+
+.circle.is-active {
+  box-shadow: inset 0 0 0 1.5px var(--ink-strong);
+}
+
+.circle .badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--pulse);
+}
+
+/* ------------------------------- the type pills: 70 tall, 24px, radius 91 */
+
+.type-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 25px 30px;
+  border-radius: 91px;
+  background: rgba(255, 255, 255, 0.5);
+  font-size: 24px;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  line-height: 20px;
+  color: var(--gray-tertiary);
+  white-space: nowrap;
+}
+
+.type-pill.is-selected {
+  background: var(--grad-select);
+  color: #fff;
+}
+
+.type-pill.is-outline {
+  background: transparent;
+  border: 2.5px solid var(--ink-outline);
+  color: var(--ink);
+  padding: 22.5px 27.5px;
+}
+
 /* ------------------------------------------------------------------ chips */
 
 .chip {
   display: inline-flex;
   align-items: center;
-  padding: 4px 9px;
-  border-radius: var(--r-pill);
-  background: var(--card-solid);
-  border: 1px solid var(--hairline);
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--gray-meta);
+  padding: 3px 10px;
+  border-radius: 9px;
+  background: #f6f6f6;
+  mix-blend-mode: multiply;
+  font-size: 13px;
+  font-weight: 510;
+  letter-spacing: 0.01em;
+  line-height: 20px;
+  color: var(--gray-secondary);
+  white-space: nowrap;
 }
 
 .chip-row {
@@ -288,7 +385,6 @@ input {
 
 .card {
   background: var(--card);
-  border: 1px solid var(--hairline);
   border-radius: var(--r-card);
   box-shadow: var(--shadow-card);
 }
@@ -298,20 +394,7 @@ input {
 }
 
 .card-pad {
-  padding: 24px;
-}
-
-.ghost-card {
-  background: var(--paper-raised);
-  border: 1px solid var(--hairline);
-  border-radius: 20px;
-  box-shadow: var(--shadow-card);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  color: var(--gray-faint);
-  font-weight: 500;
+  padding: 26px 28px;
 }
 
 /* ------------------------------------------------------------- bottom bar */
@@ -324,55 +407,58 @@ input {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
   padding: 0 16px;
   pointer-events: none;
   z-index: 20;
 }
 
-.bottombar > * {
+.bar-shell {
   pointer-events: auto;
-}
-
-.bar-group {
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: 5px;
+  padding: 10px;
+  border-radius: 140px;
+  backdrop-filter: blur(10px);
+  background: rgba(243, 241, 239, 0.55);
+}
+
+.bar-pill {
+  height: 56px;
+  padding: 0 20px;
+  border-radius: 30px;
   background: var(--card-solid);
-  border: 1px solid var(--hairline);
-  border-radius: var(--r-pill);
-  box-shadow: var(--shadow-float);
-  padding: 5px;
-}
-
-.bar-item {
-  padding: 8px 13px;
-  border-radius: var(--r-pill);
-  font-size: 12.5px;
-  font-weight: 550;
-  color: var(--gray-meta);
-  transition: color var(--t-fast), background var(--t-fast);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 510;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  transition: opacity var(--t-fast), box-shadow var(--t-fast);
   white-space: nowrap;
+  opacity: 0.62;
 }
 
-.bar-item:hover {
-  color: var(--ink);
+.bar-pill:hover {
+  opacity: 1;
 }
 
-.bar-item.is-active {
-  color: var(--ink);
-  background: rgba(20, 18, 16, 0.05);
+.bar-pill.is-active {
+  opacity: 1;
+  box-shadow: inset 0 0 0 1.5px var(--ink-strong);
 }
 
+/* The ask input: transparent, a half-pixel of ink around it */
 .ask-pill {
   display: flex;
   align-items: center;
   gap: 10px;
-  background: var(--card-solid);
-  border: 1px solid var(--hairline);
-  border-radius: var(--r-pill);
-  box-shadow: var(--shadow-float);
-  padding: 10px 18px;
+  height: 56px;
+  padding: 0 16px 0 18px;
+  border-radius: 30px;
+  border: 0.5px solid var(--ink-strong);
+  background: transparent;
   min-width: 300px;
 }
 
@@ -381,12 +467,13 @@ input {
   outline: none;
   background: none;
   flex: 1;
-  font-size: 13px;
-  color: var(--ink);
+  font-size: 16px;
+  letter-spacing: 0.01em;
+  color: var(--ink-body);
 }
 
 .ask-pill input::placeholder {
-  color: var(--gray-faint);
+  color: var(--gray-tertiary);
 }
 
 /* ------------------------------------------------------------- the pulse */
@@ -416,27 +503,31 @@ input {
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 15px;
-  color: var(--ink-soft);
+  font-size: 16px;
+  letter-spacing: 0.01em;
+  color: var(--gray-secondary);
 }
 
 /* ----------------------------------------------------- the big instrument */
 
 .instrument {
-  font-size: clamp(120px, 19vw, 230px);
-  line-height: 0.95;
-  font-weight: 550;
-  letter-spacing: -0.05em;
-  color: var(--ink);
+  font-size: clamp(140px, 20vw, 240px);
+  line-height: 0.9;
+  font-weight: 510;
+  letter-spacing: -0.04em;
   font-variant-numeric: tabular-nums;
+  background: linear-gradient(90deg, var(--ink) 0%, var(--statement-fade) 90%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 .instrument-label {
   font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.1em;
+  font-weight: 510;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--gray-meta);
+  color: var(--gray-small);
 }
 
 /* -------------------------------------------------------- brand surfaces */
@@ -490,12 +581,13 @@ input {
 
 .brand-enter {
   margin-top: 44px;
-  padding: 13px 26px;
+  height: 56px;
+  padding: 0 26px;
   border-radius: var(--r-pill);
   background: #fff;
   color: var(--brand-black);
-  font-size: 14px;
-  font-weight: 550;
+  font-size: 15px;
+  font-weight: 510;
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -518,10 +610,10 @@ input {
 
 .section-label {
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 510;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--gray-meta);
+  color: var(--gray-small);
   margin-bottom: 14px;
 }
 
@@ -536,32 +628,33 @@ input {
 .lens-row {
   display: flex;
   align-items: baseline;
-  gap: 16px;
-  padding: 15px 0;
+  gap: 18px;
+  padding: 16px 0;
   border-bottom: 1px solid var(--hairline);
 }
 
 .lens-score {
-  font-size: 22px;
-  font-weight: 550;
+  font-size: 24px;
+  font-weight: 510;
   letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
-  width: 42px;
+  width: 44px;
   flex: none;
   text-align: right;
 }
 
 .lens-name {
-  font-size: 14.5px;
-  font-weight: 550;
+  font-size: 15px;
+  font-weight: 510;
+  letter-spacing: -0.01em;
   color: var(--ink);
-  width: 240px;
+  width: 250px;
   flex: none;
 }
 
 .lens-note {
-  font-size: 13.5px;
-  color: var(--gray-meta);
+  font-size: 14px;
+  color: var(--gray-secondary);
   flex: 1;
   min-width: 0;
 }
@@ -569,18 +662,18 @@ input {
 /* -------------------------------------------------------------- issues */
 
 .issue-state {
-  font-size: 10px;
-  font-weight: 650;
-  letter-spacing: 0.09em;
+  font-size: 11px;
+  font-weight: 510;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  padding: 3px 8px;
-  border-radius: var(--r-pill);
-  border: 1px solid var(--hairline);
-  background: var(--card-solid);
+  padding: 3px 10px;
+  border-radius: 9px;
+  background: #f6f6f6;
+  mix-blend-mode: multiply;
   flex: none;
 }
 
-.issue-state.new { color: var(--ink-soft); }
+.issue-state.new { color: var(--gray-secondary); }
 .issue-state.recurring { color: var(--warn); }
 .issue-state.regressed { color: var(--bad); }
 .issue-state.healed { color: var(--ok); }
@@ -591,7 +684,6 @@ input {
   position: relative;
   border-radius: var(--r-card);
   overflow: hidden;
-  border: 1px solid var(--hairline);
   box-shadow: var(--shadow-float);
   user-select: none;
   touch-action: none;
@@ -607,7 +699,7 @@ input {
   top: 0;
   bottom: 0;
   width: 2px;
-  background: var(--ink);
+  background: var(--ink-strong);
   cursor: ew-resize;
 }
 
@@ -616,29 +708,27 @@ input {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
-  background: var(--ink);
-  color: #fff;
+  background: var(--card-solid);
+  color: var(--ink-strong);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 13px;
-  letter-spacing: -0.06em;
+  box-shadow: var(--shadow-pill);
 }
 
 .ba-tag {
   position: absolute;
-  top: 14px;
-  font-size: 10px;
-  font-weight: 650;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-  padding: 4px 9px;
-  border-radius: var(--r-pill);
-  background: rgba(255, 255, 255, 0.85);
-  color: var(--gray-meta);
+  top: 16px;
+  font-size: 13px;
+  font-weight: 510;
+  letter-spacing: 0.01em;
+  padding: 3px 10px;
+  border-radius: 9px;
+  background: rgba(246, 246, 246, 0.85);
+  color: var(--gray-secondary);
   backdrop-filter: blur(4px);
 }
 
@@ -648,7 +738,7 @@ input {
   flex: 1;
   height: 26px;
   border-radius: 4px;
-  background: rgba(61, 122, 78, 0.35);
+  background: rgba(61, 122, 78, 0.32);
 }
 
 .uptime-cell.down {
@@ -660,7 +750,7 @@ input {
 .inbox-item {
   display: flex;
   gap: 14px;
-  padding: 17px 0;
+  padding: 18px 0;
   border-bottom: 1px solid var(--hairline);
   align-items: baseline;
 }
@@ -675,7 +765,7 @@ input {
 }
 
 .inbox-dot.read {
-  background: var(--gray-faint);
+  background: rgba(79, 81, 90, 0.25);
 }
 
 /* --------------------------------------------------------------- promote */
@@ -688,24 +778,26 @@ input {
 
 .toggle {
   display: inline-flex;
-  background: rgba(20, 18, 16, 0.05);
-  border-radius: var(--r-pill);
-  padding: 3px;
+  gap: 5px;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 30px;
+  padding: 5px;
 }
 
 .toggle button {
-  padding: 7px 16px;
-  border-radius: var(--r-pill);
-  font-size: 13px;
-  font-weight: 550;
-  color: var(--gray-meta);
+  height: 44px;
+  padding: 0 20px;
+  border-radius: 26px;
+  font-size: 15px;
+  font-weight: 510;
+  letter-spacing: -0.01em;
+  color: var(--gray-tertiary);
   transition: color var(--t-fast), background var(--t-fast);
 }
 
 .toggle button.is-active {
   background: var(--card-solid);
   color: var(--ink);
-  box-shadow: var(--shadow-pill);
 }
 
 /* ----------------------------------------------------------------- misc */

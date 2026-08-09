@@ -35,7 +35,7 @@ export function Sdk() {
 
   return (
     <Page>
-      <h1 className="statement" style={{ fontSize: 44 }}>
+      <h1 className="statement statement-page">
         Real software, <span className="quiet">real users.</span>
       </h1>
       <p style={{ color: "var(--gray-meta)", marginTop: 6, maxWidth: 640 }}>

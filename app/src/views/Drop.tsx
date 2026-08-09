@@ -1,27 +1,38 @@
 import { useStore } from "../store";
 import { Sparkle } from "../components/chrome";
 
-const GHOSTS = [
-  { label: "GitHub repo", style: { left: "4%", top: "38%", width: 128, height: 128 } },
-  { label: "Live URL", style: { left: "21%", top: "62%", width: 88, height: 88 } },
-  { label: "Zip", style: { right: "22%", top: "18%", width: 90, height: 90 } },
-  { label: "Figma file", style: { right: "5%", top: "44%", width: 138, height: 138 } },
-  { label: "Screens", style: { left: "12%", top: "12%", width: 96, height: 96 } },
+/**
+ * The drop state, matched to the Figma statement frames: the two-tone
+ * statement with a Thin quiet word, type pills floating at 70px on the
+ * dotted canvas, the selected one carrying the gradient, one outlined.
+ */
+const PILLS: Array<{
+  label: string;
+  variant?: "selected" | "outline";
+  style: React.CSSProperties;
+}> = [
+  { label: "GitHub", variant: "selected", style: { left: "3%", top: "44%" } },
+  { label: "Lovable", style: { left: "10%", top: "28%" } },
+  { label: "Cursor", style: { left: "18%", top: "60%" } },
+  { label: "Zip", style: { left: "9%", top: "76%" } },
+  { label: "Live URL", style: { right: "16%", top: "26%" } },
+  { label: "Figma Design", variant: "selected", style: { right: "3%", top: "44%" } },
+  { label: "v0", style: { right: "20%", top: "60%" } },
+  { label: "Anything", variant: "outline", style: { right: "7%", top: "74%" } },
 ];
 
-/** The drop state: dotted canvas, the statement, one dark action. */
 export function Drop() {
   const { go } = useStore();
   return (
     <main className="canvas canvas-dotted" style={{ position: "relative" }}>
-      {GHOSTS.map((g) => (
-        <div
-          key={g.label}
-          className="ghost-card"
-          style={{ position: "absolute", ...g.style }}
+      {PILLS.map((p) => (
+        <span
+          key={p.label}
+          className={`type-pill${p.variant === "selected" ? " is-selected" : ""}${p.variant === "outline" ? " is-outline" : ""}`}
+          style={{ position: "absolute", ...p.style }}
         >
-          {g.label}
-        </div>
+          {p.label}
+        </span>
       ))}
       <div
         style={{
@@ -30,25 +41,20 @@ export function Drop() {
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          gap: 28,
-          paddingBottom: 80,
+          gap: 40,
+          paddingBottom: 60,
         }}
       >
         <h1 className="statement statement-center">
-          Drop your app
+          Drop
+          <br />
+          your app
           <br />
           <span className="quiet">here</span>
         </h1>
-        <div className="chip-row">
-          {["GitHub", "Lovable", "Zip", "Link", "Figma"].map((c) => (
-            <span key={c} className="chip">
-              {c}
-            </span>
-          ))}
-        </div>
         <button className="pill pill-dark" onClick={() => go("home")}>
           Import SkyRecall, the demo resident
-          <Sparkle size={13} />
+          <Sparkle size={14} />
         </button>
       </div>
     </main>

@@ -19,7 +19,7 @@ export function Transform() {
 
   return (
     <Page>
-      <h1 className="statement" style={{ fontSize: 44 }}>
+      <h1 className="statement statement-page">
         Everything it <span className="quiet">could be.</span>
       </h1>
       <p style={{ color: "var(--gray-meta)", marginTop: 6 }}>
@@ -49,7 +49,11 @@ export function Transform() {
           After
         </span>
         <div className="ba-divider" style={{ left: `${pos * 100}%` }}>
-          <span className="ba-handle">&lsaquo;&rsaquo;</span>
+          <span className="ba-handle">
+            <svg width="18" height="12" viewBox="0 0 18 12" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+              <path d="M5 1 1 6l4 5M13 1l4 5-4 5" />
+            </svg>
+          </span>
         </div>
       </div>
 

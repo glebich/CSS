@@ -16,7 +16,7 @@ export function Promote() {
   return (
     <Page>
       <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
-        <h1 className="statement" style={{ fontSize: 44 }}>
+        <h1 className="statement statement-page">
           Reach the people <span className="quiet">it was built for.</span>
         </h1>
         <span className="topbar-spacer" />

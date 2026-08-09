@@ -29,7 +29,7 @@ export function Issues() {
 
   return (
     <Page>
-      <h1 className="statement" style={{ fontSize: 44 }}>
+      <h1 className="statement statement-page">
         Issues, <span className="quiet">and their lives.</span>
       </h1>
       <p style={{ color: "var(--gray-meta)", marginTop: 6 }}>
@@ -77,7 +77,7 @@ export function Issues() {
                 })}
                 <span className="topbar-spacer" />
                 {issue.id === "weather-key" && (
-                  <button className="pill" onClick={() => setPromptOpen(!promptOpen)}>
+                  <button className="pill pill-sm" onClick={() => setPromptOpen(!promptOpen)}>
                     {promptOpen ? "Close the Fix Prompt" : "Fix Prompt"}
                   </button>
                 )}

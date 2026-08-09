@@ -30,7 +30,7 @@ export function Address() {
 
   return (
     <Page>
-      <h1 className="statement" style={{ fontSize: 44 }}>
+      <h1 className="statement statement-page">
         The home, <span className="quiet">literal.</span>
       </h1>
 
