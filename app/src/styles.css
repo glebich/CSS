@@ -1,0 +1,740 @@
+/* ---------------------------------------------------------------------------
+   Osyle design tokens
+   Source of truth: Figma yHZK6lcmzVAndYuYTmrYkF (product canvas),
+   o798c61sKzTcX4Xqtp9Icx (brand). See BRAND.md for the asset provenance note.
+--------------------------------------------------------------------------- */
+
+:root {
+  /* The product canvas: light, warm paper */
+  --paper: #eceae7;
+  --paper-raised: #f2f1ef;
+  --card: #f6f5f3;
+  --card-solid: #ffffff;
+  --dot: rgba(20, 18, 16, 0.13);
+
+  /* Ink */
+  --ink: #141414;
+  --ink-soft: #3c3a38;
+  --gray-statement: #b3b0ac;
+  --gray-meta: #8e8b87;
+  --gray-faint: #c9c6c2;
+
+  /* Hairlines and shadow */
+  --hairline: rgba(20, 18, 16, 0.07);
+  --shadow-card: 0 1px 2px rgba(20, 18, 16, 0.03), 0 12px 32px rgba(20, 18, 16, 0.06);
+  --shadow-pill: 0 1px 2px rgba(20, 18, 16, 0.04), 0 6px 18px rgba(20, 18, 16, 0.07);
+  --shadow-float: 0 2px 6px rgba(20, 18, 16, 0.05), 0 24px 60px rgba(20, 18, 16, 0.1);
+
+  /* Brand surfaces: near-black with the violet-white glow */
+  --brand-black: #0a0a0c;
+  --brand-white: #f5f4ff;
+
+  /* Color enters only two ways. This is one of them. */
+  --pulse: #7b6bff;
+  --pulse-soft: rgba(123, 107, 255, 0.16);
+
+  /* Lifecycle inks (used as text tints only, never chrome) */
+  --ok: #3d7a4e;
+  --warn: #9a6b2f;
+  --bad: #a04638;
+
+  /* Type */
+  --font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+
+  /* The motion law: 200 to 300ms, ease-out, nothing bounces */
+  --t-fast: 200ms ease-out;
+  --t-slow: 300ms ease-out;
+
+  /* Radii */
+  --r-card: 24px;
+  --r-pill: 999px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  font-family: var(--font);
+  background: var(--paper);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  font-size: 14px;
+  line-height: 1.45;
+  overflow: hidden;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+input {
+  font: inherit;
+}
+
+::selection {
+  background: var(--pulse-soft);
+}
+
+/* ------------------------------------------------------------------ shell */
+
+.shell {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--paper);
+}
+
+.canvas {
+  position: relative;
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.canvas-dotted {
+  background-image: radial-gradient(var(--dot) 1px, transparent 1px);
+  background-size: 44px 44px;
+  background-position: 22px 22px;
+}
+
+.canvas-inner {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 56px 48px 160px;
+}
+
+/* ---------------------------------------------------------------- top bar */
+
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+  flex: none;
+}
+
+.topbar-divider {
+  width: 1px;
+  height: 22px;
+  background: var(--hairline);
+}
+
+.wordmark {
+  font-size: 21px;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  display: inline-flex;
+  align-items: baseline;
+  gap: 1px;
+}
+
+.wordmark sup {
+  font-size: 9px;
+  font-weight: 500;
+  transform: translateY(-1px);
+}
+
+.topbar-resident {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 14px;
+  border-radius: var(--r-pill);
+  background: rgba(20, 18, 16, 0.04);
+  font-size: 13px;
+  font-weight: 550;
+  color: var(--ink-soft);
+}
+
+.topbar-spacer {
+  flex: 1;
+}
+
+.topbar-quiet {
+  font-size: 13px;
+  color: var(--gray-meta);
+  padding: 7px 10px;
+  border-radius: var(--r-pill);
+  transition: color var(--t-fast);
+}
+
+.topbar-quiet:hover {
+  color: var(--ink);
+}
+
+.avatar-chip {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--card-solid);
+  border: 1px solid var(--hairline);
+  box-shadow: var(--shadow-pill);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--ink-soft);
+}
+
+/* -------------------------------------------------------------- statement */
+
+.statement {
+  font-size: clamp(44px, 6.4vw, 76px);
+  line-height: 1.04;
+  font-weight: 550;
+  letter-spacing: -0.035em;
+  color: var(--ink);
+}
+
+.statement .quiet {
+  color: var(--gray-statement);
+}
+
+.statement-center {
+  text-align: center;
+}
+
+/* ------------------------------------------------------------------ pills */
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: var(--r-pill);
+  background: var(--card-solid);
+  border: 1px solid var(--hairline);
+  box-shadow: var(--shadow-pill);
+  font-size: 13px;
+  font-weight: 550;
+  color: var(--ink-soft);
+  transition: transform var(--t-fast), box-shadow var(--t-fast), color var(--t-fast);
+  white-space: nowrap;
+}
+
+.pill:hover {
+  color: var(--ink);
+  transform: translateY(-1px);
+}
+
+.pill.is-active {
+  color: var(--ink);
+  box-shadow: var(--shadow-float);
+}
+
+/* Exactly one dark element per screen: the primary action */
+.pill-dark {
+  background: var(--ink);
+  color: #fff;
+  border-color: var(--ink);
+  padding: 13px 24px;
+  font-size: 14px;
+  font-weight: 550;
+  box-shadow: 0 2px 8px rgba(20, 18, 16, 0.18), 0 16px 40px rgba(20, 18, 16, 0.22);
+}
+
+.pill-dark:hover {
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+.pill-dark:disabled {
+  opacity: 0.4;
+  cursor: default;
+  transform: none;
+}
+
+/* ------------------------------------------------------------------ chips */
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 9px;
+  border-radius: var(--r-pill);
+  background: var(--card-solid);
+  border: 1px solid var(--hairline);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--gray-meta);
+}
+
+.chip-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* ------------------------------------------------------------------ cards */
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-card);
+  box-shadow: var(--shadow-card);
+}
+
+.card-solid {
+  background: var(--card-solid);
+}
+
+.card-pad {
+  padding: 24px;
+}
+
+.ghost-card {
+  background: var(--paper-raised);
+  border: 1px solid var(--hairline);
+  border-radius: 20px;
+  box-shadow: var(--shadow-card);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: var(--gray-faint);
+  font-weight: 500;
+}
+
+/* ------------------------------------------------------------- bottom bar */
+
+.bottombar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 0 16px;
+  pointer-events: none;
+  z-index: 20;
+}
+
+.bottombar > * {
+  pointer-events: auto;
+}
+
+.bar-group {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  background: var(--card-solid);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-pill);
+  box-shadow: var(--shadow-float);
+  padding: 5px;
+}
+
+.bar-item {
+  padding: 8px 13px;
+  border-radius: var(--r-pill);
+  font-size: 12.5px;
+  font-weight: 550;
+  color: var(--gray-meta);
+  transition: color var(--t-fast), background var(--t-fast);
+  white-space: nowrap;
+}
+
+.bar-item:hover {
+  color: var(--ink);
+}
+
+.bar-item.is-active {
+  color: var(--ink);
+  background: rgba(20, 18, 16, 0.05);
+}
+
+.ask-pill {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--card-solid);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-pill);
+  box-shadow: var(--shadow-float);
+  padding: 10px 18px;
+  min-width: 300px;
+}
+
+.ask-pill input {
+  border: none;
+  outline: none;
+  background: none;
+  flex: 1;
+  font-size: 13px;
+  color: var(--ink);
+}
+
+.ask-pill input::placeholder {
+  color: var(--gray-faint);
+}
+
+/* ------------------------------------------------------------- the pulse */
+
+@keyframes breathe {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.85;
+  }
+  50% {
+    transform: scale(1.18);
+    opacity: 1;
+  }
+}
+
+.pulse-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--pulse);
+  animation: breathe 3.2s ease-in-out infinite;
+  flex: none;
+}
+
+.pulse-line {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 15px;
+  color: var(--ink-soft);
+}
+
+/* ----------------------------------------------------- the big instrument */
+
+.instrument {
+  font-size: clamp(120px, 19vw, 230px);
+  line-height: 0.95;
+  font-weight: 550;
+  letter-spacing: -0.05em;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.instrument-label {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gray-meta);
+}
+
+/* -------------------------------------------------------- brand surfaces */
+
+.brand-surface {
+  position: fixed;
+  inset: 0;
+  background: var(--brand-black);
+  color: var(--brand-white);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  z-index: 50;
+}
+
+.brand-glow {
+  position: absolute;
+  width: 560px;
+  height: 560px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 42% 50%,
+    rgba(255, 255, 255, 0.95) 0%,
+    rgba(123, 107, 255, 0.55) 34%,
+    rgba(123, 107, 255, 0.14) 58%,
+    transparent 75%
+  );
+  filter: blur(46px);
+  mix-blend-mode: screen;
+  animation: breathe 5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.brand-wordmark {
+  font-size: 30px;
+  font-weight: 500;
+  letter-spacing: 0.52em;
+  text-indent: 0.52em;
+  color: #fff;
+}
+
+.brand-tagline {
+  margin-top: 26px;
+  font-size: 17px;
+  color: rgba(245, 244, 255, 0.72);
+  text-align: center;
+  line-height: 1.6;
+}
+
+.brand-enter {
+  margin-top: 44px;
+  padding: 13px 26px;
+  border-radius: var(--r-pill);
+  background: #fff;
+  color: var(--brand-black);
+  font-size: 14px;
+  font-weight: 550;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: transform var(--t-fast);
+}
+
+.brand-enter:hover {
+  transform: translateY(-1px);
+}
+
+.brand-foot {
+  position: absolute;
+  bottom: 28px;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: rgba(245, 244, 255, 0.4);
+}
+
+/* ------------------------------------------------------------- sections */
+
+.section-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gray-meta);
+  margin-bottom: 14px;
+}
+
+.rule {
+  height: 1px;
+  background: var(--hairline);
+  border: none;
+}
+
+/* -------------------------------------------------------------- lenses */
+
+.lens-row {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  padding: 15px 0;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.lens-score {
+  font-size: 22px;
+  font-weight: 550;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  width: 42px;
+  flex: none;
+  text-align: right;
+}
+
+.lens-name {
+  font-size: 14.5px;
+  font-weight: 550;
+  color: var(--ink);
+  width: 240px;
+  flex: none;
+}
+
+.lens-note {
+  font-size: 13.5px;
+  color: var(--gray-meta);
+  flex: 1;
+  min-width: 0;
+}
+
+/* -------------------------------------------------------------- issues */
+
+.issue-state {
+  font-size: 10px;
+  font-weight: 650;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--hairline);
+  background: var(--card-solid);
+  flex: none;
+}
+
+.issue-state.new { color: var(--ink-soft); }
+.issue-state.recurring { color: var(--warn); }
+.issue-state.regressed { color: var(--bad); }
+.issue-state.healed { color: var(--ok); }
+
+/* -------------------------------------------------------------- slider */
+
+.ba-frame {
+  position: relative;
+  border-radius: var(--r-card);
+  overflow: hidden;
+  border: 1px solid var(--hairline);
+  box-shadow: var(--shadow-float);
+  user-select: none;
+  touch-action: none;
+}
+
+.ba-after {
+  position: absolute;
+  inset: 0;
+}
+
+.ba-divider {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--ink);
+  cursor: ew-resize;
+}
+
+.ba-handle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--ink);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  letter-spacing: -0.06em;
+}
+
+.ba-tag {
+  position: absolute;
+  top: 14px;
+  font-size: 10px;
+  font-weight: 650;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  padding: 4px 9px;
+  border-radius: var(--r-pill);
+  background: rgba(255, 255, 255, 0.85);
+  color: var(--gray-meta);
+  backdrop-filter: blur(4px);
+}
+
+/* ------------------------------------------------------ monitor sparkline */
+
+.uptime-cell {
+  flex: 1;
+  height: 26px;
+  border-radius: 4px;
+  background: rgba(61, 122, 78, 0.35);
+}
+
+.uptime-cell.down {
+  background: rgba(160, 70, 56, 0.5);
+}
+
+/* ---------------------------------------------------------------- inbox */
+
+.inbox-item {
+  display: flex;
+  gap: 14px;
+  padding: 17px 0;
+  border-bottom: 1px solid var(--hairline);
+  align-items: baseline;
+}
+
+.inbox-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--pulse);
+  flex: none;
+  transform: translateY(-2px);
+}
+
+.inbox-dot.read {
+  background: var(--gray-faint);
+}
+
+/* --------------------------------------------------------------- promote */
+
+.tier-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+
+.toggle {
+  display: inline-flex;
+  background: rgba(20, 18, 16, 0.05);
+  border-radius: var(--r-pill);
+  padding: 3px;
+}
+
+.toggle button {
+  padding: 7px 16px;
+  border-radius: var(--r-pill);
+  font-size: 13px;
+  font-weight: 550;
+  color: var(--gray-meta);
+  transition: color var(--t-fast), background var(--t-fast);
+}
+
+.toggle button.is-active {
+  background: var(--card-solid);
+  color: var(--ink);
+  box-shadow: var(--shadow-pill);
+}
+
+/* ----------------------------------------------------------------- misc */
+
+.mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12.5px;
+}
+
+.fade-in {
+  animation: fadein 300ms ease-out both;
+}
+
+@keyframes fadein {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.reveal-stagger > * {
+  animation: fadein 300ms ease-out both;
+}
+
+.canvas::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
