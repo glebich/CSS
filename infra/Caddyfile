@@ -1,0 +1,14 @@
+# The edge. The apex serves the product; every resident lives at its
+# own address under the wildcard. TLS via the tunnel or DNS challenge,
+# depending on how the box reaches the world.
+osyle.app {
+	reverse_proxy api:8787
+}
+
+api.osyle.app {
+	reverse_proxy api:8787
+}
+
+*.osyle.app {
+	reverse_proxy api:8787
+}

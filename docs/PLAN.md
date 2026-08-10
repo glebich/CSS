@@ -228,7 +228,19 @@ accepting heals on the spot or hands over the Fix Prompt; when all is
 decided, one door returns to rest. Findings replaced Issues in the
 product nav; the lifecycle view remains one door deeper.
 
-### Increment B. Stage 2, backend foundation
+### Increment B. Stage 2, backend foundation. DELIVERED
+
+Delivered as specified below, with one honest deviation: the storage
+drivers shipped are node:sqlite and the filesystem behind the swap
+interfaces, because this build environment cannot run containers; the
+compose stack provisions Postgres, Redis, and MinIO, whose drivers land
+in Real Mode hardening at the two marked swap points. The SDK became a
+workspace package with local and http transports and the app now
+consumes it; 25 api checks run without sockets via inject, covering
+auth, residents, vault versions and restore, the resident database
+straight and through the SDK's http transport, and cross-user
+isolation. Foundation debt, scheduled: session expiry, per-resident rdb
+keys, Redis-backed queues, the mailer.
 
 Goal (spec §13): the five-container stack up, auth, residents, Vault with
 versions, health. Nothing user-visible changes except Real Mode existing.

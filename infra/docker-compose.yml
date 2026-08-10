@@ -1,0 +1,78 @@
+# The five-container stack on one box. Caddy at the edge with the
+# wildcard, the api monolith, the queue worker, Postgres with Redis,
+# and MinIO for bytes. The api ships today on its sqlite and
+# filesystem drivers against the data volume; Postgres and MinIO are
+# provisioned here and take over when their drivers land in Real Mode
+# hardening (the swap points are api/src/db.ts and api/src/blobs.ts).
+services:
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+    depends_on:
+      - api
+
+  api:
+    build:
+      context: ..
+      dockerfile: infra/api.Dockerfile
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: "8787"
+      OSYLE_DATA: /data
+      OSYLE_APP_ORIGIN: https://osyle.app
+    volumes:
+      - osyle_data:/data
+    expose:
+      - "8787"
+
+  worker:
+    build:
+      context: ..
+      dockerfile: infra/api.Dockerfile
+    restart: unless-stopped
+    command: ["node", "dist/worker.js"]
+    environment:
+      NODE_ENV: production
+      OSYLE_DATA: /data
+    volumes:
+      - osyle_data:/data
+
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: osyle
+      POSTGRES_USER: osyle
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set in .env}
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+
+  minio:
+    image: minio/minio:latest
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: osyle
+      MINIO_ROOT_PASSWORD: ${MINIO_PASSWORD:?set in .env}
+    volumes:
+      - minio_data:/data
+
+volumes:
+  caddy_data:
+  osyle_data:
+  pg_data:
+  redis_data:
+  minio_data:
