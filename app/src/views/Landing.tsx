@@ -16,7 +16,13 @@ export function Landing() {
   const { go, resetDemo } = useStore();
   const [sheetOpen, setSheetOpen] = useState(false);
   const [realMode, setRealMode] = useState(
-    () => localStorage.getItem("osyle.realMode") === "true",
+    () => {
+      try {
+        return localStorage.getItem("osyle.realMode") === "true";
+      } catch {
+        return false;
+      }
+    },
   );
   const [anthropicKey, setAnthropicKey] = useState("");
   const [geminiKey, setGeminiKey] = useState("");
@@ -81,7 +87,11 @@ export function Landing() {
               checked={realMode}
               onChange={(e) => {
                 setRealMode(e.target.checked);
-                localStorage.setItem("osyle.realMode", String(e.target.checked));
+                try {
+                  localStorage.setItem("osyle.realMode", String(e.target.checked));
+                } catch {
+                  /* the toggle still flips for this session */
+                }
               }}
             />
             Real Mode

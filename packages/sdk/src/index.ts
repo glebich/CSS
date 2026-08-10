@@ -84,8 +84,13 @@ function makeLocal(resident: string): OsyleClient {
       return fallback;
     }
   };
-  const save = (key: string, value: unknown) =>
-    localStorage.setItem(key, JSON.stringify(value));
+  const save = (key: string, value: unknown) => {
+    try {
+      localStorage.setItem(key, JSON.stringify(value));
+    } catch {
+      /* storage-restricted contexts still get a working session */
+    }
+  };
 
   return {
     rows(table: string) {
@@ -112,7 +117,13 @@ function makeLocal(resident: string): OsyleClient {
         return user;
       },
       user: () => load<SdkUser | null>(bucket("auth.user"), null),
-      signOut: () => localStorage.removeItem(bucket("auth.user")),
+      signOut: () => {
+        try {
+          localStorage.removeItem(bucket("auth.user"));
+        } catch {
+          /* nothing to forget */
+        }
+      },
     },
     kv: {
       get: <T,>(k: string, fallback: T) => load<T>(bucket(`kv.${k}`), fallback),

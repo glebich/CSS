@@ -83,7 +83,7 @@ export interface LedgerEntry {
 export function appendLedger(kind: string, detail: Record<string, unknown>): void {
   const entries = loadJson<LedgerEntry[]>(LEDGER_KEY, []);
   entries.push({ at: new Date().toISOString(), kind, detail });
-  localStorage.setItem(LEDGER_KEY, JSON.stringify(entries));
+  saveJson(LEDGER_KEY, entries);
 }
 
 export function readLedger(): LedgerEntry[] {
@@ -94,6 +94,23 @@ export function readLedger(): LedgerEntry[] {
 const RETURN_AFTER_MS = 4 * 60 * 60 * 1000;
 
 export const sdk = createClient(resident.slug);
+
+/** Storage that cannot crash the product: private mode, sandboxes, all of it. */
+function saveJson(key: string, value: unknown): void {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch {
+    /* the session still works, it just forgets */
+  }
+}
+
+function dropKeys(keys: string[]): void {
+  try {
+    keys.forEach((k) => localStorage.removeItem(k));
+  } catch {
+    /* nothing to forget */
+  }
+}
 
 function loadJson<T>(key: string, fallback: T): T {
   try {
@@ -211,10 +228,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    localStorage.setItem(COMFORT_KEY, JSON.stringify(comfort));
+    saveJson(COMFORT_KEY, comfort);
   }, [comfort]);
   useEffect(() => {
-    localStorage.setItem(CAPTION_KEY, JSON.stringify(feelingCaption));
+    saveJson(CAPTION_KEY, feelingCaption);
   }, [feelingCaption]);
   /* An accepted healable finding is healed, even if the tab closed
      before the heal animation landed. Decisions are the truth. */
@@ -245,7 +262,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   /* Keep the away-clock honest: stamp on load, on leave, and every
      minute while open, so even a killed browser leaves a true clock. */
   useEffect(() => {
-    const stamp = () => localStorage.setItem(LAST_SEEN_KEY, JSON.stringify(Date.now()));
+    const stamp = () => saveJson(LAST_SEEN_KEY, Date.now());
     stamp();
     const interval = window.setInterval(stamp, 60_000);
     window.addEventListener("beforeunload", stamp);
@@ -256,23 +273,23 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    localStorage.setItem(SEEN_KEY, JSON.stringify([...seenTips]));
+    saveJson(SEEN_KEY, [...seenTips]);
   }, [seenTips]);
 
   useEffect(() => {
-    localStorage.setItem(HEALED_KEY, JSON.stringify([...healed]));
+    saveJson(HEALED_KEY, [...healed]);
   }, [healed]);
   useEffect(() => {
-    localStorage.setItem(ACCEPT_KEY, JSON.stringify(transformAccepted));
+    saveJson(ACCEPT_KEY, transformAccepted);
   }, [transformAccepted]);
   useEffect(() => {
-    localStorage.setItem(STYLE_KEY, JSON.stringify(styleId));
+    saveJson(STYLE_KEY, styleId);
   }, [styleId]);
   useEffect(() => {
-    localStorage.setItem(MOOD_KEY, JSON.stringify(mood));
+    saveJson(MOOD_KEY, mood);
   }, [mood]);
   useEffect(() => {
-    localStorage.setItem(PERSONA_KEY, JSON.stringify(personaId));
+    saveJson(PERSONA_KEY, personaId);
   }, [personaId]);
 
   const switchTab = useCallback((id: string) => {
@@ -329,7 +346,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const goHomeFromLaunch = useCallback(() => {
-    localStorage.setItem(LAUNCHED_KEY, JSON.stringify(true));
+    saveJson(LAUNCHED_KEY, true);
     setJustLaunched(true);
     setPanel("none");
     setView("home");
@@ -340,7 +357,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const dismissReturn = useCallback(() => setReturned(false), []);
 
   useEffect(() => {
-    localStorage.setItem(DECISIONS_KEY, JSON.stringify(decisions));
+    saveJson(DECISIONS_KEY, decisions);
   }, [decisions]);
 
   /**
@@ -484,7 +501,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   }, [record, styleId, mood]);
 
   const resetDemo = useCallback(() => {
-    [
+    dropKeys([
       HEALED_KEY,
       ACCEPT_KEY,
       STYLE_KEY,
@@ -497,7 +514,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       LEDGER_KEY,
       COMFORT_KEY,
       CAPTION_KEY,
-    ].forEach((k) => localStorage.removeItem(k));
+    ]);
     setDecisions({});
     setComfort(false);
     setFeelingCaption(null);
