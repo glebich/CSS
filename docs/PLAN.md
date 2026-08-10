@@ -208,12 +208,15 @@ style surfaces of 6 ahead of schedule. The order below follows the spec's
 §14 with stage 2 next, exactly as requested: one stage per increment,
 each landing with tests, runtime verification, and the Definition of Done.
 
-### Increment A. UX return-loop fixes, P0 set (pre-backend)
+### Increment A. UX return-loop fixes, P0 set (pre-backend). DELIVERED
 
-Fixes 1, 2, 3, 6, 7, 11, 12, 14 above plus committed Playwright tests of
-the full flow. Pure frontend, no backend dependency, makes every later
-stage demo better. Effort: 2 to 3 days equivalent.
-Files: `app/src/router.tsx` (new), edits across views, `app/tests/flow.spec.ts`.
+Delivered fixes 2, 3, 6, 7, 8, 9, 11, 12, 14, 15, 19 plus a committed
+journey test (`app/tests/flow.test.mjs`, `npm test`, 13 assertions) and
+one unplanned find: after launch the app reopens at Home, not the
+landing page, which the return moment depends on. Fix 1 (real URLs) was
+dropped by decision: desktop web first, the browser owns history.
+Remaining from the list: 5 (responsive floor), 10, 13, 16 to 18, 20,
+scheduled with their stages.
 
 ### Increment B. Stage 2, backend foundation
 

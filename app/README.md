@@ -12,7 +12,21 @@ describes it.
 npm install
 npm run dev      # http://localhost:5173
 npm run build    # typecheck + production build
+npm test         # walks the whole journey in Chromium, asserts each step
 ```
+
+## The journey
+
+Setup runs on a visible breadcrumb: Place (a real dropzone), Materials
+(the gradient reads, then every file shows what was understood), Style,
+Launch (review, then the earned Vitality reveal). After launch the app
+always opens at Home, never the brochure. Home's one CTA always names
+the next step: heal with a receipt, see what changed, send the fix
+prompt, or the honest rest state, nothing needs you. Coming back after
+hours opens with Since you left, one card, one door. First-run
+explainers appear once each and never again. The tab title carries the
+resident's name, number, and unread count. No screen ends without a
+door.
 
 ## What is in this build
 

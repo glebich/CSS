@@ -3,7 +3,7 @@ import { Page, Sparkle } from "../components/chrome";
 
 /** The Inbox: the one quiet stream. Everything arrives as human sentences. */
 export function Inbox() {
-  const { inbox, markRead } = useStore();
+  const { inbox, markRead, go } = useStore();
   const unread = inbox.filter((e) => !e.read);
 
   return (
@@ -37,8 +37,8 @@ export function Inbox() {
         ))}
       </div>
 
-      {unread.length > 0 && (
-        <div style={{ display: "flex", justifyContent: "center", marginTop: 34 }}>
+      <div style={{ display: "flex", justifyContent: "center", marginTop: 34 }}>
+        {unread.length > 0 ? (
           <button
             className="pill pill-dark"
             onClick={() => unread.forEach((e) => markRead(e.id))}
@@ -46,8 +46,13 @@ export function Inbox() {
             Mark all read
             <Sparkle size={13} />
           </button>
-        </div>
-      )}
+        ) : (
+          <button className="pill pill-dark" onClick={() => go("home")}>
+            All caught up. Back to the work
+            <Sparkle size={13} />
+          </button>
+        )}
+      </div>
     </Page>
   );
 }

@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { StoreProvider, useStore } from "./store";
 import { BottomBar, Icon, TopBar } from "./components/chrome";
 import { MoodPanel, PersonasPanel, RunOverlay } from "./components/panels";
@@ -56,8 +57,22 @@ function Screen() {
   }
 }
 
+/** The browser tab is the quietest monitor: name, number, unread. */
+function useLiveTitle() {
+  const { view, vitality, inbox } = useStore();
+  useEffect(() => {
+    if (view === "landing" || FLOW_VIEWS.has(view)) {
+      document.title = "Osyle";
+      return;
+    }
+    const unread = inbox.filter((e) => !e.read).length;
+    document.title = `Osyle, SkyRecall ${vitality}${unread > 0 ? `, ${unread} new` : ""}`;
+  }, [view, vitality, inbox]);
+}
+
 function Shell() {
   const { view, panel, togglePanel } = useStore();
+  useLiveTitle();
   if (view === "landing") return <Landing />;
   const inFlow = FLOW_VIEWS.has(view);
   const inResident = !inFlow;

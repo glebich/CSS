@@ -275,6 +275,61 @@ export function BottomBar() {
   );
 }
 
+const FLOW_STEPS: Array<{ view: View; label: string }> = [
+  { view: "place", label: "Place" },
+  { view: "assets", label: "Materials" },
+  { view: "style", label: "Style" },
+  { view: "launch", label: "Launch" },
+];
+
+/**
+ * The journey breadcrumb: four quiet steps across the setup flow, so it
+ * is always visible where you are and what remains. Steps already passed
+ * are doors back; steps ahead wait their turn.
+ */
+export function FlowSteps({ current, top }: { current: View; top?: number }) {
+  const { go } = useStore();
+  const idx = FLOW_STEPS.findIndex((s) => s.view === current);
+  return (
+    <div className="flow-steps" style={top !== undefined ? { top } : undefined}>
+      {FLOW_STEPS.map((step, i) => (
+        <button
+          key={step.view}
+          className={`flow-step${i === idx ? " is-current" : ""}${i < idx ? " is-done" : ""}`}
+          onClick={() => i < idx && go(step.view)}
+          disabled={i >= idx && i !== idx}
+        >
+          {i < idx ? (
+            <svg width="9" height="8" viewBox="0 0 11 9" fill="none" aria-hidden>
+              <path d="M1 4.5 4 7.5 10 1" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          ) : (
+            <span className="flow-step-n">{i + 1}</span>
+          )}
+          {step.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+/**
+ * A first-run explainer: one sentence, shown once, dismissed forever.
+ * The product explains itself exactly one time, then trusts you.
+ */
+export function Tip({ id, children }: { id: string; children: ReactNode }) {
+  const { seenTips, markTipSeen } = useStore();
+  if (seenTips.has(id)) return null;
+  return (
+    <div className="tip fade-in">
+      <span>{children}</span>
+      <button className="tip-got" onClick={() => markTipSeen(id)}>
+        Got it
+      </button>
+    </div>
+  );
+}
+
 /** A working-canvas page: paper, centered column. */
 export function Page({
   children,

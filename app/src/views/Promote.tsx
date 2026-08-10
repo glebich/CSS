@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { sdk } from "../store";
+import { sdk, useStore } from "../store";
 import { Page, Sparkle } from "../components/chrome";
 import { audienceSummary, promoteTiers } from "../data/seed";
 
@@ -9,6 +9,7 @@ import { audienceSummary, promoteTiers } from "../data/seed";
  * Opening soon sheet with a waitlist. No price appears anywhere.
  */
 export function Promote() {
+  const { go } = useStore();
   const [mode, setMode] = useState<"views" | "leads">("views");
   const [email, setEmail] = useState("");
   const [joined, setJoined] = useState(false);
@@ -69,7 +70,12 @@ export function Promote() {
           Leave your address and you will hear the day it does.
         </p>
         {joined ? (
-          <p style={{ marginTop: 18, fontWeight: 550 }}>You are on the list.</p>
+          <div style={{ marginTop: 18, display: "flex", flexDirection: "column", alignItems: "center", gap: 14 }}>
+            <p style={{ fontWeight: 510 }}>You are on the list.</p>
+            <button className="pill" onClick={() => go("home")}>
+              Back to the work
+            </button>
+          </div>
         ) : (
           <div style={{ display: "flex", gap: 10, justifyContent: "center", marginTop: 18 }}>
             <div className="ask-pill" style={{ minWidth: 260, boxShadow: "var(--shadow-pill)" }}>

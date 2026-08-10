@@ -1,6 +1,11 @@
 import { personas, styleCatalog } from "../data/seed";
 import { type Device, type Mood } from "../store";
 
+/** Rectangular preview surfaces render the mobile composition, not watch. */
+export function previewDevice(device: Device): Device {
+  return device === "watch" ? "mobile" : device;
+}
+
 /**
  * A deterministic render of SkyRecall. The "before" is the imported app,
  * cluttered and low-contrast. The "live" render listens to everything the

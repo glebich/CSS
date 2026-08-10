@@ -1,5 +1,6 @@
+import { useRef, useState } from "react";
 import { useStore } from "../store";
-import { Icon, Sparkle } from "../components/chrome";
+import { FlowSteps, Icon, Sparkle } from "../components/chrome";
 
 /**
  * The place state, matched to the Osyle_N frame: the statement with its
@@ -26,8 +27,35 @@ const PILLS: Array<{
 
 export function Place() {
   const { beginUpload } = useStore();
+  const [dragging, setDragging] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+  const depth = useRef(0);
+
+  function onDrop(e: React.DragEvent) {
+    e.preventDefault();
+    depth.current = 0;
+    setDragging(false);
+    const name = e.dataTransfer.files?.[0]?.name;
+    beginUpload(name);
+  }
+
   return (
-    <main className="canvas" style={{ position: "relative", overflow: "hidden" }}>
+    <main
+      className={`canvas${dragging ? " is-dragging" : ""}`}
+      style={{ position: "relative", overflow: "hidden" }}
+      onDragEnter={(e) => {
+        e.preventDefault();
+        depth.current += 1;
+        setDragging(true);
+      }}
+      onDragOver={(e) => e.preventDefault()}
+      onDragLeave={() => {
+        depth.current -= 1;
+        if (depth.current <= 0) setDragging(false);
+      }}
+      onDrop={onDrop}
+    >
+      <FlowSteps current="place" />
       {PILLS.map((p, i) => (
         <span
           key={`${p.label}-${i}`}
@@ -50,11 +78,21 @@ export function Place() {
         }}
       >
         <h1 className="statement statement-center">
-          Place
-          <br />
-          something
-          <br />
-          <span className="quiet">here</span>
+          {dragging ? (
+            <>
+              Let
+              <br />
+              <span className="quiet">go</span>
+            </>
+          ) : (
+            <>
+              Place
+              <br />
+              something
+              <br />
+              <span className="quiet">here</span>
+            </>
+          )}
         </h1>
       </div>
       <div
@@ -69,16 +107,27 @@ export function Place() {
           zIndex: 2,
         }}
       >
-        <span className="circle" style={{ width: 48, height: 48 }} aria-hidden>
+        <input
+          ref={fileRef}
+          type="file"
+          style={{ display: "none" }}
+          onChange={(e) => beginUpload(e.target.files?.[0]?.name)}
+        />
+        <button
+          className="circle"
+          style={{ width: 48, height: 48 }}
+          onClick={() => fileRef.current?.click()}
+          aria-label="Choose a file"
+        >
           <Icon name="plus" size={18} />
-        </span>
+        </button>
         <div className="ask-pill" style={{ minWidth: 340 }}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" aria-hidden>
             <path d="M12 21a9 9 0 1 0-9-9c0 1.8.5 3.4 1.4 4.8L3 21l4.4-1.2A9 9 0 0 0 12 21Z" />
           </svg>
           <input placeholder="type interested links" readOnly />
         </div>
-        <button className="pill pill-dark" onClick={beginUpload}>
+        <button className="pill pill-dark" onClick={() => beginUpload()}>
           Drop the SkyRecall materials
           <Sparkle size={13} />
         </button>

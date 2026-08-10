@@ -1,5 +1,5 @@
 import { useStore } from "../store";
-import { Page, Sparkle } from "../components/chrome";
+import { FlowSteps, Page, Sparkle } from "../components/chrome";
 import { launchReview, personas, styleCatalog } from "../data/seed";
 
 function moodWords(energy: number, style: number, tone: number): string {
@@ -11,29 +11,15 @@ function moodWords(energy: number, style: number, tone: number): string {
 
 /** Ready to launch: everything chosen, reviewed in one card, one action. */
 export function Launch() {
-  const { go, mood, personaId, styleId, device } = useStore();
+  const { goHomeFromLaunch, mood, personaId, styleId, device } = useStore();
   const persona = personas.find((p) => p.id === personaId) ?? personas[0];
   const style = styleCatalog.find((s) => s.id === styleId) ?? styleCatalog[0];
 
   return (
     <Page>
-      <div style={{ position: "relative", height: 30, marginBottom: 8 }}>
-        <span className="steps">
-          <span className="step-dot">
-            <svg width="11" height="9" viewBox="0 0 11 9" fill="none" aria-hidden>
-              <path d="M1 4.5 4 7.5 10 1" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </span>
-          <span className="step-dot">
-            <svg width="11" height="9" viewBox="0 0 11 9" fill="none" aria-hidden>
-              <path d="M1 4.5 4 7.5 10 1" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </span>
-          <span className="step-dot is-current">3</span>
-        </span>
-      </div>
+      <FlowSteps current="launch" />
 
-      <div style={{ textAlign: "center", marginBottom: 34 }}>
+      <div style={{ textAlign: "center", marginBottom: 34, marginTop: 20 }}>
         <h1 className="statement" style={{ fontSize: "clamp(48px, 5.5vw, 80px)" }}>
           Ready to launch
         </h1>
@@ -91,7 +77,7 @@ export function Launch() {
       </div>
 
       <div style={{ display: "flex", justifyContent: "center", marginTop: 36 }}>
-        <button className="pill pill-dark" onClick={() => go("home")}>
+        <button className="pill pill-dark" onClick={goHomeFromLaunch}>
           <Sparkle size={13} />
           Create the concept
           <Sparkle size={13} />

@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { useStore } from "../store";
 import { Page, Sparkle } from "../components/chrome";
-import { MiniApp } from "../components/MiniApp";
+import { MiniApp, previewDevice } from "../components/MiniApp";
 
 /**
  * The before-and-after slider, one of the signature interactions.
@@ -50,7 +50,7 @@ export function Transform() {
             styleId={styleId}
             mood={mood}
             personaId={personaId}
-            device={device === "watch" ? "mobile" : device}
+            device={previewDevice(device)}
           />
         </div>
         <span className="ba-tag" style={{ left: 14 }}>

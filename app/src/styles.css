@@ -1485,35 +1485,6 @@ input {
   margin-top: 10px;
 }
 
-.steps {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.step-dot {
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  background: var(--card-solid);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--gray-secondary);
-  font-size: 12px;
-  font-weight: 510;
-}
-
-.step-dot.is-current {
-  background: var(--ink-strong);
-  color: #fff;
-  border-radius: 9px;
-  width: 30px;
-}
-
 /* --------------------------------------------------------- run mode */
 
 .run-overlay {
@@ -1662,6 +1633,136 @@ input {
 .suggest-chip:hover {
   color: var(--ink);
   transform: translateY(-1px);
+}
+
+/* ------------------------------------------------- journey clarity */
+
+.flow-steps {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 24;
+  display: inline-flex;
+  gap: 5px;
+  padding: 5px;
+  border-radius: 30px;
+  background: rgba(243, 241, 239, 0.72);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow: var(--shadow-pill);
+}
+
+.flow-step {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 34px;
+  padding: 0 14px;
+  border-radius: 20px;
+  font-size: 12.5px;
+  font-weight: 510;
+  letter-spacing: 0.01em;
+  color: var(--gray-tertiary);
+  cursor: default;
+}
+
+.flow-step.is-done {
+  color: var(--gray-secondary);
+  cursor: pointer;
+}
+
+.flow-step.is-done:hover {
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.flow-step.is-current {
+  background: var(--ink-strong);
+  color: #fff;
+}
+
+.flow-step-n {
+  font-size: 10.5px;
+  opacity: 0.7;
+}
+
+.tip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 12px;
+  max-width: 460px;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--gray-small);
+}
+
+.tip-got {
+  font-size: 12px;
+  font-weight: 510;
+  color: var(--ink);
+  border-bottom: 1px solid currentColor;
+  flex: none;
+}
+
+/* The return moment: the resident's story since you left */
+.since-card {
+  max-width: 560px;
+  margin: 0 auto 34px;
+  padding: 26px 30px;
+  text-align: left;
+}
+
+.since-label {
+  font-size: 11px;
+  font-weight: 510;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gray-small);
+}
+
+/* The dropzone lift: the canvas answers the hand */
+.canvas.is-dragging {
+  background-color: #efeaf7;
+  transition: background-color var(--t-slow);
+}
+
+@keyframes swell {
+  0%, 100% { transform: scale(1); }
+  40% { transform: scale(1.5); }
+}
+
+.pulse-dot.swell {
+  animation: swell 700ms ease-out 1, breathe 3.2s ease-in-out 700ms infinite;
+}
+
+/* The heal receipt: what one tap will touch */
+.receipt {
+  margin-top: 14px;
+  text-align: left;
+  max-width: 420px;
+}
+
+.receipt-row {
+  display: flex;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--hairline);
+  font-size: 13px;
+  color: var(--gray-secondary);
+  align-items: baseline;
+}
+
+.receipt-row:last-child {
+  border-bottom: none;
+}
+
+/* small live render inside floating panels */
+.panel-thumb {
+  margin-top: 12px;
+  border-radius: 14px;
+  overflow: hidden;
+  height: 150px;
+  box-shadow: var(--shadow-card);
 }
 
 /* ----------------------------------------------------------------- misc */

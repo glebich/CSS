@@ -4,7 +4,7 @@ import { lenses, repairs } from "../data/seed";
 
 /** The Reveal: every repair carries its why. */
 export function Reveal() {
-  const { go, transformAccepted } = useStore();
+  const { go, transformAccepted, heal, healableOpen } = useStore();
 
   return (
     <Page>
@@ -36,11 +36,23 @@ export function Reveal() {
         ))}
       </div>
 
-      <div style={{ display: "flex", justifyContent: "center", marginTop: 36 }}>
-        <button className="pill pill-dark" onClick={() => go("home")}>
-          Back to the surface
-          <Sparkle size={13} />
-        </button>
+      <div style={{ display: "flex", justifyContent: "center", gap: 12, marginTop: 36 }}>
+        {healableOpen.length > 0 ? (
+          <>
+            <button className="pill" onClick={() => go("issues")}>
+              See the issues&apos; lives
+            </button>
+            <button className="pill pill-dark" onClick={() => { heal(); go("home"); }}>
+              Heal these now
+              <Sparkle size={13} />
+            </button>
+          </>
+        ) : (
+          <button className="pill pill-dark" onClick={() => go("issues")}>
+            See the issues&apos; lives
+            <Sparkle size={13} />
+          </button>
+        )}
       </div>
     </Page>
   );

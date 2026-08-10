@@ -1,5 +1,5 @@
 import { useStore } from "../store";
-import { Sparkle } from "../components/chrome";
+import { FlowSteps, Sparkle } from "../components/chrome";
 import { materials, type Material } from "../data/seed";
 
 function FileVisual({ m, understood }: { m: Material; understood: boolean }) {
@@ -108,12 +108,29 @@ function FileVisual({ m, understood }: { m: Material; understood: boolean }) {
  * shows what was understood, so trust needs no explaining.
  */
 export function Assets() {
-  const { uploadPhase, go } = useStore();
+  const { uploadPhase, go, droppedName } = useStore();
   const reading = uploadPhase === "reading";
   const understood = uploadPhase === "understood";
 
   return (
     <main className="canvas canvas-dotted" style={{ position: "relative" }}>
+      <FlowSteps current="assets" />
+      {droppedName && (
+        <p
+          className="fade-in"
+          style={{
+            textAlign: "center",
+            marginTop: 64,
+            marginBottom: -60,
+            fontSize: 13,
+            color: "var(--gray-small)",
+          }}
+        >
+          {reading
+            ? `${droppedName} noted. Real Mode will read it. Meanwhile, meet SkyRecall, the seeded resident.`
+            : `${droppedName} is waiting for Real Mode. SkyRecall is ready now.`}
+        </p>
+      )}
       <div
         style={{
           display: "flex",

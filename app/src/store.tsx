@@ -58,6 +58,12 @@ const ACCEPT_KEY = "osyle.demo.transformAccepted";
 const STYLE_KEY = "osyle.demo.style";
 const MOOD_KEY = "osyle.demo.mood";
 const PERSONA_KEY = "osyle.demo.persona";
+const SEEN_KEY = "osyle.demo.seenTips";
+const LAST_SEEN_KEY = "osyle.demo.lastSeen";
+const LAUNCHED_KEY = "osyle.demo.launched";
+
+/** Away long enough that the resident has a story to tell. */
+const RETURN_AFTER_MS = 4 * 60 * 60 * 1000;
 
 export const sdk = createClient(resident.slug);
 
@@ -88,7 +94,18 @@ interface Store {
   closeTab: (id: string) => void;
   /* the upload flow */
   uploadPhase: "idle" | "reading" | "understood";
-  beginUpload: () => void;
+  beginUpload: (droppedName?: string) => void;
+  droppedName: string | null;
+  /* journey clarity */
+  seenTips: Set<string>;
+  markTipSeen: (tip: string) => void;
+  /** set when arriving from Launch so Home can perform the reveal once */
+  justLaunched: boolean;
+  clearLaunchArrival: () => void;
+  goHomeFromLaunch: () => void;
+  /** true when the user has been away long enough for a story */
+  returned: boolean;
+  dismissReturn: () => void;
   /* style, mood, persona, device */
   styleId: string;
   setStyleId: (id: string) => void;
@@ -126,7 +143,10 @@ export function useStore(): Store {
 const DEMO_TAB: Tab = { id: "tab-skyrecall", name: "SkyRecall", isDemo: true };
 
 export function StoreProvider({ children }: { children: ReactNode }) {
-  const [view, setView] = useState<View>("landing");
+  /* Coming back opens the resident, not the brochure. */
+  const [view, setView] = useState<View>(() =>
+    loadJson<boolean>(LAUNCHED_KEY, false) ? "home" : "landing",
+  );
   const [tabs, setTabs] = useState<Tab[]>([DEMO_TAB]);
   const [activeTab, setActiveTab] = useState(DEMO_TAB.id);
   const [uploadPhase, setUploadPhase] = useState<"idle" | "reading" | "understood">("idle");
@@ -146,6 +166,32 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   );
   const [extraInbox, setExtraInbox] = useState<InboxEntry[]>([]);
   const [readIds, setReadIds] = useState<Set<string>>(new Set());
+  const [droppedName, setDroppedName] = useState<string | null>(null);
+  const [seenTips, setSeenTips] = useState<Set<string>>(
+    () => new Set(loadJson<string[]>(SEEN_KEY, [])),
+  );
+  const [justLaunched, setJustLaunched] = useState(false);
+  const [returned, setReturned] = useState(() => {
+    const last = loadJson<number>(LAST_SEEN_KEY, 0);
+    return last > 0 && Date.now() - last > RETURN_AFTER_MS;
+  });
+
+  /* Keep the away-clock honest: stamp on load, on leave, and every
+     minute while open, so even a killed browser leaves a true clock. */
+  useEffect(() => {
+    const stamp = () => localStorage.setItem(LAST_SEEN_KEY, JSON.stringify(Date.now()));
+    stamp();
+    const interval = window.setInterval(stamp, 60_000);
+    window.addEventListener("beforeunload", stamp);
+    return () => {
+      window.clearInterval(interval);
+      window.removeEventListener("beforeunload", stamp);
+    };
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem(SEEN_KEY, JSON.stringify([...seenTips]));
+  }, [seenTips]);
 
   useEffect(() => {
     localStorage.setItem(HEALED_KEY, JSON.stringify([...healed]));
@@ -202,11 +248,27 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   );
 
   /** The gradient sweeps while the system reads, then everything is understood. */
-  const beginUpload = useCallback(() => {
+  const beginUpload = useCallback((dropped?: string) => {
+    setDroppedName(dropped ?? null);
     setView("assets");
     setUploadPhase("reading");
     window.setTimeout(() => setUploadPhase("understood"), 3400);
   }, []);
+
+  const markTipSeen = useCallback((tip: string) => {
+    setSeenTips((prev) => new Set([...prev, tip]));
+  }, []);
+
+  const goHomeFromLaunch = useCallback(() => {
+    localStorage.setItem(LAUNCHED_KEY, JSON.stringify(true));
+    setJustLaunched(true);
+    setPanel("none");
+    setView("home");
+  }, []);
+
+  const clearLaunchArrival = useCallback(() => setJustLaunched(false), []);
+
+  const dismissReturn = useCallback(() => setReturned(false), []);
 
   const setStyleId = useCallback((id: string) => {
     if (styleCatalog.some((s) => s.id === id)) setStyleIdRaw(id);
@@ -296,9 +358,20 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const acceptTransform = useCallback(() => setTransformAccepted(true), []);
 
   const resetDemo = useCallback(() => {
-    [HEALED_KEY, ACCEPT_KEY, STYLE_KEY, MOOD_KEY, PERSONA_KEY].forEach((k) =>
-      localStorage.removeItem(k),
-    );
+    [
+      HEALED_KEY,
+      ACCEPT_KEY,
+      STYLE_KEY,
+      MOOD_KEY,
+      PERSONA_KEY,
+      SEEN_KEY,
+      LAST_SEEN_KEY,
+      LAUNCHED_KEY,
+    ].forEach((k) => localStorage.removeItem(k));
+    setDroppedName(null);
+    setSeenTips(new Set());
+    setJustLaunched(false);
+    setReturned(false);
     setHealed(new Set());
     setTransformAccepted(false);
     setExtraInbox([]);
@@ -327,6 +400,14 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     closeTab,
     uploadPhase,
     beginUpload,
+    droppedName,
+    seenTips,
+    markTipSeen,
+    justLaunched,
+    clearLaunchArrival,
+    goHomeFromLaunch,
+    returned,
+    dismissReturn,
     styleId,
     setStyleId,
     mood,
