@@ -60,6 +60,7 @@ check(
   await page.getByText("Safe. Designed. Usable. Tested. Evolving. Shared.").isVisible(),
 );
 check("the rail wears eight marks", (await page.locator(".works-mark").count()) === 8);
+check("the landing doors to discover", await page.getByText("See who lives here").isVisible());
 check(
   "every mark says what its integration does",
   (await page.locator(".works-mark", { hasText: "GitHub" }).getAttribute("title"))?.includes(
@@ -592,6 +593,20 @@ await page.getByText("Growth", { exact: true }).click();
 await page.waitForTimeout(300);
 check("the growth board counts real cards", await page.getByText("1 card downloaded").isVisible());
 check("the growth board counts real invites", await page.getByText("1 invite copied").isVisible());
+
+/* Discover: where residents are seen, all of it real */
+await page.goto("http://localhost:5197/#/discover");
+await page.waitForTimeout(400);
+check("discover greets who lives here", await page.getByText("Who lives here.").isVisible());
+check(
+  "the example says so on discover",
+  (await page.locator(".chip", { hasText: "Example" }).count()) === 1,
+);
+check(
+  "moved-in apps are seen on discover",
+  (await page.getByText("app-3-files.osyle.app").isVisible()) &&
+    (await page.getByText("clean.osyle.app").isVisible()),
+);
 await page.goto("http://localhost:5197/");
 await page.waitForTimeout(500);
 await page.getByText("Drop your app", { exact: false }).last().click();

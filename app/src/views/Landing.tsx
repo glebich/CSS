@@ -86,7 +86,15 @@ export function Landing() {
       <div className="brand-promises">
         Safe. Designed. Usable. Tested. Evolving. Shared.
       </div>
-      <div className="brand-foot">Where generated software lives</div>
+      <div className="brand-foot">
+        Where generated software lives
+        <a
+          href="#/discover"
+          style={{ marginLeft: 18, color: "rgba(245,244,255,0.55)", textDecoration: "underline" }}
+        >
+          See who lives here
+        </a>
+      </div>
 
       {sheetOpen && (
         <div

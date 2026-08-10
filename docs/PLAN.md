@@ -608,6 +608,17 @@ journey test asserts the three fixture files arrive. GitHub keeps
 the code; the Vault now actually keeps the life. 120 journey checks
 pass.
 
+### Increment L. Discover, where residents are seen. DELIVERED
+
+Addendum F's surface, honest to its bones: #/discover lists every
+app that took an address on this machine, name, address chip,
+Vitality, when it moved in and how many files it holds, with visit
+and Hallmark doors, and the example resident wearing its Example
+chip. The landing carries a quiet door, See who lives here. The
+network's category showcases and transformation posts are named as
+arriving with the density to fill them, on the surface itself. 124
+journey checks pass.
+
 ### Increment I. Stages 12 to 15, in spec order
 
 Ecosystem rail (per §10's logo laws), viral surfaces and audience-aware
