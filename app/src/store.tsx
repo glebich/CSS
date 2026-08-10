@@ -30,6 +30,7 @@ export type View =
   | "home"
   | "exam"
   | "findings"
+  | "report"
   | "transform"
   | "reveal"
   | "issues"

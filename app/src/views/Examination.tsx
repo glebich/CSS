@@ -56,7 +56,7 @@ export function Examination() {
                   className="lens-score"
                   style={{ color: lens.notApplicable ? "var(--gray-faint)" : scoreTint(lens.score) }}
                 >
-                  {lens.notApplicable ? "–" : lens.score}
+                  {lens.notApplicable ? "" : lens.score}
                 </span>
                 <span className="lens-name">{lens.name}</span>
                 <span className="lens-note">

@@ -449,13 +449,17 @@ export const theaterScript: TheaterLine[] = [
   { phase: "Plan", text: "Done. Six findings, each priced, each yours to decide.", delay: 1600 },
 ];
 
-/** What the prompt bar suggests, rotating, so no one faces a blank line. */
-export const promptSuggestions = [
-  "Make the first drill one tap away",
-  "Why is attention split on the home screen",
-  "Rename the checkride timer",
-  "Show me the weather stall",
-  "Calm the streak copy down",
+/**
+ * What the prompt bar suggests. Every suggestion is a door that
+ * actually opens: tapping one navigates to the surface that answers it.
+ * No dead inputs anywhere.
+ */
+export const promptSuggestions: Array<{ text: string; view: string }> = [
+  { text: "Why is attention split on the home screen", view: "exam" },
+  { text: "What is worth fixing first", view: "findings" },
+  { text: "Show me both futures", view: "transform" },
+  { text: "Show me the weather stall", view: "monitor" },
+  { text: "What happened while I was away", view: "inbox" },
 ];
 
 /** The launch review, assembled from everything chosen. */

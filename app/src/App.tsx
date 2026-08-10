@@ -10,6 +10,7 @@ import { Launch } from "./views/Launch";
 import { Home } from "./views/Home";
 import { Examination } from "./views/Examination";
 import { Findings } from "./views/Findings";
+import { Report } from "./views/Report";
 import { Transform } from "./views/Transform";
 import { Reveal } from "./views/Reveal";
 import { Issues } from "./views/Issues";
@@ -41,6 +42,8 @@ function Screen() {
       return <Examination />;
     case "findings":
       return <Findings />;
+    case "report":
+      return <Report />;
     case "transform":
       return <Transform />;
     case "reveal":
@@ -74,7 +77,7 @@ function useLiveTitle() {
 }
 
 function Shell() {
-  const { view, panel, togglePanel } = useStore();
+  const { view, panel, togglePanel, project } = useStore();
   useLiveTitle();
   if (view === "landing") return <Landing />;
   const inFlow = FLOW_VIEWS.has(view);
@@ -87,7 +90,7 @@ function Shell() {
         {inResident && <BottomBar />}
         {inResident && panel === "mood" && <MoodPanel />}
         {inResident && panel === "personas" && <PersonasPanel />}
-        {inResident && panel !== "run" && (
+        {inResident && !project && panel !== "run" && (
           <button className="run-pill" onClick={() => togglePanel("run")}>
             <Icon name="play" size={15} />
             RUN

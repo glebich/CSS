@@ -144,17 +144,12 @@ check(
     .then(() => true)
     .catch(() => false),
 );
-await page.getByText("Choose how it should look", { exact: false }).click({ timeout: 25000 });
-check("style step follows a real analysis", await page.locator(".explore-bar").isVisible());
-await page.getByText("Continue with", { exact: false }).click();
-await page.getByText("Create the concept").click();
-await page.waitForTimeout(800);
-check(
-  "home speaks the project's own numbers",
-  await page.getByText("files measured").isVisible(),
-);
-await page.getByText("Decide", { exact: false }).first().click();
-await page.waitForTimeout(500);
+await page.getByText("See the report", { exact: false }).click({ timeout: 25000 });
+await page.waitForTimeout(600);
+
+/* one Report, the whole truth, no other chrome competing with it */
+check("the bar steps aside for the report", (await page.locator(".bar-shell").count()) === 0);
+check("the report opens on the number", await page.locator(".instrument").isVisible());
 check(
   "the weak contrast pair is caught with its file",
   await page.getByText("below the AA floor", { exact: false }).first().isVisible(),
@@ -178,10 +173,19 @@ check(
 await page.getByText("Accept, add to the plan").first().click();
 await page.waitForTimeout(300);
 check("an accepted finding joins the plan", await page.getByText("in the plan").first().isVisible());
-await page.getByText("Preview", { exact: true }).click();
-await page.waitForTimeout(700);
-check("the preview holds two live frames", (await page.locator("iframe.preview-frame").count()) === 2);
+check("the report holds two live frames", (await page.locator("iframe.preview-frame").count()) === 2);
 check("frames are labeled honestly", await page.getByText("As it arrived").isVisible());
+await page.getByText("Night Shift").click();
+await page.waitForTimeout(400);
+check("style chips switch the future live", await page.getByText("Wearing Night Shift").isVisible());
+await page.getByText("Read the prompt").click();
+await page.waitForTimeout(300);
+const promptText = await page.locator("pre").last().innerText();
+check(
+  "the repair prompt carries the evidence",
+  promptText.includes("styles.css") && promptText.includes("Grounding:"),
+);
+check("the prompt is portable by one tap", await page.getByText("Copy the repair prompt").isVisible());
 
 /* back to the example for the remaining checks */
 await page.getByText("Reset demo").click();

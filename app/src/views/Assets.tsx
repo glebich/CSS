@@ -256,9 +256,12 @@ export function Assets() {
             </span>
           </div>
         ) : (
-          <button className="pill pill-dark fade-in" onClick={() => go("style")}>
+          <button
+            className="pill pill-dark fade-in"
+            onClick={() => go(project ? "report" : "style")}
+          >
             {project
-              ? `Vitality ${project.vitality}. Choose how it should look`
+              ? `Vitality ${project.vitality}. See the report`
               : "Everything understood. Explore a style"}
             <Sparkle size={13} />
           </button>

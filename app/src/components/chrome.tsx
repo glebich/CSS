@@ -125,7 +125,7 @@ export function DeviceSwitcher() {
 }
 
 export function TopBar({ inResident }: { inResident: boolean }) {
-  const { go, resetDemo, tabs, activeTab, switchTab, addTab, closeTab } = useStore();
+  const { go, resetDemo, tabs, activeTab, switchTab, addTab, closeTab, project } = useStore();
   return (
     <header className="topbar">
       <button onClick={() => go(inResident ? "home" : "landing")} aria-label="Osyle">
@@ -152,7 +152,7 @@ export function TopBar({ inResident }: { inResident: boolean }) {
       <button className="topbar-quiet" onClick={resetDemo}>
         Reset demo
       </button>
-      {inResident && <DeviceSwitcher />}
+      {inResident && !project && <DeviceSwitcher />}
       <span className="avatar-chip">GK</span>
     </header>
   );
@@ -178,6 +178,7 @@ const LIFE_NAV: Array<{ view: View; label: string; icon: IconName }> = [
  * rotates through real asks, and focus opens tappable suggestions.
  */
 function AskInput() {
+  const { go } = useStore();
   const [focused, setFocused] = useState(false);
   const [value, setValue] = useState("");
   const [idx, setIdx] = useState(0);
@@ -197,14 +198,16 @@ function AskInput() {
         <div className="suggest-pop">
           {promptSuggestions.map((s) => (
             <button
-              key={s}
+              key={s.text}
               className="suggest-chip"
               onMouseDown={(e) => {
                 e.preventDefault();
-                setValue(s);
+                setValue("");
+                setFocused(false);
+                go(s.view as View);
               }}
             >
-              {s}
+              {s.text}
             </button>
           ))}
         </div>
@@ -212,11 +215,17 @@ function AskInput() {
       <div className="ask-pill">
         <span className="pulse-dot" aria-hidden />
         <input
-          placeholder={promptSuggestions[idx]}
+          placeholder={promptSuggestions[idx].text}
           value={value}
           onChange={(e) => setValue(e.target.value)}
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              setValue("");
+              go("findings");
+            }
+          }}
         />
       </div>
     </>
@@ -224,8 +233,10 @@ function AskInput() {
 }
 
 export function BottomBar() {
-  const { view, go, inbox, panel, togglePanel } = useStore();
+  const { view, go, inbox, panel, togglePanel, project } = useStore();
   const unread = inbox.filter((e) => !e.read).length;
+  /* A real project lives on one Report; navigation would only dilute it. */
+  if (project) return null;
   const active = (v: View) =>
     v === view ||
     (v === "transform" && view === "reveal") ||
@@ -286,17 +297,24 @@ const FLOW_STEPS: Array<{ view: View; label: string }> = [
   { view: "launch", label: "Launch" },
 ];
 
+const FLOW_STEPS_REAL: Array<{ view: View; label: string }> = [
+  { view: "place", label: "Place" },
+  { view: "assets", label: "Materials" },
+  { view: "report", label: "The report" },
+];
+
 /**
  * The journey breadcrumb: four quiet steps across the setup flow, so it
  * is always visible where you are and what remains. Steps already passed
  * are doors back; steps ahead wait their turn.
  */
 export function FlowSteps({ current, top }: { current: View; top?: number }) {
-  const { go } = useStore();
-  const idx = FLOW_STEPS.findIndex((s) => s.view === current);
+  const { go, project, progress } = useStore();
+  const steps = project || progress.length > 0 ? FLOW_STEPS_REAL : FLOW_STEPS;
+  const idx = steps.findIndex((s) => s.view === current);
   return (
     <div className="flow-steps" style={top !== undefined ? { top } : undefined}>
-      {FLOW_STEPS.map((step, i) => (
+      {steps.map((step, i) => (
         <button
           key={step.view}
           className={`flow-step${i === idx ? " is-current" : ""}${i < idx ? " is-done" : ""}`}
