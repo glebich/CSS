@@ -160,6 +160,32 @@ check(
   await page.getByText("The professional refresher", { exact: false }).first().isVisible(),
 );
 
+/* -----------------------------------------------------------------
+   The Studio: plain language in, a labeled diff out, applied only
+   by consent. Demo edits are scripted per the spec and say so. */
+await page.getByLabel("Studio", { exact: true }).click();
+await page.waitForTimeout(400);
+await page.getByText("Show the streak in the logbook").click();
+await page.waitForTimeout(400);
+check("the diff names its file", await page.getByText("src/Logbook.tsx").isVisible());
+check("the diff adds real lines", (await page.locator(".diff-line.is-add").count()) > 0);
+check("the edit carries its why", await page.getByText("Why:", { exact: false }).first().isVisible());
+check("the scripted edit says so", await page.getByText("Scripted example").isVisible());
+await page.getByText("Apply the change").click();
+await page.waitForTimeout(300);
+check("applying celebrates in one line", await page.getByText("Your app got better today.").isVisible());
+await page
+  .getByPlaceholder("e.g. show the streak in the logbook")
+  .fill("make everything purple");
+await page.getByPlaceholder("e.g. show the streak in the logbook").press("Enter");
+await page.waitForTimeout(300);
+check(
+  "an unknown ask gets an honest answer",
+  await page.getByText("The demo studio knows three edits", { exact: false }).isVisible(),
+);
+await page.locator('input[placeholder="sk-ant-..."]').fill("sk-ant-demo123");
+check("a key that looks right is told so", await page.getByText("Looks right").isVisible());
+
 /* The return moment, simulated by aging the away-clock. An init script is
    required: the app stamps the clock on beforeunload, so the aged value
    must land after the old page leaves and before the new one reads it. */

@@ -409,11 +409,26 @@ easing hook scheduled animation frames inside a state updater, which
 StrictMode turns into an exponential frame storm; the loop moved into
 the effect where it belongs. 67 journey checks pass.
 
-### Increment D. Stage 7, Studio and BYOK
+### Increment D. Stage 7, Studio and BYOK. DELIVERED
 
-The model gateway in `/api`: BYO Anthropic and Gemini keys, budgets,
-invisible degradation; the Studio surface: plain-language edit with diff
-preview against the resident's files. First real model calls in product.
+The Studio surface, in the life nav with its own pen mark: say the
+change in plain language, see the diff before anything moves, decide.
+Demo Mode ships the scripted edit exactly as the spec's demo section
+orders, three of them, deterministic, each labeled Scripted example
+aloud: the streak surfaced in the logbook, the drill call stepped up
+for cockpit glare with its WCAG citation, and the quiet weekly line
+on home. Each edit renders a real readable diff (file, context,
+removals struck, additions tinted), carries its why with evidence,
+and states how it stays inside the identity. Apply writes the
+decision to the ledger, remembers across sessions, and celebrates in
+the one permitted line: Your app got better today. Set aside keeps
+the diff reachable. An instruction the demo does not know gets an
+honest answer naming what it does know. BYOK lands as the key sheet:
+Claude and Gemini fields with format validation, keys stored on this
+machine only, and the honest note that they power live edits when
+Real Mode arrives with its stage. The model gateway with live calls,
+budgets, and degradation remains with Real Mode hardening, where it
+can be tested against a real network. 74 journey checks pass.
 
 ### Increment E. Stage 8, the Art Director
 

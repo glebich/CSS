@@ -42,7 +42,8 @@ export type View =
   | "inbox"
   | "sdk"
   | "promote"
-  | "audience";
+  | "audience"
+  | "studio";
 
 export type Device = "mobile" | "desktop" | "website" | "watch";
 
@@ -75,6 +76,7 @@ const LEDGER_KEY = "osyle.demo.ledger";
 const COMFORT_KEY = "osyle.demo.comfort";
 const CAPTION_KEY = "osyle.demo.feelingCaption";
 const AUDIENCE_KEY = "osyle.demo.audience";
+const STUDIO_KEY = "osyle.demo.studioApplied";
 
 export interface LedgerEntry {
   at: string;
@@ -200,6 +202,9 @@ interface Store {
   personaId: string;
   setPersonaId: (id: string) => void;
   /* the Audience: archetypes, one primary, dial state per archetype */
+  /* the Studio: scripted edits applied by consent, remembered */
+  appliedEdits: string[];
+  applyEdit: (id: string) => void;
   audience: AudienceState;
   describeAudience: (text: string) => void;
   adoptArchetype: (a: Archetype, rationale: string) => void;
@@ -271,6 +276,23 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     appendLedger(kind, detail);
     setLedgerCount((n) => n + 1);
   }, []);
+
+  /* The Studio: which scripted edits the user chose to apply. */
+  const [appliedEdits, setAppliedEdits] = useState<string[]>(() =>
+    loadJson<string[]>(STUDIO_KEY, []),
+  );
+  const applyEdit = useCallback(
+    (id: string) => {
+      setAppliedEdits((prev) => {
+        if (prev.includes(id)) return prev;
+        const next = [...prev, id];
+        saveJson(STUDIO_KEY, next);
+        return next;
+      });
+      record("studio.accepted", { edit: id });
+    },
+    [record],
+  );
 
   /* The Audience: archetypes the resident is built to win, persisted. */
   const [audience, setAudience] = useState<AudienceState>(() =>
@@ -738,9 +760,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       COMFORT_KEY,
       CAPTION_KEY,
       AUDIENCE_KEY,
+      STUDIO_KEY,
       "osyle.residents",
     ]);
     setAudience(defaultAudience());
+    setAppliedEdits([]);
     setDecisions({});
     setComfort(false);
     setFeelingCaption(null);
@@ -807,6 +831,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     ledgerCount,
     personaId,
     setPersonaId,
+    appliedEdits,
+    applyEdit,
     audience,
     describeAudience,
     adoptArchetype,

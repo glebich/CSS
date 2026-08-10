@@ -389,6 +389,96 @@ export const discoveryProposals: Array<{ archetype: Archetype; rationale: string
   },
 ];
 
+/* ------------------------------------------------------------------------
+   The Studio: plain language in, a diff out, nothing applied without
+   consent. Demo Mode ships the scripted edit per the spec, three of
+   them, deterministic and labeled aloud. Live edits in the user's own
+   words arrive with Real Mode and a key.
+------------------------------------------------------------------------ */
+
+export interface StudioHunk {
+  file: string;
+  /** context, removed, and added lines, rendered as a readable diff */
+  lines: Array<{ kind: "ctx" | "del" | "add"; text: string }>;
+}
+
+export interface StudioEdit {
+  id: string;
+  ask: string;
+  match: RegExp;
+  summary: string;
+  why: string;
+  identityNote: string;
+  hunks: StudioHunk[];
+}
+
+export const studioEdits: StudioEdit[] = [
+  {
+    id: "ed-streak",
+    ask: "Show the streak in the logbook",
+    match: /streak/i,
+    summary: "The logbook header carries the streak the app already counts.",
+    why: "Returning pilots look for progress before anything else, and the streak sits in the resident database today, counted and unshown.",
+    identityNote: "Uses the existing type ramp and the accent token. Nothing new enters the identity.",
+    hunks: [
+      {
+        file: "src/Logbook.tsx",
+        lines: [
+          { kind: "ctx", text: 'const entries = sdk.rows("drills").list();' },
+          { kind: "add", text: 'const streak = sdk.kv.get("streak", 0);' },
+          { kind: "ctx", text: "return (" },
+          { kind: "ctx", text: "  <h1>Your logbook</h1>" },
+          { kind: "add", text: "  {streak > 0 && <p className=\"quiet\">A {streak} drill streak, unbroken.</p>}" },
+        ],
+      },
+    ],
+  },
+  {
+    id: "ed-glare",
+    ask: "Larger call text for cockpit glare",
+    match: /(glare|larger|bigger|read|sunlight)/i,
+    summary: "The drill call steps up one size and gains contrast for daylight.",
+    why: "The call is read at arm's length in direct sun. WCAG 1.4.3 asks 4.5 to 1; the current gray on paper measures 4.1.",
+    identityNote: "Moves along the existing type ramp, 26 to 30. The palette does not change, the ink deepens one step.",
+    hunks: [
+      {
+        file: "src/Drill.tsx",
+        lines: [
+          { kind: "ctx", text: "<h1 style={{" },
+          { kind: "del", text: "  fontSize: 26 * scale," },
+          { kind: "del", text: "  color: faint," },
+          { kind: "add", text: "  fontSize: 30 * scale," },
+          { kind: "add", text: "  color: style.ink," },
+          { kind: "ctx", text: "  fontWeight: 700," },
+        ],
+      },
+    ],
+  },
+  {
+    id: "ed-weekly",
+    ask: "A quiet weekly review line on home",
+    match: /(week|review|remind)/i,
+    summary: "Home gains one line that says when the last drill was, and nothing more.",
+    why: "Retention follows a visible cadence. One quiet sentence beats a notification nobody granted.",
+    identityNote: "One line in the quiet gray, under the title, no new components.",
+    hunks: [
+      {
+        file: "src/Home.tsx",
+        lines: [
+          { kind: "ctx", text: "<h1>Radio calls, ten minutes</h1>" },
+          { kind: "add", text: "{lastDrill && <p className=\"quiet\">Last drill {daysAgo(lastDrill)} days ago.</p>}" },
+          { kind: "ctx", text: "<p>The three calls that decay first.</p>" },
+        ],
+      },
+    ],
+  },
+];
+
+/** Plain language in, a scripted edit out, or an honest null. */
+export function mapStudio(text: string): StudioEdit | null {
+  return studioEdits.find((e) => e.match.test(text)) ?? null;
+}
+
 /** The reach model: age window times density, narrowed by each active trait. */
 export function reachEstimate(a: Archetype, range: [number, number], activeTraits: number): number {
   const years = Math.max(1, range[1] - range[0]);
@@ -597,6 +687,7 @@ export const promptSuggestions: Array<{ text: string; view: string }> = [
   { text: "Show me both futures", view: "transform" },
   { text: "Show me the weather stall", view: "monitor" },
   { text: "Who is it built to win", view: "audience" },
+  { text: "Change it in plain language", view: "studio" },
   { text: "What happened while I was away", view: "inbox" },
 ];
 

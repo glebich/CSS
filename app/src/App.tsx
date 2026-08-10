@@ -20,6 +20,7 @@ import { Inbox } from "./views/Inbox";
 import { Sdk } from "./views/Sdk";
 import { Promote } from "./views/Promote";
 import { Audience } from "./views/Audience";
+import { Studio } from "./views/Studio";
 
 /** Views that belong to the flow before the resident lives. */
 const FLOW_VIEWS = new Set(["place", "assets", "style", "launch"]);
@@ -63,6 +64,8 @@ function Screen() {
       return <Promote />;
     case "audience":
       return <Audience />;
+    case "studio":
+      return <Studio />;
   }
 }
 

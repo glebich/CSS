@@ -41,7 +41,8 @@ export type IconName =
   | "watch"
   | "plus"
   | "mic"
-  | "back";
+  | "back"
+  | "edit";
 
 /** 24px stroke icons drawn to match the Osyle_N icon sheet: 1.6 stroke, round caps. */
 export function Icon({ name, size = 22 }: { name: IconName; size?: number }) {
@@ -61,6 +62,7 @@ export function Icon({ name, size = 22 }: { name: IconName; size?: number }) {
     plus: <path d="M12 5v14M5 12h14" />,
     mic: <path d="M12 4a2.6 2.6 0 0 1 2.6 2.6v5a2.6 2.6 0 1 1-5.2 0v-5A2.6 2.6 0 0 1 12 4Zm-6 8a6 6 0 0 0 12 0M12 18v3" />,
     back: <path d="M14 6l-6 6 6 6" />,
+    edit: <path d="m5 19 .9-3.6L16.6 4.7a2 2 0 0 1 2.8 2.8L8.7 18.1 5 19Z" />,
   };
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
@@ -170,6 +172,7 @@ const LIFE_NAV: Array<{ view: View; label: string; icon: IconName }> = [
   { view: "monitor", label: "Monitor", icon: "monitor" },
   { view: "inbox", label: "Inbox", icon: "inbox" },
   { view: "sdk", label: "SDK", icon: "sdk" },
+  { view: "studio", label: "Studio", icon: "edit" },
   { view: "audience", label: "Audience", icon: "persona" },
   { view: "promote", label: "Promote", icon: "promote" },
 ];
