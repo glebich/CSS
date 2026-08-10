@@ -520,6 +520,10 @@ check(
 );
 const survival = await (await fetch("http://localhost:8787/survival")).json();
 check("the resident lives in the stack's database", survival.total >= 1);
+check(
+  "the vault holds the files, versioned from day one",
+  await page.getByText("3 files in the Vault, versioned from day one.", { exact: false }).isVisible(),
+);
 await page.goto("http://localhost:5197/#/r/app-3-files");
 await page.waitForTimeout(700);
 check(

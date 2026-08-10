@@ -198,7 +198,11 @@ export function Address() {
               <span className="pulse-dot" />
               <span style={{ fontWeight: 550 }}>Claimed. {stackClaim.address} is registered on the stack.</span>
             </div>
-            <p style={{ fontSize: 12.5, color: "var(--gray-meta)", marginTop: 8 }}>{stackClaim.note}</p>
+            <p style={{ fontSize: 12.5, color: "var(--gray-meta)", marginTop: 8 }}>
+              {stackClaim.uploaded > 0
+                ? `${stackClaim.uploaded} file${stackClaim.uploaded === 1 ? "" : "s"} in the Vault, versioned from day one. ${stackClaim.note}`
+                : stackClaim.note}
+            </p>
           </div>
         )}
         <p

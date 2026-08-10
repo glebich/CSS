@@ -596,6 +596,18 @@ live during this increment: GitHub Pages now serves the gh-pages
 branch the deploy workflow refreshes on every push. 119 journey
 checks pass.
 
+### Increment K2. The Vault claims the files. DELIVERED
+
+Server-side residency stops at nothing halfway: when the stack claim
+succeeds, the magic link verifies in place, the session lands, and
+the resident's readable files move into the real Vault one by one,
+each versioned from day one by the API's own insert-only versioning.
+The ceremony reports the count honestly, and the count is real
+because it counts 201s from the server, not intentions. The live-API
+journey test asserts the three fixture files arrive. GitHub keeps
+the code; the Vault now actually keeps the life. 120 journey checks
+pass.
+
 ### Increment I. Stages 12 to 15, in spec order
 
 Ecosystem rail (per §10's logo laws), viral surfaces and audience-aware

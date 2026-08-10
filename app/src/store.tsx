@@ -178,7 +178,7 @@ interface Store {
   analyzeRepo: (text: string) => Promise<string | null>;
   /* Real Mode: the stack, probed and spoken to honestly */
   stack: { on: boolean; up: boolean | null; base: string };
-  stackClaim: { address: string; note: string } | null;
+  stackClaim: { address: string; note: string; uploaded: number } | null;
   claimOnStack: (email: string) => Promise<string | null>;
   /** the residency: persist the dropped app and serve it at its address */
   realSlug: string | null;
@@ -629,7 +629,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     }
   })();
   const [stackUp, setStackUp] = useState<boolean | null>(null);
-  const [stackClaim, setStackClaim] = useState<{ address: string; note: string } | null>(null);
+  const [stackClaim, setStackClaim] = useState<{
+    address: string;
+    note: string;
+    uploaded: number;
+  } | null>(null);
   useEffect(() => {
     if (!stackOn) return;
     const ctl = new AbortController();
@@ -657,11 +661,39 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         });
         if (!res.ok) return `The stack answered ${res.status}. The local address still serves.`;
         const body = (await res.json()) as {
-          resident: { address: string };
+          resident: { slug: string; address: string };
+          claimLink: string;
           note: string;
         };
-        setStackClaim({ address: body.resident.address, note: body.note });
-        record("stack.claimed", { slug: realSlug, address: body.resident.address });
+        /* the claim link is the session; verify it now and the Vault
+           opens, so the files move in versioned from day one */
+        let uploaded = 0;
+        try {
+          const verify = await fetch(`${stackBase}${body.claimLink}`, {
+            credentials: "include",
+          });
+          if (verify.ok) {
+            const textFiles = [...project.files.values()]
+              .filter((f) => f.text !== null)
+              .slice(0, 40);
+            for (const f of textFiles) {
+              const put = await fetch(
+                `${stackBase}/residents/${body.resident.slug}/files/${f.path}`,
+                {
+                  method: "PUT",
+                  credentials: "include",
+                  headers: { "content-type": "application/octet-stream" },
+                  body: new TextEncoder().encode(f.text as string),
+                },
+              );
+              if (put.ok) uploaded += 1;
+            }
+          }
+        } catch {
+          /* the registration stands; the Vault fills on the next claim */
+        }
+        setStackClaim({ address: body.resident.address, note: body.note, uploaded });
+        record("stack.claimed", { slug: realSlug, address: body.resident.address, uploaded });
         return null;
       } catch {
         return "The stack did not answer. The local address still serves.";
