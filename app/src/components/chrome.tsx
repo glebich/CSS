@@ -134,16 +134,20 @@ export function TopBar({ inResident }: { inResident: boolean }) {
         <Wordmark />
       </button>
       <div className="tabs" style={{ marginLeft: 10 }}>
-        {tabs.map((tab) => (
-          <span key={tab.id} className={`tab${tab.id === activeTab ? " is-active" : ""}`}>
-            <button onClick={() => switchTab(tab.id)}>{tab.name}</button>
-            {tabs.length > 1 && (
-              <button className="tab-x" onClick={() => closeTab(tab.id)} aria-label={`Close ${tab.name}`}>
-                <X />
-              </button>
-            )}
-          </span>
-        ))}
+        {tabs.map((tab) => {
+          /* a real project owns its tab; the example never speaks for it */
+          const label = tab.isDemo && project ? project.inventory.name : tab.name;
+          return (
+            <span key={tab.id} className={`tab${tab.id === activeTab ? " is-active" : ""}`}>
+              <button onClick={() => switchTab(tab.id)}>{label}</button>
+              {tabs.length > 1 && (
+                <button className="tab-x" onClick={() => closeTab(tab.id)} aria-label={`Close ${label}`}>
+                  <X />
+                </button>
+              )}
+            </span>
+          );
+        })}
         {tabs.length < 10 && (
           <button className="tab-add" onClick={addTab} aria-label="New tab">
             <Icon name="plus" size={14} />
@@ -152,7 +156,7 @@ export function TopBar({ inResident }: { inResident: boolean }) {
       </div>
       <span className="topbar-spacer" />
       <button className="topbar-quiet" onClick={resetDemo}>
-        Reset demo
+        {project ? "Start over" : "Reset demo"}
       </button>
       {inResident && !project && <DeviceSwitcher />}
       <span className="avatar-chip">GK</span>

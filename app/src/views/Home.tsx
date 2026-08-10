@@ -56,7 +56,7 @@ export function Home() {
     if (justLaunched) clearLaunchArrival();
   }, [justLaunched, clearLaunchArrival]);
   const [receiptOpen, setReceiptOpen] = useState(false);
-  const shown = useRevealCount(vitality, reveal);
+  const shown = useRevealCount(project ? project.vitality : vitality, reveal);
   const healedSomething = healed.size > 1; // the guilt banner starts healed in the seed
   const unread = inbox.filter((e) => !e.read).length;
   const healables = issues.filter((i) => healableOpen.includes(i.id));
@@ -74,7 +74,7 @@ export function Home() {
 
   return (
     <Page>
-      {returned && (
+      {returned && !project && (
         <div className="card card-solid since-card fade-in">
           <div className="since-label">Since you left</div>
           <p style={{ fontSize: 15, lineHeight: 1.6, marginTop: 10, color: "var(--ink-body)" }}>
@@ -103,13 +103,19 @@ export function Home() {
         }}
       >
         <span className="instrument-label">Vitality</span>
-        <button className="instrument" onClick={() => go("exam")} title="See the ten lenses">
+        <button
+          className="instrument"
+          onClick={() => go(project ? "report" : "exam")}
+          title={project ? "See the report" : "See the ten lenses"}
+        >
           {shown}
         </button>
-        <Tip id="vitality">
-          The weighted health of your app across ten lenses. The number is
-          the truth; tap it for the why.
-        </Tip>
+        {!project && (
+          <Tip id="vitality">
+            The weighted health of your app across ten lenses. The number is
+            the truth; tap it for the why.
+          </Tip>
+        )}
 
         <div className="pulse-line" style={{ marginTop: 10 }}>
           <span className={`pulse-dot${healedSomething ? " swell" : ""}`} />
@@ -117,7 +123,7 @@ export function Home() {
         </div>
 
         {/* the unprompted note: the director spoke, the door is quiet */}
-        {inbox.some((e) => !e.read && e.director) && (
+        {!project && inbox.some((e) => !e.read && e.director) && (
           <button
             className="pill pill-sm fade-in"
             style={{ marginTop: 14 }}
@@ -168,18 +174,18 @@ export function Home() {
         <div style={{ marginTop: 40, display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
           {project ? (
             realUndecided.length > 0 ? (
-              <button className="pill pill-dark" onClick={() => go("findings")}>
+              <button className="pill pill-dark" onClick={() => go("report")}>
                 Decide {numberWordLower(realUndecided.length)} finding
-                {realUndecided.length === 1 ? "" : "s"}
+                {realUndecided.length === 1 ? "" : "s"} in the report
                 <Sparkle size={13} />
               </button>
             ) : (
               <>
                 <div className="pulse-line">
-                  <span>The plan is set. See it worn.</span>
+                  <span>The plan is set. The report holds it.</span>
                 </div>
-                <button className="pill pill-dark" onClick={() => go("transform")}>
-                  Open both futures
+                <button className="pill pill-dark" onClick={() => go("report")}>
+                  Open the report
                   <Sparkle size={13} />
                 </button>
               </>

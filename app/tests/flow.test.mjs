@@ -563,8 +563,13 @@ check(
   await page.getByText("below the AA floor", { exact: false }).first().isVisible(),
 );
 
+/* nothing speaks in the example's voice while a real project is open */
+check("the tab wears the project's name", await page.locator(".tab").getByText("sunrise").isVisible());
+check("the browser title carries the project", (await page.title()).includes("sunrise"));
+check("the reset door renames honestly", await page.getByText("Start over").isVisible());
+
 /* back to the example for the remaining checks */
-await page.getByText("Reset demo").click();
+await page.getByText("Start over").click();
 await page.waitForTimeout(500);
 await page.getByText("Drop your app", { exact: false }).last().click();
 await page.getByText("See the example").click();

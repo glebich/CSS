@@ -71,15 +71,20 @@ function Screen() {
 
 /** The browser tab is the quietest monitor: name, number, unread. */
 function useLiveTitle() {
-  const { view, vitality, inbox } = useStore();
+  const { view, vitality, inbox, project } = useStore();
   useEffect(() => {
+    /* a real project titles the tab with its own name and number */
+    if (project) {
+      document.title = `Osyle, ${project.inventory.name} ${project.vitality}`;
+      return;
+    }
     if (view === "landing" || FLOW_VIEWS.has(view)) {
       document.title = "Osyle";
       return;
     }
     const unread = inbox.filter((e) => !e.read).length;
     document.title = `Osyle, SkyRecall ${vitality}${unread > 0 ? `, ${unread} new` : ""}`;
-  }, [view, vitality, inbox]);
+  }, [view, vitality, inbox, project]);
 }
 
 function Shell() {
