@@ -371,6 +371,21 @@ flawed fixture moves in and serves at its address; a deliberately
 clean fixture yields the improvement prompt, never a zero; 55 journey
 checks pass.
 
+### Increment B6. The deck alignment pass. DELIVERED
+
+The investor deck (Osyle_Deck_E_Home_4) and the MLP doc re-read side by
+side against the build, and the product adjusted where it drifted from
+the story being told. The examination now reads as the deck says it
+does, ten lenses under one number: the real report carries a lens
+strip where the eight measured lenses show their scores, a lens that
+could not see says so in place, and Backend and data plus Market and
+benchmarks stand in the strip saying they arrive with their stage.
+The landing carries the six promises from the deck, one quiet
+uppercase line: Safe. Designed. Usable. Tested. Evolving. Shared. The
+preview section takes the deck's exact heading, Same app. Two
+futures. And the address ceremony closes on the deck's law: a tool
+makes software, a home keeps it alive. 58 journey checks pass.
+
 ### Increment C. Stage 6, the Audience for real
 
 Archetype composition from a sentence, discovery mode with cited

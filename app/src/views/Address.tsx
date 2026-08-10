@@ -113,6 +113,17 @@ export function Address() {
             <Sparkle size={13} />
           </a>
         </div>
+        <p
+          style={{
+            textAlign: "center",
+            fontSize: 12.5,
+            color: "var(--gray-small)",
+            marginTop: 26,
+            letterSpacing: "0.02em",
+          }}
+        >
+          A tool makes software. A home keeps it alive.
+        </p>
       </Page>
     );
   }

@@ -606,6 +606,70 @@ input {
   color: rgba(245, 244, 255, 0.4);
 }
 
+/* the six promises, one quiet line above the foot */
+.brand-promises {
+  position: absolute;
+  bottom: 58px;
+  font-size: 11.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(245, 244, 255, 0.55);
+}
+
+/* the ten lenses on the report: each cell speaks its own state */
+.lens-strip {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 22px;
+  width: 100%;
+  max-width: 880px;
+}
+
+.lens-cell {
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid var(--hairline);
+  border-radius: 12px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.lens-cell-name {
+  font-size: 10.5px;
+  font-weight: 510;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--gray-small);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lens-cell-score {
+  font-size: 19px;
+  font-weight: 550;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-strong);
+}
+
+.lens-cell-score.is-blind,
+.lens-cell-score.is-staged {
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: var(--gray-small);
+}
+
+@media (max-width: 900px) {
+  .lens-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 /* ------------------------------------------------------------- sections */
 
 .section-label {

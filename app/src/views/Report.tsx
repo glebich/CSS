@@ -173,12 +173,24 @@ export function Report() {
         <p style={{ fontSize: 12, color: "var(--gray-small)", maxWidth: 640, textAlign: "center", marginTop: 10 }}>
           {project.vitalityWhy}
         </p>
-        {project.lenses.some((l) => l.notApplicable) && (
-          <p style={{ fontSize: 12, color: "var(--warn)", maxWidth: 640, textAlign: "center", marginTop: 6 }}>
-            Could not see: {project.lenses.filter((l) => l.notApplicable).map((l) => l.name).join(", ")}.
-            Framework styling needs the Studio&apos;s deeper pass, coming with its stage.
-          </p>
-        )}
+        {/* the ten lenses, each speaking its own state: a score, an honest
+            could-not-see, or the stage it arrives with */}
+        <div className="lens-strip">
+          {project.lenses.map((l) => (
+            <div key={l.key} className="lens-cell">
+              <span className="lens-cell-name">{l.name}</span>
+              <span className={`lens-cell-score${l.notApplicable ? " is-blind" : ""}`}>
+                {l.notApplicable ? "could not see" : l.score}
+              </span>
+            </div>
+          ))}
+          {["Backend and data", "Market and benchmarks"].map((name) => (
+            <div key={name} className="lens-cell">
+              <span className="lens-cell-name">{name}</span>
+              <span className="lens-cell-score is-staged">arrives with its stage</span>
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* 2. What is wrong, yours to decide */}
@@ -231,7 +243,7 @@ export function Report() {
       {before && (
         <>
           <div className="section-label" style={{ marginTop: 44 }}>
-            Same app, two futures
+            Same app. Two futures.
           </div>
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 14 }}>
             {REPORT_STYLES.map((id) => {

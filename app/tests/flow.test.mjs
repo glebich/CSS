@@ -28,6 +28,10 @@ function check(name, ok) {
 
 /* The setup journey: landing -> place -> materials -> style -> launch */
 await page.goto("http://localhost:5197/");
+check(
+  "the landing carries the six promises",
+  await page.getByText("Safe. Designed. Usable. Tested. Evolving. Shared.").isVisible(),
+);
 await page.getByText("Drop your app", { exact: false }).last().click();
 check("place shows the flow steps", await page.locator(".flow-steps").isVisible());
 await page.getByText("See the example").click();
@@ -150,6 +154,11 @@ await page.waitForTimeout(600);
 /* one Report, the whole truth, no other chrome competing with it */
 check("the bar steps aside for the report", (await page.locator(".bar-shell").count()) === 0);
 check("the report opens on the number", await page.locator(".instrument").isVisible());
+check("the examination reads as ten lenses", (await page.locator(".lens-cell").count()) === 10);
+check(
+  "unbuilt lenses say their stage honestly",
+  await page.getByText("Backend and data").isVisible(),
+);
 check(
   "the weak contrast pair is caught with its file",
   await page.getByText("below the AA floor", { exact: false }).first().isVisible(),

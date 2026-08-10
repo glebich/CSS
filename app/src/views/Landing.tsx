@@ -61,6 +61,9 @@ export function Landing() {
           Drop your app
         </button>
       </div>
+      <div className="brand-promises">
+        Safe. Designed. Usable. Tested. Evolving. Shared.
+      </div>
       <div className="brand-foot">Where generated software lives</div>
 
       {sheetOpen && (
