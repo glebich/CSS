@@ -220,6 +220,115 @@ export const audienceSummary = {
   rationale: "Your completion rate among returning users fits the professional refresher pattern, not the student pattern.",
 };
 
+/* ------------------------------------------------------------------------
+   The materials SkyRecall arrived with, and what the system understood.
+   Shown as cards in the upload flow: first sweeping with the gradient
+   while reading, then resting as understood previews.
+------------------------------------------------------------------------ */
+
+export interface Material {
+  id: string;
+  name: string;
+  size: string;
+  kind: "doc" | "image" | "video" | "fig" | "link" | "sheet";
+  /** the sentence proving the system read it */
+  understood: string;
+}
+
+export const materials: Material[] = [
+  { id: "m-brief", name: "Brand brief.pdf", size: "2.3 mb", kind: "doc", understood: "Minimal instrument for rusty pilots. Calm authority, no gamification, sunlight-legible. The word chosen for the feeling is steady." },
+  { id: "m-flows", name: "User flows.doc", size: "1.4 mb", kind: "doc", understood: "Three flows: radio-call drill, checkride timer, weather briefing. The drill is the heart, two screens deep." },
+  { id: "m-mood", name: "Moodboard.fig", size: "18 mb", kind: "fig", understood: "Cockpit metal, dawn light, dial typography. Cool blues over warm paper. Instruments, never dashboards." },
+  { id: "m-shots", name: "Cockpit shots.png", size: "5.1 mb", kind: "image", understood: "Nine reference photos. Strong horizon lines, glare on glass, the readability problem stated in pictures." },
+  { id: "m-walk", name: "Walkthrough.mov", size: "128 mb", kind: "video", understood: "A four-minute session recording. The stall at the weather step is visible at 2:41." },
+  { id: "m-users", name: "Pilots.xlsx", size: "0.6 mb", kind: "sheet", understood: "214 rows of beta pilots. Median age 47, median hours flown this year, nine. The refresher pattern, in numbers." },
+  { id: "m-site", name: "skyrecall.app", size: "live", kind: "link", understood: "The current production build. Ten screens crawled, three flows mapped, one broken connector found." },
+  { id: "m-spec", name: "Product spec.pdf", size: "5.9 mb", kind: "doc", understood: "Sessions must survive interruptions. Offline drills are promised for autumn. The spec already knows its audience." },
+];
+
+/* ------------------------------------------------------------------------
+   The style catalog for Explore a style. Swatches are drawn in CSS,
+   honest placeholders until the network gallery exists.
+------------------------------------------------------------------------ */
+
+export interface StyleCard {
+  id: string;
+  name: string;
+  by: string;
+  category: "Minimalism" | "Editorial" | "Dark Pro" | "Glass" | "Material" | "Brutalism";
+  dark: boolean;
+  /** CSS background for the preview tile */
+  swatch: string;
+  ink: string;
+  accent: string;
+  tall?: boolean;
+}
+
+export const styleCategories = [
+  "Minimalism",
+  "Editorial",
+  "Dark Pro",
+  "Glass",
+  "Material",
+  "Brutalism",
+] as const;
+
+export const styleCatalog: StyleCard[] = [
+  { id: "st-paper", name: "Paper Instrument", by: "Studio Norm", category: "Minimalism", dark: false, swatch: "linear-gradient(160deg, #f4f2ee 0%, #e8e4dd 100%)", ink: "#18202c", accent: "#18202c", tall: true },
+  { id: "st-cockpit", name: "Cockpit Night", by: "Aft Cabin", category: "Dark Pro", dark: true, swatch: "linear-gradient(160deg, #0c0f14 0%, #1a2230 100%)", ink: "#e8ecf4", accent: "#5b8cff" },
+  { id: "st-glass", name: "Glass Air", by: "Lumen", category: "Glass", dark: false, swatch: "linear-gradient(140deg, #dfe6f2 0%, #c6d4ec 55%, #eef2f9 100%)", ink: "#25304a", accent: "#4a6cf7", tall: true },
+  { id: "st-editorial", name: "Field Notes", by: "Herald", category: "Editorial", dark: false, swatch: "linear-gradient(160deg, #f1ede4 0%, #ddd3c0 100%)", ink: "#221f1a", accent: "#8a3324" },
+  { id: "st-terminal", name: "Terminal Green", by: "Aft Cabin", category: "Dark Pro", dark: true, swatch: "linear-gradient(160deg, #0a0d0a 0%, #14211a 100%)", ink: "#d7f2df", accent: "#59d47f" },
+  { id: "st-material", name: "Material Calm", by: "Grid Nine", category: "Material", dark: false, swatch: "linear-gradient(160deg, #eef1f4 0%, #dfe7ee 100%)", ink: "#1f2a33", accent: "#2e6df6" },
+  { id: "st-brutal", name: "Runway Mono", by: "Blok", category: "Brutalism", dark: false, swatch: "repeating-linear-gradient(45deg, #efece7 0 22px, #e3ded6 22px 24px)", ink: "#111111", accent: "#111111" },
+  { id: "st-dusk", name: "Approach Dusk", by: "Lumen", category: "Glass", dark: true, swatch: "linear-gradient(160deg, #1a1626 0%, #3c2f56 60%, #6e5a8e 100%)", ink: "#efeaf8", accent: "#b9a5ff", tall: true },
+  { id: "st-signal", name: "Signal Amber", by: "Herald", category: "Dark Pro", dark: true, swatch: "linear-gradient(160deg, #14100a 0%, #2c2010 100%)", ink: "#f4e8d4", accent: "#e8a13d" },
+  { id: "st-swiss", name: "Swiss White", by: "Studio Norm", category: "Minimalism", dark: false, swatch: "linear-gradient(160deg, #ffffff 0%, #f0f0f0 100%)", ink: "#000000", accent: "#d92b2b" },
+  { id: "st-ocean", name: "Coastline", by: "Grid Nine", category: "Material", dark: false, swatch: "linear-gradient(160deg, #e8f0f2 0%, #c9dde2 55%, #a9c8d2 100%)", ink: "#173038", accent: "#1f7a8c", tall: true },
+  { id: "st-ledger", name: "Ledger Black", by: "Blok", category: "Brutalism", dark: true, swatch: "linear-gradient(160deg, #101010 0%, #232323 100%)", ink: "#f2f2f2", accent: "#ffd400" },
+];
+
+/* ------------------------------------------------------------------------
+   Visual personas: the audience, as people you can look at.
+   Portraits are drawn gradients, honest until photography exists.
+------------------------------------------------------------------------ */
+
+export interface Persona {
+  id: string;
+  name: string;
+  age: number;
+  role: string;
+  line: string;
+  portrait: string;
+  reach: string;
+}
+
+export const personas: Persona[] = [
+  { id: "p-maria", name: "Maria Chen", age: 51, role: "Airline captain", line: "Flies twice a quarter and feels the rust in week three", portrait: "linear-gradient(150deg, #93a9c4 0%, #4c6785 55%, #253549 100%)", reach: "about 2.1M people fit this" },
+  { id: "p-tom", name: "Tom Alvarez", age: 38, role: "Private pilot", line: "Weekend flyer, weather is the thing he rehearses least", portrait: "linear-gradient(150deg, #d9b08a 0%, #a97a4e 55%, #5e3f24 100%)", reach: "about 3.4M people fit this" },
+  { id: "p-priya", name: "Priya Nair", age: 29, role: "Student pilot", line: "Checkride in June, drills on the train home", portrait: "linear-gradient(150deg, #b3a5e8 0%, #7b6bff 55%, #3d3480 100%)", reach: "about 1.2M people fit this" },
+];
+
+/** What the prompt bar suggests, rotating, so no one faces a blank line. */
+export const promptSuggestions = [
+  "Make the first drill one tap away",
+  "Why is attention split on the home screen",
+  "Rename the checkride timer",
+  "Show me the weather stall",
+  "Calm the streak copy down",
+];
+
+/** The launch review, assembled from everything chosen. */
+export const launchReview = {
+  goal: "A recall instrument for pilots who fly rarely, drills short enough to survive a workday",
+  success: "A pilot completes a first drill and returns within a week",
+  screens: [
+    { name: "Drill screen", detail: "4 components, 8 states" },
+    { name: "Logbook", detail: "3 components, 5 states" },
+    { name: "Weather briefing", detail: "5 components, 6 states" },
+  ],
+};
+
 /** Vault surface numbers, generous and visible. */
 export const quotas = {
   storage: { used: "412 MB", total: "10 GB" },

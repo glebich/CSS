@@ -3,9 +3,13 @@ import { useStore } from "../store";
 import { Page, Sparkle } from "../components/chrome";
 import { MiniApp } from "../components/MiniApp";
 
-/** The before-and-after slider, one of the signature interactions. */
+/**
+ * The before-and-after slider, one of the signature interactions.
+ * The after side is the live render: it wears the chosen style and
+ * listens to the mood dials and the primary persona.
+ */
 export function Transform() {
-  const { transformAccepted, acceptTransform, go } = useStore();
+  const { transformAccepted, acceptTransform, go, styleId, mood, personaId, device } = useStore();
   const [pos, setPos] = useState(0.5);
   const frameRef = useRef<HTMLDivElement>(null);
   const dragging = useRef(false);
@@ -23,7 +27,8 @@ export function Transform() {
         Everything it <span className="quiet">could be.</span>
       </h1>
       <p style={{ color: "var(--gray-meta)", marginTop: 6 }}>
-        Drag the line. The identity stays. The clutter goes.
+        Drag the line. The identity stays. The clutter goes. The right side
+        follows your style, mood, and persona.
       </p>
 
       <div
@@ -40,7 +45,13 @@ export function Transform() {
       >
         <MiniApp variant="before" />
         <div className="ba-after" style={{ clipPath: `inset(0 0 0 ${pos * 100}%)` }}>
-          <MiniApp variant="after" />
+          <MiniApp
+            variant="live"
+            styleId={styleId}
+            mood={mood}
+            personaId={personaId}
+            device={device === "watch" ? "mobile" : device}
+          />
         </div>
         <span className="ba-tag" style={{ left: 14 }}>
           Before

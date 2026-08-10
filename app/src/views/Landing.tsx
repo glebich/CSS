@@ -12,7 +12,7 @@ export function Landing() {
         <p className="brand-tagline">
           Drop your app. See everything it could be. Free.
         </p>
-        <button className="brand-enter" onClick={() => go("drop")}>
+        <button className="brand-enter" onClick={() => go("place")}>
           <Sparkle size={13} />
           Drop your app
         </button>

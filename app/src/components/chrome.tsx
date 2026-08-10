@@ -1,6 +1,6 @@
-import { type ReactNode } from "react";
-import { useStore, type View } from "../store";
-import { resident } from "../data/seed";
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useStore, type Device, type View } from "../store";
+import { promptSuggestions } from "../data/seed";
 
 export function Sparkle({ size = 14 }: { size?: number }) {
   return (
@@ -10,25 +10,60 @@ export function Sparkle({ size = 14 }: { size?: number }) {
   );
 }
 
-function Chevron() {
+function Chevron({ up = false }: { up?: boolean }) {
   return (
-    <svg width="10" height="6" viewBox="0 0 10 6" fill="none" aria-hidden>
+    <svg width="10" height="6" viewBox="0 0 10 6" fill="none" aria-hidden style={up ? { transform: "rotate(180deg)" } : undefined}>
       <path d="M1 1l4 3.6L9 1" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
 
-/** 24px stroke icons for the bottom bar circles. */
-function Icon({ name }: { name: "home" | "monitor" | "inbox" | "sdk" | "promote" }) {
-  const paths: Record<string, ReactNode> = {
+function X({ size = 8 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 8 8" fill="none" aria-hidden>
+      <path d="M1 1l6 6M7 1L1 7" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+export type IconName =
+  | "home"
+  | "monitor"
+  | "inbox"
+  | "sdk"
+  | "promote"
+  | "mood"
+  | "persona"
+  | "play"
+  | "phone"
+  | "laptop"
+  | "globe"
+  | "watch"
+  | "plus"
+  | "mic"
+  | "back";
+
+/** 24px stroke icons drawn to match the Osyle_N icon sheet: 1.6 stroke, round caps. */
+export function Icon({ name, size = 22 }: { name: IconName; size?: number }) {
+  const paths: Record<IconName, ReactNode> = {
     home: <path d="M4 10.5 12 4l8 6.5V20h-5.5v-5h-5v5H4Z" />,
     monitor: <path d="M3 12h4l2.5-6 4 12 2.5-6h5" />,
     inbox: <path d="M4 5h16v14H4Z M4 13h5c0 1.6 1.3 3 3 3s3-1.4 3-3h5" />,
     sdk: <path d="m9 8-4.5 4L9 16m6-8 4.5 4L15 16" />,
     promote: <path d="M7 17 17 7m0 0H9m8 0v8" />,
+    mood: <path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Zm-3.5-8c.8 1.8 2 2.7 3.5 2.7s2.7-.9 3.5-2.7M9 9.5h.01M15 9.5h.01" />,
+    persona: <path d="M12 11.5a3.75 3.75 0 1 0 0-7.5 3.75 3.75 0 0 0 0 7.5ZM5 20c.8-3.3 3.5-5 7-5s6.2 1.7 7 5" />,
+    play: <path d="M8 5.5v13l10-6.5L8 5.5Z" />,
+    phone: <path d="M8 3h8a1.5 1.5 0 0 1 1.5 1.5v15A1.5 1.5 0 0 1 16 21H8a1.5 1.5 0 0 1-1.5-1.5v-15A1.5 1.5 0 0 1 8 3Zm2 15h4" />,
+    laptop: <path d="M5 6h14v10H5Z M3 19h18" />,
+    globe: <path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Zm-9-9h18M12 3c2.5 2.4 3.75 5.4 3.75 9S14.5 18.6 12 21c-2.5-2.4-3.75-5.4-3.75-9S9.5 5.4 12 3Z" />,
+    watch: <path d="M9 7h6a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2Zm0 0 .8-4h4.4L15 7M9 17l.8 4h4.4l.8-4" />,
+    plus: <path d="M12 5v14M5 12h14" />,
+    mic: <path d="M12 4a2.6 2.6 0 0 1 2.6 2.6v5a2.6 2.6 0 1 1-5.2 0v-5A2.6 2.6 0 0 1 12 4Zm-6 8a6 6 0 0 0 12 0M12 18v3" />,
+    back: <path d="M14 6l-6 6 6 6" />,
   };
   return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
       {paths[name]}
     </svg>
   );
@@ -42,25 +77,82 @@ export function Wordmark() {
   );
 }
 
+const DEVICES: Array<{ id: Device; label: string; icon: IconName }> = [
+  { id: "mobile", label: "Mobile app", icon: "phone" },
+  { id: "desktop", label: "Desktop app", icon: "laptop" },
+  { id: "website", label: "Website", icon: "globe" },
+  { id: "watch", label: "Wearables", icon: "watch" },
+];
+
+export function DeviceSwitcher() {
+  const { device, setDevice } = useStore();
+  const [open, setOpen] = useState(false);
+  const current = DEVICES.find((d) => d.id === device) ?? DEVICES[0];
+  return (
+    <>
+      <button className="device-pill" onClick={() => setOpen(!open)} aria-label="Device">
+        <Icon name={current.icon} size={16} />
+        {current.label.replace(" app", "")}
+        <Chevron up={open} />
+      </button>
+      {open && (
+        <div className="device-menu fade-in">
+          {DEVICES.map((d) => (
+            <div key={d.id}>
+              <button
+                className={`device-row${d.id === device ? " is-active" : ""}`}
+                onClick={() => {
+                  setDevice(d.id);
+                  setOpen(false);
+                }}
+              >
+                {d.label}
+                <Icon name={d.icon} size={16} />
+              </button>
+              {d.id === device && d.id === "mobile" && (
+                <div className="device-sub">
+                  <span>iPhone</span>
+                  <span className="on">6.1&quot;</span>
+                  <span>6.7&quot;</span>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </>
+  );
+}
+
 export function TopBar({ inResident }: { inResident: boolean }) {
-  const { go, resetDemo } = useStore();
+  const { go, resetDemo, tabs, activeTab, switchTab, addTab, closeTab } = useStore();
   return (
     <header className="topbar">
       <button onClick={() => go(inResident ? "home" : "landing")} aria-label="Osyle">
         <Wordmark />
       </button>
-      {inResident && (
-        <div style={{ position: "absolute", left: "50%", transform: "translateX(-50%)", display: "flex", alignItems: "center", gap: 5 }}>
-          <span className="topbar-resident">
-            {resident.name}
-            <Chevron />
+      <div className="tabs" style={{ marginLeft: 10 }}>
+        {tabs.map((tab) => (
+          <span key={tab.id} className={`tab${tab.id === activeTab ? " is-active" : ""}`}>
+            <button onClick={() => switchTab(tab.id)}>{tab.name}</button>
+            {tabs.length > 1 && (
+              <button className="tab-x" onClick={() => closeTab(tab.id)} aria-label={`Close ${tab.name}`}>
+                <X />
+              </button>
+            )}
           </span>
-        </div>
-      )}
+        ))}
+        {tabs.length < 10 && (
+          <button className="tab-add" onClick={addTab} aria-label="New tab">
+            <Icon name="plus" size={14} />
+          </button>
+        )}
+      </div>
       <span className="topbar-spacer" />
       <button className="topbar-quiet" onClick={resetDemo}>
         Reset demo
       </button>
+      {inResident && <DeviceSwitcher />}
       <span className="avatar-chip">GK</span>
     </header>
   );
@@ -73,7 +165,7 @@ const NAV: Array<{ view: View; label: string }> = [
   { view: "issues", label: "Issues" },
 ];
 
-const LIFE_NAV: Array<{ view: View; label: string; icon: "home" | "monitor" | "inbox" | "sdk" | "promote" }> = [
+const LIFE_NAV: Array<{ view: View; label: string; icon: IconName }> = [
   { view: "address", label: "Address", icon: "home" },
   { view: "monitor", label: "Monitor", icon: "monitor" },
   { view: "inbox", label: "Inbox", icon: "inbox" },
@@ -81,8 +173,58 @@ const LIFE_NAV: Array<{ view: View; label: string; icon: "home" | "monitor" | "i
   { view: "promote", label: "Promote", icon: "promote" },
 ];
 
+/**
+ * The prompt bar never faces anyone with a blank line: the placeholder
+ * rotates through real asks, and focus opens tappable suggestions.
+ */
+function AskInput() {
+  const [focused, setFocused] = useState(false);
+  const [value, setValue] = useState("");
+  const [idx, setIdx] = useState(0);
+  const timer = useRef<number>();
+
+  useEffect(() => {
+    timer.current = window.setInterval(
+      () => setIdx((i) => (i + 1) % promptSuggestions.length),
+      3600,
+    );
+    return () => window.clearInterval(timer.current);
+  }, []);
+
+  return (
+    <>
+      {focused && (
+        <div className="suggest-pop">
+          {promptSuggestions.map((s) => (
+            <button
+              key={s}
+              className="suggest-chip"
+              onMouseDown={(e) => {
+                e.preventDefault();
+                setValue(s);
+              }}
+            >
+              {s}
+            </button>
+          ))}
+        </div>
+      )}
+      <div className="ask-pill">
+        <span className="pulse-dot" aria-hidden />
+        <input
+          placeholder={promptSuggestions[idx]}
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          onFocus={() => setFocused(true)}
+          onBlur={() => setFocused(false)}
+        />
+      </div>
+    </>
+  );
+}
+
 export function BottomBar() {
-  const { view, go, inbox } = useStore();
+  const { view, go, inbox, panel, togglePanel } = useStore();
   const unread = inbox.filter((e) => !e.read).length;
   const active = (v: View) =>
     v === view || (v === "transform" && view === "reveal") ? " is-active" : "";
@@ -98,19 +240,33 @@ export function BottomBar() {
             {item.label}
           </button>
         ))}
-        <div className="ask-pill">
-          <span className="pulse-dot" aria-hidden />
-          <input placeholder="Ask anything about SkyRecall" readOnly />
-        </div>
+        <AskInput />
+        <button
+          className={`util-circle${panel === "mood" ? " is-active" : ""}`}
+          onClick={() => togglePanel("mood")}
+          title="Mood"
+          aria-label="Mood"
+        >
+          <Icon name="mood" size={20} />
+        </button>
+        <button
+          className={`util-circle${panel === "personas" ? " is-active" : ""}`}
+          onClick={() => togglePanel("personas")}
+          title="Personas"
+          aria-label="Personas"
+        >
+          <Icon name="persona" size={20} />
+        </button>
         {LIFE_NAV.map((item) => (
           <button
             key={item.view}
             className={`circle${active(item.view)}`}
+            style={{ width: 44, height: 44 }}
             onClick={() => go(item.view)}
             title={item.label}
             aria-label={item.label}
           >
-            <Icon name={item.icon} />
+            <Icon name={item.icon} size={19} />
             {item.view === "inbox" && unread > 0 && <span className="badge" />}
           </button>
         ))}

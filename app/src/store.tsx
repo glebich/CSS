@@ -11,14 +11,19 @@ import { createClient } from "./sdk/osyle";
 import {
   issues,
   lenses,
+  personas,
   resident,
+  styleCatalog,
   type InboxEntry,
   inboxSeed,
 } from "./data/seed";
 
 export type View =
   | "landing"
-  | "drop"
+  | "place"
+  | "assets"
+  | "style"
+  | "launch"
   | "home"
   | "exam"
   | "transform"
@@ -30,8 +35,29 @@ export type View =
   | "sdk"
   | "promote";
 
+export type Device = "mobile" | "desktop" | "website" | "watch";
+
+export interface Mood {
+  /** 0 calm, 100 energetic */
+  energy: number;
+  /** 0 minimal, 100 bold */
+  style: number;
+  /** 0 playful, 100 serious */
+  tone: number;
+}
+
+export interface Tab {
+  id: string;
+  name: string;
+  /** only the demo resident carries the full life */
+  isDemo: boolean;
+}
+
 const HEALED_KEY = "osyle.demo.healed";
 const ACCEPT_KEY = "osyle.demo.transformAccepted";
+const STYLE_KEY = "osyle.demo.style";
+const MOOD_KEY = "osyle.demo.mood";
+const PERSONA_KEY = "osyle.demo.persona";
 
 export const sdk = createClient(resident.slug);
 
@@ -44,7 +70,6 @@ function loadJson<T>(key: string, fallback: T): T {
   }
 }
 
-/** Issues still open in the current examination. */
 export function currentState(issueId: string, healed: Set<string>) {
   const issue = issues.find((i) => i.id === issueId);
   if (!issue) return "new";
@@ -55,6 +80,28 @@ export function currentState(issueId: string, healed: Set<string>) {
 interface Store {
   view: View;
   go: (v: View) => void;
+  /* tabs, like a browser, up to ten */
+  tabs: Tab[];
+  activeTab: string;
+  switchTab: (id: string) => void;
+  addTab: () => void;
+  closeTab: (id: string) => void;
+  /* the upload flow */
+  uploadPhase: "idle" | "reading" | "understood";
+  beginUpload: () => void;
+  /* style, mood, persona, device */
+  styleId: string;
+  setStyleId: (id: string) => void;
+  mood: Mood;
+  setMood: (m: Partial<Mood>) => void;
+  personaId: string;
+  setPersonaId: (id: string) => void;
+  device: Device;
+  setDevice: (d: Device) => void;
+  /* floating panels */
+  panel: "none" | "mood" | "personas" | "run";
+  togglePanel: (p: "mood" | "personas" | "run") => void;
+  /* the examination and heal */
   healed: Set<string>;
   healing: boolean;
   heal: () => void;
@@ -76,8 +123,20 @@ export function useStore(): Store {
   return s;
 }
 
+const DEMO_TAB: Tab = { id: "tab-skyrecall", name: "SkyRecall", isDemo: true };
+
 export function StoreProvider({ children }: { children: ReactNode }) {
   const [view, setView] = useState<View>("landing");
+  const [tabs, setTabs] = useState<Tab[]>([DEMO_TAB]);
+  const [activeTab, setActiveTab] = useState(DEMO_TAB.id);
+  const [uploadPhase, setUploadPhase] = useState<"idle" | "reading" | "understood">("idle");
+  const [styleId, setStyleIdRaw] = useState(() => loadJson(STYLE_KEY, "st-paper"));
+  const [mood, setMoodRaw] = useState<Mood>(() =>
+    loadJson<Mood>(MOOD_KEY, { energy: 30, style: 25, tone: 65 }),
+  );
+  const [personaId, setPersonaIdRaw] = useState(() => loadJson(PERSONA_KEY, "p-maria"));
+  const [device, setDevice] = useState<Device>("mobile");
+  const [panel, setPanel] = useState<"none" | "mood" | "personas" | "run">("none");
   const [healed, setHealed] = useState<Set<string>>(
     () => new Set(loadJson<string[]>(HEALED_KEY, [])),
   );
@@ -91,10 +150,79 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     localStorage.setItem(HEALED_KEY, JSON.stringify([...healed]));
   }, [healed]);
-
   useEffect(() => {
     localStorage.setItem(ACCEPT_KEY, JSON.stringify(transformAccepted));
   }, [transformAccepted]);
+  useEffect(() => {
+    localStorage.setItem(STYLE_KEY, JSON.stringify(styleId));
+  }, [styleId]);
+  useEffect(() => {
+    localStorage.setItem(MOOD_KEY, JSON.stringify(mood));
+  }, [mood]);
+  useEffect(() => {
+    localStorage.setItem(PERSONA_KEY, JSON.stringify(personaId));
+  }, [personaId]);
+
+  const switchTab = useCallback((id: string) => {
+    setActiveTab(id);
+    setPanel("none");
+    setView((v) => {
+      const tab = id === DEMO_TAB.id;
+      if (tab) return v === "place" || v === "assets" ? "home" : v;
+      return "place";
+    });
+  }, []);
+
+  const addTab = useCallback(() => {
+    setTabs((prev) => {
+      if (prev.length >= 10) return prev;
+      const n = prev.filter((t) => !t.isDemo).length + 1;
+      const tab: Tab = { id: `tab-${Date.now()}`, name: `Untitled ${n}`, isDemo: false };
+      setActiveTab(tab.id);
+      setView("place");
+      setUploadPhase("idle");
+      setPanel("none");
+      return [...prev, tab];
+    });
+  }, []);
+
+  const closeTab = useCallback(
+    (id: string) => {
+      setTabs((prev) => {
+        const next = prev.filter((t) => t.id !== id);
+        if (next.length === 0) return prev;
+        if (id === activeTab) {
+          setActiveTab(next[next.length - 1].id);
+          setView(next[next.length - 1].isDemo ? "home" : "place");
+        }
+        return next;
+      });
+    },
+    [activeTab],
+  );
+
+  /** The gradient sweeps while the system reads, then everything is understood. */
+  const beginUpload = useCallback(() => {
+    setView("assets");
+    setUploadPhase("reading");
+    window.setTimeout(() => setUploadPhase("understood"), 3400);
+  }, []);
+
+  const setStyleId = useCallback((id: string) => {
+    if (styleCatalog.some((s) => s.id === id)) setStyleIdRaw(id);
+  }, []);
+
+  const setMood = useCallback((m: Partial<Mood>) => {
+    setMoodRaw((prev) => ({ ...prev, ...m }));
+  }, []);
+
+  const setPersonaId = useCallback((id: string) => {
+    if (personas.some((p) => p.id === id)) setPersonaIdRaw(id);
+  }, []);
+
+  const togglePanel = useCallback((p: "mood" | "personas" | "run") => {
+    setPanel((prev) => (prev === p ? "none" : p));
+  }, []);
 
   const healableOpen = useMemo(
     () =>
@@ -125,7 +253,6 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     return Math.round(weighted);
   }, [lensScore]);
 
-  /** One tap. Issues heal in sequence, 500ms apart, and the pulse rises. */
   const heal = useCallback(() => {
     if (healing || healableOpen.length === 0) return;
     setHealing(true);
@@ -169,18 +296,47 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const acceptTransform = useCallback(() => setTransformAccepted(true), []);
 
   const resetDemo = useCallback(() => {
-    localStorage.removeItem(HEALED_KEY);
-    localStorage.removeItem(ACCEPT_KEY);
+    [HEALED_KEY, ACCEPT_KEY, STYLE_KEY, MOOD_KEY, PERSONA_KEY].forEach((k) =>
+      localStorage.removeItem(k),
+    );
     setHealed(new Set());
     setTransformAccepted(false);
     setExtraInbox([]);
     setReadIds(new Set());
+    setTabs([DEMO_TAB]);
+    setActiveTab(DEMO_TAB.id);
+    setStyleIdRaw("st-paper");
+    setMoodRaw({ energy: 30, style: 25, tone: 65 });
+    setPersonaIdRaw("p-maria");
+    setDevice("mobile");
+    setPanel("none");
+    setUploadPhase("idle");
     setView("landing");
   }, []);
 
   const store: Store = {
     view,
-    go: setView,
+    go: (v) => {
+      setPanel("none");
+      setView(v);
+    },
+    tabs,
+    activeTab,
+    switchTab,
+    addTab,
+    closeTab,
+    uploadPhase,
+    beginUpload,
+    styleId,
+    setStyleId,
+    mood,
+    setMood,
+    personaId,
+    setPersonaId,
+    device,
+    setDevice,
+    panel,
+    togglePanel,
     healed,
     healing,
     heal,
