@@ -1,5 +1,6 @@
 import { useStore } from "../store";
 import { FlowSteps, Sparkle } from "../components/chrome";
+import { Theater } from "../components/Theater";
 import { materials, type Material } from "../data/seed";
 
 function FileVisual({ m, understood }: { m: Material; understood: boolean }) {
@@ -176,6 +177,8 @@ export function Assets() {
             </div>
           ))}
         </div>
+
+        {reading && <Theater />}
       </div>
 
       <div
@@ -192,7 +195,7 @@ export function Assets() {
         {reading ? (
           <div className="pulse-line glass" style={{ padding: "14px 24px", borderRadius: 30 }}>
             <span className="pulse-dot" />
-            <span>Reading everything you placed. A minute, not more.</span>
+            <span>Reading everything you placed. Under a minute.</span>
           </div>
         ) : (
           <button className="pill pill-dark fade-in" onClick={() => go("style")}>

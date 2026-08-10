@@ -27,6 +27,17 @@ over the Fix Prompt. Set-aside findings dim, stay in the report, and can
 be brought back. When every decision is made, the desk says so and
 offers one door: back to the rest.
 
+## The theater and the address
+
+Dropping materials opens the Analysis Theater: the agent feed streams
+six phases (Reassemble, Errors, Strategy, UX, Design, Plan) at a human
+cadence while the understanding panel earns its screens, flows, and
+findings counter; a quiet Skip stands by for rehearsal. The Address is
+a ceremony: It lives here now, Copy, Open. Open serves the resident
+itself at `#/r/skyrecall`, a real working SkyRecall: three radio-call
+drills, a logbook persisted through the SDK, wearing whatever identity
+was chosen in the studio.
+
 ## The journey
 
 Setup runs on a visible breadcrumb: Place (a real dropzone), Materials

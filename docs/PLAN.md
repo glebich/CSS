@@ -311,6 +311,18 @@ Deferred to their stages, noted: the Analysis Theater's agent feed,
 Discover and search, the attention map, /r/{slug} live serving, and
 the BEFORE's full expensively-bad spec.
 
+### Increment B3. The Analysis Theater and the living address. DELIVERED
+
+The golden path's two theatrical moments, both testable by hand: the
+six-phase agent feed with its live understanding panel and ghost Skip
+(about 35 seconds, deterministic, one constant from the spec's 45), and
+the address ceremony whose Open serves the resident itself at
+`#/r/{slug}`: a real SkyRecall with working drills and a logbook
+persisted through the SDK, wearing the chosen identity. Same-tab and
+new-tab navigation both work (a hashchange listener fixed the same-tab
+case); a breadcrumb overlap on Explore a style was found by the
+screenshot pass and fixed. 60 checks total across both suites.
+
 ### Increment C. Stage 6, the Audience for real
 
 Archetype composition from a sentence, discovery mode with cited

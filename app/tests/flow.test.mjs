@@ -31,9 +31,15 @@ await page.goto("http://localhost:5197/");
 await page.getByText("Drop your app", { exact: false }).last().click();
 check("place shows the flow steps", await page.locator(".flow-steps").isVisible());
 await page.getByText("Drop the SkyRecall materials").click();
-await page.waitForTimeout(800);
+await page.waitForTimeout(900);
 check("reading sweep is on", (await page.locator(".is-reading").count()) > 0);
-await page.waitForTimeout(2900);
+
+/* the analysis theater streams its phases, earns its panel, and skips */
+await page.waitForTimeout(2200);
+check("the theater streams the feed", await page.getByText("Reconstructing the application").isVisible());
+check("the understanding panel is live", await page.getByText("What it understands so far").isVisible());
+await page.getByText("Skip", { exact: true }).click();
+await page.waitForTimeout(400);
 check("materials become understood", (await page.locator(".file-card.is-understood").count()) >= 6);
 await page.getByText("Explore a style", { exact: false }).last().click();
 check("style flow step is current", await page.locator(".flow-step.is-current", { hasText: "Style" }).isVisible());
@@ -93,6 +99,24 @@ await page.waitForTimeout(600);
 check("since-you-left card appears", await page.locator(".since-card").isVisible());
 await page.getByText("Skip").click();
 check("since-you-left dismisses", (await page.locator(".since-card").count()) === 0);
+
+/* the living address: a real app at #/r/skyrecall, wearing the identity */
+await page.goto("http://localhost:5197/#/r/skyrecall");
+await page.waitForTimeout(500);
+check("the resident serves at its address", await page.getByText("Radio calls", { exact: false }).first().isVisible());
+check("the resident wears the mark", await page.getByText("Alive at Osyle").isVisible());
+await page.getByText("Begin the drill").click();
+await page.getByText("Said it, next").click();
+await page.getByText("Said it, next").click();
+await page.getByText("Said it, log the drill").click();
+check("a completed drill logs", await page.getByText("Logged.").isVisible());
+await page.getByText("See the logbook").click();
+check("the logbook remembers", await page.getByText("calls clean", { exact: false }).first().isVisible());
+await page.reload();
+await page.waitForTimeout(400);
+check("the logbook survives a reload", await page.getByText("Logbook, 1").isVisible());
+await page.goto("http://localhost:5197/");
+await page.waitForTimeout(600);
 
 /* the responsive floor: at 390 everything is composed */
 await page.setViewportSize({ width: 390, height: 844 });

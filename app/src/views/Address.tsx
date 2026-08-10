@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { readLedger, sdk, useStore } from "../store";
 import { Page, Sparkle } from "../components/chrome";
 import { quotas, resident } from "../data/seed";
@@ -5,6 +6,7 @@ import { quotas, resident } from "../data/seed";
 /** Serving: the address holding files, media, and users. The home, literal. */
 export function Address() {
   const { vitality, ledgerCount } = useStore();
+  const [copied, setCopied] = useState(false);
 
   function exportEverything() {
     const payload = {
@@ -32,11 +34,47 @@ export function Address() {
 
   return (
     <Page>
-      <h1 className="statement statement-page">
-        The home, <span className="quiet">literal.</span>
-      </h1>
+      <div style={{ textAlign: "center", padding: "10px 0 8px" }}>
+        <h1 className="statement statement-page">
+          It lives <span className="quiet">here now.</span>
+        </h1>
+        <div
+          style={{
+            fontSize: "clamp(22px, 3vw, 34px)",
+            fontWeight: 510,
+            letterSpacing: "-0.01em",
+            marginTop: 18,
+            fontVariantNumeric: "tabular-nums",
+          }}
+        >
+          {resident.address}
+        </div>
+        <div style={{ display: "flex", gap: 10, justifyContent: "center", marginTop: 18 }}>
+          <button
+            className="pill pill-sm"
+            onClick={() => {
+              navigator.clipboard?.writeText(`https://${resident.address}`).catch(() => undefined);
+              setCopied(true);
+            }}
+          >
+            {copied ? "Copied" : "Copy"}
+          </button>
+          <a
+            className="pill pill-sm"
+            href={`#/r/${resident.slug}`}
+            target="_blank"
+            rel="noreferrer"
+            style={{ textDecoration: "none" }}
+          >
+            Open
+          </a>
+        </div>
+        <p style={{ fontSize: 13, color: "var(--gray-small)", marginTop: 14 }}>
+          Watched from this moment on.
+        </p>
+      </div>
 
-      <div className="card card-pad" style={{ marginTop: 30 }}>
+      <div className="card card-pad" style={{ marginTop: 26 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <span className="pulse-dot" />
           <span style={{ fontSize: 19, fontWeight: 550 }}>{resident.address}</span>

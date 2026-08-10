@@ -409,6 +409,46 @@ export function mapFeeling(text: string): FeelingResult {
 export const examClosing =
   "SkyRecall is not a study app; it is a confidence instrument. Pilots do not open it to learn, they open it to stop doubting, and every screen that delays that reassurance is working against the product.";
 
+/**
+ * The Analysis Theater script: six phases streaming at a human cadence,
+ * deterministic timings, about 45 seconds end to end, a ghost Skip for
+ * rehearsal. Lines mark what the understanding panel learns.
+ */
+export interface TheaterLine {
+  phase: "Reassemble" | "Errors" | "Strategy" | "UX" | "Design" | "Plan";
+  text: string;
+  /** ms after the previous line */
+  delay: number;
+  addScreens?: string[];
+  addFlows?: string[];
+  addIssues?: number;
+}
+
+export const theaterScript: TheaterLine[] = [
+  { phase: "Reassemble", text: "Reading files", delay: 600 },
+  { phase: "Reassemble", text: "Reconstructing the application", delay: 900 },
+  { phase: "Reassemble", text: "Found the drill screen", delay: 900, addScreens: ["Drill"] },
+  { phase: "Reassemble", text: "Found the logbook", delay: 800, addScreens: ["Logbook"] },
+  { phase: "Reassemble", text: "Found the weather briefing", delay: 800, addScreens: ["Briefing"] },
+  { phase: "Reassemble", text: "3 screens, 2 flows", delay: 900, addFlows: ["Radio-call drill", "Weather briefing"] },
+  { phase: "Errors", text: "Checking for breakage", delay: 2000 },
+  { phase: "Errors", text: "The weather key answers 401, every call", delay: 1400, addIssues: 1 },
+  { phase: "Errors", text: "One fragile dependency, the METAR client", delay: 1100 },
+  { phase: "Strategy", text: "This is not a study app. It is a confidence instrument.", delay: 2400 },
+  { phase: "Strategy", text: "Pilots open it to stop doubting, not to learn.", delay: 1600 },
+  { phase: "UX", text: "Walking the first-time path", delay: 2000 },
+  { phase: "UX", text: "The first drill is four taps away", delay: 1400, addIssues: 1 },
+  { phase: "UX", text: "Simulating a stressed user before a checkride", delay: 1500 },
+  { phase: "UX", text: "The blank logbook offers no first step", delay: 1400, addIssues: 1 },
+  { phase: "UX", text: "An interrupted drill loses its timer", delay: 1300, addIssues: 1 },
+  { phase: "Design", text: "Auditing type, spacing, color, states", delay: 2000 },
+  { phase: "Design", text: "Runway numbers fail in sunlight, 3.1 to 1", delay: 1500, addIssues: 1 },
+  { phase: "Design", text: "Three actions compete with the one that matters", delay: 1400, addIssues: 1 },
+  { phase: "Plan", text: "Weighing ten lenses", delay: 2200 },
+  { phase: "Plan", text: "Writing your plan", delay: 1400 },
+  { phase: "Plan", text: "Done. Six findings, each priced, each yours to decide.", delay: 1600 },
+];
+
 /** What the prompt bar suggests, rotating, so no one faces a blank line. */
 export const promptSuggestions = [
   "Make the first drill one tap away",

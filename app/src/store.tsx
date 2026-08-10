@@ -123,6 +123,8 @@ interface Store {
   /* the upload flow */
   uploadPhase: "idle" | "reading" | "understood";
   beginUpload: (droppedName?: string) => void;
+  /** the theater calls this when its last line lands, or on Skip */
+  finishReading: () => void;
   droppedName: string | null;
   /* journey clarity */
   seenTips: Set<string>;
@@ -311,12 +313,15 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     [activeTab],
   );
 
-  /** The gradient sweeps while the system reads, then everything is understood. */
+  /** The theater reads aloud while the gradient sweeps; it decides when done. */
   const beginUpload = useCallback((dropped?: string) => {
     setDroppedName(dropped ?? null);
     setView("assets");
     setUploadPhase("reading");
-    window.setTimeout(() => setUploadPhase("understood"), 3400);
+  }, []);
+
+  const finishReading = useCallback(() => {
+    setUploadPhase((p) => (p === "reading" ? "understood" : p));
   }, []);
 
   const markTipSeen = useCallback((tip: string) => {
@@ -529,6 +534,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     closeTab,
     uploadPhase,
     beginUpload,
+    finishReading,
     droppedName,
     seenTips,
     markTipSeen,
