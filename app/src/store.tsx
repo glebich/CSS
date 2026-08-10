@@ -22,6 +22,7 @@ import {
   inboxSeed,
 } from "./data/seed";
 import { analyzeProject, filesFromInput, type DroppedFile } from "./engine/analyze";
+import { fetchRepoZip, parseRepoUrl } from "./engine/github";
 import type { AnalyzedProject, ProgressLine } from "./engine/types";
 
 export type View =
@@ -173,6 +174,8 @@ interface Store {
   /* the real engine: an actually analyzed project, or null for the example */
   project: AnalyzedProject | null;
   analyzeFiles: (dropped: DroppedFile[]) => Promise<void>;
+  /** connect a GitHub repo; resolves to a human error sentence, or null */
+  analyzeRepo: (text: string) => Promise<string | null>;
   /** the residency: persist the dropped app and serve it at its address */
   realSlug: string | null;
   giveAddress: () => void;
@@ -579,6 +582,29 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     }
   }, [record]);
 
+  /**
+   * The repo door: a person names their repository, Osyle reads the
+   * app from it and the whole examination follows. Public repos now;
+   * the token flow for private ones arrives with Real Mode.
+   */
+  const analyzeRepo = useCallback(
+    async (text: string): Promise<string | null> => {
+      const ref = parseRepoUrl(text);
+      if (!ref) return "Name it like github.com/you/your-app.";
+      /* stay on the place until the repo actually answers, so an
+         honest refusal lands where the person still is */
+      try {
+        const file = await fetchRepoZip(ref);
+        record("repo.connected", { repo: `${ref.owner}/${ref.repo}` });
+        await analyzeFiles([file]);
+        return null;
+      } catch (err) {
+        return err instanceof Error ? err.message : "The connection failed. Try again.";
+      }
+    },
+    [analyzeFiles, record],
+  );
+
   const decideReal = useCallback((findingId: string, decision: "accepted" | "aside") => {
     setRealDecisions((prev) => ({ ...prev, [findingId]: decision }));
     appendLedger("finding.decided.real", { findingId, decision });
@@ -818,6 +844,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     droppedName,
     project,
     analyzeFiles,
+    analyzeRepo,
     realSlug,
     giveAddress,
     progress,

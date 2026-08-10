@@ -56,11 +56,24 @@ async function walkEntry(
 }
 
 export function Place() {
-  const { beginUpload, analyzeFiles } = useStore();
+  const { beginUpload, analyzeFiles, analyzeRepo } = useStore();
   const [dragging, setDragging] = useState(false);
+  const [repoText, setRepoText] = useState("");
+  const [repoError, setRepoError] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const folderRef = useRef<HTMLInputElement>(null);
   const depth = useRef(0);
+
+  const [reaching, setReaching] = useState(false);
+
+  async function connectRepo() {
+    if (!repoText.trim() || reaching) return;
+    setRepoError(null);
+    setReaching(true);
+    const error = await analyzeRepo(repoText.trim());
+    setReaching(false);
+    if (error) setRepoError(error);
+  }
 
   async function onDrop(e: React.DragEvent) {
     e.preventDefault();
@@ -144,11 +157,32 @@ export function Place() {
           left: "50%",
           transform: "translateX(-50%)",
           display: "flex",
+          flexDirection: "column",
           alignItems: "center",
           gap: 10,
           zIndex: 2,
         }}
       >
+        {/* the repo door: name the repository, the examination follows */}
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div className="ask-pill" style={{ minWidth: 300, boxShadow: "var(--shadow-pill)" }}>
+            <input
+              placeholder="github.com/you/your-app"
+              value={repoText}
+              onChange={(e) => setRepoText(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && void connectRepo()}
+            />
+          </div>
+          <button className="pill" onClick={() => void connectRepo()}>
+            {reaching ? "Reaching the repository" : "Connect the repo"}
+          </button>
+        </div>
+        {repoError && (
+          <span className="fade-in" style={{ fontSize: 12.5, color: "var(--gray-meta)" }}>
+            {repoError}
+          </span>
+        )}
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
         <input
           ref={fileRef}
           type="file"
@@ -187,6 +221,7 @@ export function Place() {
         <button className="pill" onClick={() => beginUpload()}>
           See the example
         </button>
+        </div>
       </div>
     </main>
   );

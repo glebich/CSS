@@ -7,6 +7,8 @@ import { chromium } from "playwright-core";
 import { createServer } from "vite";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
+import { readFileSync } from "node:fs";
+import { strToU8, zipSync } from "fflate";
 
 const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const server = await createServer({ root, server: { port: 5197 } });
@@ -18,7 +20,12 @@ const browser = await chromium.launch({
 const page = await browser.newPage({ viewport: { width: 1440, height: 810 } });
 const errors = [];
 page.on("pageerror", (e) => errors.push(`pageerror: ${e}`));
-page.on("console", (m) => m.type() === "error" && errors.push(`console: ${m.text()}`));
+page.on("console", (m) => {
+  /* the repo test intentionally answers one fetch with 404 */
+  if (m.type() === "error" && !m.text().includes("status of 404")) {
+    errors.push(`console: ${m.text()}`);
+  }
+});
 
 let failures = 0;
 function check(name, ok) {
@@ -505,6 +512,56 @@ await page.goto("http://localhost:5197/");
 await page.waitForTimeout(500);
 await page.getByText("Drop your app", { exact: false }).last().click();
 await page.waitForTimeout(300);
+
+/* -----------------------------------------------------------------
+   The repo door: a person names their repository and the whole real
+   examination follows. GitHub's zipball is stubbed at the network
+   edge, so everything after the fetch is the true pipeline. */
+const fixtureZip = zipSync({
+  "sunrise-main/index.html": strToU8(
+    readFileSync(new URL("./fixture/index.html", import.meta.url), "utf8"),
+  ),
+  "sunrise-main/styles.css": strToU8(
+    readFileSync(new URL("./fixture/styles.css", import.meta.url), "utf8"),
+  ),
+  "sunrise-main/app.js": strToU8(
+    readFileSync(new URL("./fixture/app.js", import.meta.url), "utf8"),
+  ),
+});
+await page.route("**/api.github.com/repos/osyle/sunrise/zipball", (route) =>
+  route.fulfill({
+    status: 200,
+    contentType: "application/zip",
+    body: Buffer.from(fixtureZip),
+  }),
+);
+await page.route("**/api.github.com/repos/osyle/nowhere/zipball", (route) =>
+  route.fulfill({ status: 404, contentType: "application/json", body: "{}" }),
+);
+await page.getByPlaceholder("github.com/you/your-app").fill("github.com/osyle/nowhere");
+await page.getByText("Connect the repo").click();
+await page.waitForTimeout(800);
+check(
+  "an unreachable repo is answered honestly",
+  await page.getByText("Private repositories connect with Real Mode", { exact: false }).isVisible(),
+);
+await page.getByPlaceholder("github.com/you/your-app").fill("github.com/osyle/sunrise");
+await page.getByText("Connect the repo").click();
+check(
+  "the connected repo is measured for real",
+  await page
+    .getByText("Measuring your files, line by line.")
+    .waitFor({ timeout: 8000 })
+    .then(() => true)
+    .catch(() => false),
+);
+await page.getByText("See the report", { exact: false }).click({ timeout: 25000 });
+await page.waitForTimeout(600);
+check("the repo's report opens on the number", await page.locator(".instrument").isVisible());
+check(
+  "the repo's flaws are caught from its zip",
+  await page.getByText("below the AA floor", { exact: false }).first().isVisible(),
+);
 
 /* back to the example for the remaining checks */
 await page.getByText("Reset demo").click();
