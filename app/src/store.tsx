@@ -11,6 +11,7 @@ import { createClient } from "./sdk/osyle";
 import {
   issues,
   lenses,
+  mapFeeling,
   personas,
   resident,
   styleCatalog,
@@ -63,6 +64,31 @@ const SEEN_KEY = "osyle.demo.seenTips";
 const LAST_SEEN_KEY = "osyle.demo.lastSeen";
 const LAUNCHED_KEY = "osyle.demo.launched";
 const DECISIONS_KEY = "osyle.demo.findingDecisions";
+const LEDGER_KEY = "osyle.demo.ledger";
+const COMFORT_KEY = "osyle.demo.comfort";
+const CAPTION_KEY = "osyle.demo.feelingCaption";
+
+export interface LedgerEntry {
+  at: string;
+  kind: string;
+  detail: Record<string, unknown>;
+}
+
+/**
+ * The Decision Ledger: every judgment made in the product, captured as
+ * training signal with its context. Append-only, resident-scoped,
+ * owner-exportable through the Address. It cannot be reconstructed
+ * later, so it exists from day one.
+ */
+export function appendLedger(kind: string, detail: Record<string, unknown>): void {
+  const entries = loadJson<LedgerEntry[]>(LEDGER_KEY, []);
+  entries.push({ at: new Date().toISOString(), kind, detail });
+  localStorage.setItem(LEDGER_KEY, JSON.stringify(entries));
+}
+
+export function readLedger(): LedgerEntry[] {
+  return loadJson<LedgerEntry[]>(LEDGER_KEY, []);
+}
 
 /** Away long enough that the resident has a story to tell. */
 const RETURN_AFTER_MS = 4 * 60 * 60 * 1000;
@@ -113,6 +139,11 @@ interface Store {
   setStyleId: (id: string) => void;
   mood: Mood;
   setMood: (m: Partial<Mood>) => void;
+  /** the feeling road: words in, style and mood out, honestly captioned */
+  applyFeeling: (text: string) => void;
+  comfort: boolean;
+  feelingCaption: string | null;
+  ledgerCount: number;
   personaId: string;
   setPersonaId: (id: string) => void;
   device: Device;
@@ -166,6 +197,23 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [decisions, setDecisions] = useState<Record<string, "accepted" | "aside">>(
     () => loadJson(DECISIONS_KEY, {}),
   );
+  const [comfort, setComfort] = useState(() => loadJson(COMFORT_KEY, false));
+  const [feelingCaption, setFeelingCaption] = useState<string | null>(() =>
+    loadJson<string | null>(CAPTION_KEY, null),
+  );
+  const [ledgerCount, setLedgerCount] = useState(() => readLedger().length);
+
+  const record = useCallback((kind: string, detail: Record<string, unknown>) => {
+    appendLedger(kind, detail);
+    setLedgerCount((n) => n + 1);
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem(COMFORT_KEY, JSON.stringify(comfort));
+  }, [comfort]);
+  useEffect(() => {
+    localStorage.setItem(CAPTION_KEY, JSON.stringify(feelingCaption));
+  }, [feelingCaption]);
   /* An accepted healable finding is healed, even if the tab closed
      before the heal animation landed. Decisions are the truth. */
   const [healed, setHealed] = useState<Set<string>>(() => {
@@ -295,17 +343,24 @@ export function StoreProvider({ children }: { children: ReactNode }) {
    * the spot, and the pulse rises; accepting the key queues the Fix
    * Prompt; setting aside is quiet and reversible.
    */
-  const decide = useCallback((issueId: string, decision: "accepted" | "aside") => {
-    setDecisions((prev) => ({ ...prev, [issueId]: decision }));
-    if (decision === "accepted") {
+  const decide = useCallback(
+    (issueId: string, decision: "accepted" | "aside") => {
       const issue = issues.find((i) => i.id === issueId);
-      if (issue?.healable) {
+      setDecisions((prev) => ({ ...prev, [issueId]: decision }));
+      record("finding.decided", {
+        issueId,
+        decision,
+        valueMonthly: issue?.valueMonthly ?? 0,
+        lens: issue?.lens,
+      });
+      if (decision === "accepted" && issue?.healable) {
         window.setTimeout(() => {
           setHealed((prev) => new Set([...prev, issueId]));
         }, 400);
       }
-    }
-  }, []);
+    },
+    [record],
+  );
 
   const restoreAside = useCallback(() => {
     setDecisions((prev) =>
@@ -313,13 +368,32 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     );
   }, []);
 
-  const setStyleId = useCallback((id: string) => {
-    if (styleCatalog.some((s) => s.id === id)) setStyleIdRaw(id);
-  }, []);
+  const setStyleId = useCallback(
+    (styleTarget: string) => {
+      if (!styleCatalog.some((s) => s.id === styleTarget)) return;
+      if (styleId !== styleTarget) {
+        record("style.chosen", { chosen: styleTarget, leftBehind: styleId });
+      }
+      setStyleIdRaw(styleTarget);
+    },
+    [record, styleId],
+  );
 
   const setMood = useCallback((m: Partial<Mood>) => {
     setMoodRaw((prev) => ({ ...prev, ...m }));
   }, []);
+
+  const applyFeeling = useCallback(
+    (text: string) => {
+      const mapped = mapFeeling(text);
+      setStyleIdRaw(mapped.styleId);
+      setMoodRaw(mapped.mood);
+      setComfort(mapped.comfort);
+      setFeelingCaption(mapped.caption);
+      record("feeling.applied", { text, ...mapped });
+    },
+    [record],
+  );
 
   const setPersonaId = useCallback((id: string) => {
     if (personas.some((p) => p.id === id)) setPersonaIdRaw(id);
@@ -362,6 +436,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     if (healing || healableOpen.length === 0) return;
     setHealing(true);
     const queue = [...healableOpen];
+    record("heal.tapped", { issues: queue });
     queue.forEach((issueId, idx) => {
       window.setTimeout(() => {
         setHealed((prev) => new Set([...prev, issueId]));
@@ -384,7 +459,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         }
       }, 500 * (idx + 1));
     });
-  }, [healing, healableOpen]);
+  }, [healing, healableOpen, record]);
 
   const inbox = useMemo(
     () =>
@@ -398,7 +473,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     setReadIds((prev) => new Set([...prev, entryId]));
   }, []);
 
-  const acceptTransform = useCallback(() => setTransformAccepted(true), []);
+  const acceptTransform = useCallback(() => {
+    setTransformAccepted(true);
+    record("transform.accepted", { styleId, mood });
+  }, [record, styleId, mood]);
 
   const resetDemo = useCallback(() => {
     [
@@ -411,8 +489,14 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       LAST_SEEN_KEY,
       LAUNCHED_KEY,
       DECISIONS_KEY,
+      LEDGER_KEY,
+      COMFORT_KEY,
+      CAPTION_KEY,
     ].forEach((k) => localStorage.removeItem(k));
     setDecisions({});
+    setComfort(false);
+    setFeelingCaption(null);
+    setLedgerCount(0);
     setDroppedName(null);
     setSeenTips(new Set());
     setJustLaunched(false);
@@ -457,6 +541,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     setStyleId,
     mood,
     setMood,
+    applyFeeling,
+    comfort,
+    feelingCaption,
+    ledgerCount,
     personaId,
     setPersonaId,
     device,

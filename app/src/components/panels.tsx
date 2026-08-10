@@ -40,7 +40,20 @@ function MoodRow({
 }) {
   const drag = useDragValue((frac) => onChange(Math.round(frac * 100)));
   return (
-    <div className="mood-row" {...drag}>
+    <div
+      className="mood-row"
+      {...drag}
+      role="slider"
+      aria-label={name}
+      aria-valuenow={value}
+      aria-valuemin={0}
+      aria-valuemax={100}
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === "ArrowLeft") onChange(Math.max(0, value - 5));
+        if (e.key === "ArrowRight") onChange(Math.min(100, value + 5));
+      }}
+    >
       <div className="mood-fill" style={{ width: `${value}%` }} />
       <div className="mood-thumb" style={{ left: `calc(${value}% - 10px)` }}>
         <svg width="6" height="12" viewBox="0 0 6 12" fill="none" aria-hidden>
@@ -59,7 +72,7 @@ function MoodRow({
  * and the live render follows the hand.
  */
 export function MoodPanel() {
-  const { mood, setMood, togglePanel, styleId, personaId, device } = useStore();
+  const { mood, setMood, togglePanel, styleId, personaId, device, comfort } = useStore();
   const rows: Array<{ key: keyof Mood; name: string; min: string; max: string }> = [
     { key: "energy", name: "Energy", min: "Calm", max: "Energetic" },
     { key: "style", name: "Style", min: "Minimal", max: "Bold" },
@@ -84,7 +97,7 @@ export function MoodPanel() {
         />
       ))}
       <div className="panel-thumb">
-        <MiniApp variant="live" styleId={styleId} mood={mood} personaId={personaId} device={previewDevice(device)} />
+        <MiniApp variant="live" styleId={styleId} mood={mood} personaId={personaId} device={previewDevice(device)} comfort={comfort} />
       </div>
       <p style={{ fontSize: 11.5, color: "var(--gray-tertiary)", marginTop: 10, lineHeight: 1.5 }}>
         The render follows the dials. Nothing to type.
@@ -98,7 +111,7 @@ export function MoodPanel() {
  * with the age dial breathing a live reach estimate.
  */
 export function PersonasPanel() {
-  const { personaId, setPersonaId, togglePanel, styleId, mood, device } = useStore();
+  const { personaId, setPersonaId, togglePanel, styleId, mood, device, comfort } = useStore();
   const active = personas.find((p) => p.id === personaId) ?? personas[0];
   const drag = useDragValue(() => undefined);
   return (
@@ -139,7 +152,7 @@ export function PersonasPanel() {
         </span>
       </div>
       <div className="panel-thumb">
-        <MiniApp variant="live" styleId={styleId} mood={mood} personaId={personaId} device={previewDevice(device)} />
+        <MiniApp variant="live" styleId={styleId} mood={mood} personaId={personaId} device={previewDevice(device)} comfort={comfort} />
       </div>
       <p style={{ fontSize: 11.5, color: "var(--gray-tertiary)", marginTop: 10, lineHeight: 1.5 }}>
         The primary persona changes the render, the Twin, and what counts as
@@ -151,7 +164,7 @@ export function PersonasPanel() {
 
 /** Run mode: the resident wearing the chosen device, live. */
 export function RunOverlay() {
-  const { device, styleId, mood, personaId, togglePanel } = useStore();
+  const { device, styleId, mood, personaId, togglePanel, comfort } = useStore();
   const frame =
     device === "watch"
       ? { frame: "watch-frame", screen: "watch-screen" }
@@ -169,6 +182,7 @@ export function RunOverlay() {
               mood={mood}
               personaId={personaId}
               device={device}
+              comfort={comfort}
             />
           </div>
         </div>

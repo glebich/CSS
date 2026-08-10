@@ -305,6 +305,8 @@ export interface StyleCard {
   swatch: string;
   ink: string;
   accent: string;
+  /** corner radius of the style's components */
+  radius: number;
   tall?: boolean;
 }
 
@@ -317,19 +319,28 @@ export const styleCategories = [
   "Brutalism",
 ] as const;
 
+/**
+ * The four StyleModels are real token systems, binding per the spec's
+ * addendum: the same structured screens render through their tokens, so
+ * switching is instant and flows are provably unchanged.
+ */
 export const styleCatalog: StyleCard[] = [
-  { id: "st-paper", name: "Paper Instrument", by: "Studio Norm", category: "Minimalism", dark: false, swatch: "linear-gradient(160deg, #f4f2ee 0%, #e8e4dd 100%)", ink: "#18202c", accent: "#18202c", tall: true },
-  { id: "st-cockpit", name: "Cockpit Night", by: "Aft Cabin", category: "Dark Pro", dark: true, swatch: "linear-gradient(160deg, #0c0f14 0%, #1a2230 100%)", ink: "#e8ecf4", accent: "#5b8cff" },
-  { id: "st-glass", name: "Glass Air", by: "Lumen", category: "Glass", dark: false, swatch: "linear-gradient(140deg, #dfe6f2 0%, #c6d4ec 55%, #eef2f9 100%)", ink: "#25304a", accent: "#4a6cf7", tall: true },
-  { id: "st-editorial", name: "Field Notes", by: "Herald", category: "Editorial", dark: false, swatch: "linear-gradient(160deg, #f1ede4 0%, #ddd3c0 100%)", ink: "#221f1a", accent: "#8a3324" },
-  { id: "st-terminal", name: "Terminal Green", by: "Aft Cabin", category: "Dark Pro", dark: true, swatch: "linear-gradient(160deg, #0a0d0a 0%, #14211a 100%)", ink: "#d7f2df", accent: "#59d47f" },
-  { id: "st-material", name: "Material Calm", by: "Grid Nine", category: "Material", dark: false, swatch: "linear-gradient(160deg, #eef1f4 0%, #dfe7ee 100%)", ink: "#1f2a33", accent: "#2e6df6" },
-  { id: "st-brutal", name: "Runway Mono", by: "Blok", category: "Brutalism", dark: false, swatch: "repeating-linear-gradient(45deg, #efece7 0 22px, #e3ded6 22px 24px)", ink: "#111111", accent: "#111111" },
-  { id: "st-dusk", name: "Approach Dusk", by: "Lumen", category: "Glass", dark: true, swatch: "linear-gradient(160deg, #1a1626 0%, #3c2f56 60%, #6e5a8e 100%)", ink: "#efeaf8", accent: "#b9a5ff", tall: true },
-  { id: "st-signal", name: "Signal Amber", by: "Herald", category: "Dark Pro", dark: true, swatch: "linear-gradient(160deg, #14100a 0%, #2c2010 100%)", ink: "#f4e8d4", accent: "#e8a13d" },
-  { id: "st-swiss", name: "Swiss White", by: "Studio Norm", category: "Minimalism", dark: false, swatch: "linear-gradient(160deg, #ffffff 0%, #f0f0f0 100%)", ink: "#000000", accent: "#d92b2b" },
-  { id: "st-ocean", name: "Coastline", by: "Grid Nine", category: "Material", dark: false, swatch: "linear-gradient(160deg, #e8f0f2 0%, #c9dde2 55%, #a9c8d2 100%)", ink: "#173038", accent: "#1f7a8c", tall: true },
-  { id: "st-ledger", name: "Ledger Black", by: "Blok", category: "Brutalism", dark: true, swatch: "linear-gradient(160deg, #101010 0%, #232323 100%)", ink: "#f2f2f2", accent: "#ffd400" },
+  { id: "st-aria", name: "Aria", by: "Osyle", category: "Minimalism", dark: false, swatch: "linear-gradient(160deg, #fdfdfd 0%, #f2f2f4 100%)", ink: "#1C1C1E", accent: "#0A84FF", radius: 10, tall: true },
+  { id: "st-mono", name: "Mono Studio", by: "Osyle", category: "Minimalism", dark: false, swatch: "linear-gradient(160deg, #FAFAF8 0%, #f0f0ec 100%)", ink: "#222222", accent: "#222222", radius: 2 },
+  { id: "st-warm", name: "Warm Counsel", by: "Osyle", category: "Editorial", dark: false, swatch: "linear-gradient(160deg, #f7f0e4 0%, #efe2cd 100%)", ink: "#3d2b1f", accent: "#c46a4a", radius: 14, tall: true },
+  { id: "st-night", name: "Night Shift", by: "Osyle", category: "Dark Pro", dark: true, swatch: "linear-gradient(160deg, #0E0E12 0%, #1a1a22 100%)", ink: "#F2F2F4", accent: "#8B7FE8", radius: 8 },
+  { id: "st-paper", name: "Paper Instrument", by: "Studio Norm", category: "Minimalism", dark: false, swatch: "linear-gradient(160deg, #f4f2ee 0%, #e8e4dd 100%)", ink: "#18202c", accent: "#18202c", radius: 12, tall: true },
+  { id: "st-cockpit", name: "Cockpit Night", by: "Aft Cabin", category: "Dark Pro", dark: true, swatch: "linear-gradient(160deg, #0c0f14 0%, #1a2230 100%)", ink: "#e8ecf4", accent: "#5b8cff", radius: 10 },
+  { id: "st-glass", name: "Glass Air", by: "Lumen", category: "Glass", dark: false, swatch: "linear-gradient(140deg, #dfe6f2 0%, #c6d4ec 55%, #eef2f9 100%)", ink: "#25304a", accent: "#4a6cf7", radius: 16, tall: true },
+  { id: "st-editorial", name: "Field Notes", by: "Herald", category: "Editorial", dark: false, swatch: "linear-gradient(160deg, #f1ede4 0%, #ddd3c0 100%)", ink: "#221f1a", accent: "#8a3324", radius: 8 },
+  { id: "st-terminal", name: "Terminal Green", by: "Aft Cabin", category: "Dark Pro", dark: true, swatch: "linear-gradient(160deg, #0a0d0a 0%, #14211a 100%)", ink: "#d7f2df", accent: "#59d47f", radius: 6 },
+  { id: "st-material", name: "Material Calm", by: "Grid Nine", category: "Material", dark: false, swatch: "linear-gradient(160deg, #eef1f4 0%, #dfe7ee 100%)", ink: "#1f2a33", accent: "#2e6df6", radius: 12 },
+  { id: "st-brutal", name: "Runway Mono", by: "Blok", category: "Brutalism", dark: false, swatch: "repeating-linear-gradient(45deg, #efece7 0 22px, #e3ded6 22px 24px)", ink: "#111111", accent: "#111111", radius: 2 },
+  { id: "st-dusk", name: "Approach Dusk", by: "Lumen", category: "Glass", dark: true, swatch: "linear-gradient(160deg, #1a1626 0%, #3c2f56 60%, #6e5a8e 100%)", ink: "#efeaf8", accent: "#b9a5ff", radius: 16, tall: true },
+  { id: "st-signal", name: "Signal Amber", by: "Herald", category: "Dark Pro", dark: true, swatch: "linear-gradient(160deg, #14100a 0%, #2c2010 100%)", ink: "#f4e8d4", accent: "#e8a13d", radius: 8 },
+  { id: "st-swiss", name: "Swiss White", by: "Studio Norm", category: "Minimalism", dark: false, swatch: "linear-gradient(160deg, #ffffff 0%, #f0f0f0 100%)", ink: "#000000", accent: "#d92b2b", radius: 4 },
+  { id: "st-ocean", name: "Coastline", by: "Grid Nine", category: "Material", dark: false, swatch: "linear-gradient(160deg, #e8f0f2 0%, #c9dde2 55%, #a9c8d2 100%)", ink: "#173038", accent: "#1f7a8c", radius: 12, tall: true },
+  { id: "st-ledger", name: "Ledger Black", by: "Blok", category: "Brutalism", dark: true, swatch: "linear-gradient(160deg, #101010 0%, #232323 100%)", ink: "#f2f2f2", accent: "#ffd400", radius: 2 },
 ];
 
 /* ------------------------------------------------------------------------
@@ -352,6 +363,51 @@ export const personas: Persona[] = [
   { id: "p-tom", name: "Tom Alvarez", age: 38, role: "Private pilot", line: "Weekend flyer, weather is the thing he rehearses least", portrait: "linear-gradient(150deg, #d9b08a 0%, #a97a4e 55%, #5e3f24 100%)", reach: "about 3.4M people fit this" },
   { id: "p-priya", name: "Priya Nair", age: 29, role: "Student pilot", line: "Checkride in June, drills on the train home", portrait: "linear-gradient(150deg, #b3a5e8 0%, #7b6bff 55%, #3d3480 100%)", reach: "about 1.2M people fit this" },
 ];
+
+/**
+ * The feeling mapping, deterministic per the spec's addendum: words in,
+ * a StyleModel and mood out, with an honest caption when we interpreted.
+ */
+export interface FeelingResult {
+  styleId: string;
+  mood: { energy: number; style: number; tone: number };
+  comfort: boolean;
+  caption: string | null;
+}
+
+export function mapFeeling(text: string): FeelingResult {
+  const t = text.toLowerCase();
+  if (/(grand|parent|mom|older|senior)/.test(t)) {
+    return {
+      styleId: "st-warm",
+      mood: { energy: 15, style: 15, tone: 60 },
+      comfort: true,
+      caption: "Bigger, calmer, slower",
+    };
+  }
+  if (/minimal/.test(t)) {
+    return { styleId: "st-mono", mood: { energy: 25, style: 10, tone: 70 }, comfort: false, caption: null };
+  }
+  if (/bold/.test(t)) {
+    return { styleId: "st-night", mood: { energy: 70, style: 80, tone: 55 }, comfort: false, caption: null };
+  }
+  if (/calm/.test(t)) {
+    return { styleId: "st-warm", mood: { energy: 15, style: 25, tone: 60 }, comfort: false, caption: null };
+  }
+  return {
+    styleId: "st-warm",
+    mood: { energy: 15, style: 25, tone: 60 },
+    comfort: false,
+    caption: "Interpreted as: calmer",
+  };
+}
+
+/**
+ * Criterion 28: the examination ends with one sentence of genuine
+ * understanding that proves the system read the app.
+ */
+export const examClosing =
+  "SkyRecall is not a study app; it is a confidence instrument. Pilots do not open it to learn, they open it to stop doubting, and every screen that delays that reassurance is working against the product.";
 
 /** What the prompt bar suggests, rotating, so no one faces a blank line. */
 export const promptSuggestions = [

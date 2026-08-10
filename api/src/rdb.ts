@@ -9,7 +9,7 @@ import { mkdirSync } from "node:fs";
 import { join } from "node:path";
 import type { FastifyInstance } from "fastify";
 import type { Row, SdkUser } from "@osyle/shared";
-import { DATA_DIR, id, now } from "./db.js";
+import { DATA_DIR, id, now, platformDb } from "./db.js";
 import { residentBySlug } from "./residents.js";
 
 const open = new Map<string, DatabaseSync>();
@@ -53,7 +53,15 @@ export function registerRdb(app: FastifyInstance): void {
      reached by the resident's own shipped software, not by the owner's
      platform session. A per-resident key joins in Real Mode hardening. */
   function guard(slug: string): boolean {
-    return residentBySlug(slug) !== null;
+    const found = residentBySlug(slug) !== null;
+    if (found) {
+      /* the Survival Index counts a resident alive when its own users
+         touch it; every rdb call is that touch */
+      platformDb()
+        .prepare("UPDATE residents SET last_active_at = ? WHERE slug = ?")
+        .run(now(), slug);
+    }
+    return found;
   }
 
   app.get<{ Params: { slug: string; table: string } }>(

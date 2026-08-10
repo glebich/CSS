@@ -1,10 +1,10 @@
-import { sdk, useStore } from "../store";
+import { readLedger, sdk, useStore } from "../store";
 import { Page, Sparkle } from "../components/chrome";
 import { quotas, resident } from "../data/seed";
 
 /** Serving: the address holding files, media, and users. The home, literal. */
 export function Address() {
-  const { vitality } = useStore();
+  const { vitality, ledgerCount } = useStore();
 
   function exportEverything() {
     const payload = {
@@ -16,6 +16,8 @@ export function Address() {
         waitlist: sdk.rows("waitlist").list(),
         user: sdk.auth.user(),
       },
+      /* every judgment ever made here, appended in order, yours */
+      decisionLedger: readLedger(),
     };
     const blob = new Blob([JSON.stringify(payload, null, 2)], {
       type: "application/json",
@@ -47,6 +49,8 @@ export function Address() {
         <p style={{ color: "var(--gray-meta)", marginTop: 10, maxWidth: 620 }}>
           {resident.oneLiner} Serving its files, its media, and its own isolated
           resident database. Export back out in one click, always.
+          {ledgerCount > 0 &&
+            ` The decision ledger holds ${ledgerCount} judgment${ledgerCount === 1 ? "" : "s"}, appended in order, included in the export.`}
         </p>
       </div>
 

@@ -44,7 +44,8 @@ export function platformDb(): DatabaseSync {
       slug TEXT UNIQUE NOT NULL,
       name TEXT NOT NULL,
       user_id TEXT NOT NULL,
-      created_at TEXT NOT NULL
+      created_at TEXT NOT NULL,
+      last_active_at TEXT
     );
     CREATE TABLE IF NOT EXISTS vault_files (
       id TEXT PRIMARY KEY,
@@ -66,6 +67,12 @@ export function platformDb(): DatabaseSync {
       done_at TEXT
     );
   `);
+  /* Data dirs older than the survival column pick it up here. */
+  try {
+    db.exec("ALTER TABLE residents ADD COLUMN last_active_at TEXT");
+  } catch {
+    /* the column already exists */
+  }
   return db;
 }
 

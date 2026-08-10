@@ -193,6 +193,31 @@ const foreign = await app.inject({
 });
 check("another user's vault refuses", foreign.statusCode === 404);
 
+/* the survival index: the rdb touches above made skyrecall alive */
+const survival = await app.inject({ method: "GET", url: "/survival" });
+check(
+  "survival counts the living",
+  survival.json().alive === 1 && survival.json().total === 1,
+);
+
+/* the partner door: one call in, a resident and its address out */
+const door = await app.inject({
+  method: "POST",
+  url: "/partner/import",
+  payload: { email: "builder@partner.example", name: "Coffee Companion" },
+});
+check(
+  "partner door mints a resident",
+  door.statusCode === 201 && door.json().resident.address === "coffee-companion.osyle.app",
+);
+const claim = await app.inject({ method: "GET", url: door.json().claimLink });
+check("partner claim link signs the builder in", claim.json().ok === true);
+const survival2 = await app.inject({ method: "GET", url: "/survival" });
+check(
+  "a new arrival is not yet alive",
+  survival2.json().total === 2 && survival2.json().alive === 1,
+);
+
 await app.close();
 rmSync(process.env.OSYLE_DATA, { recursive: true, force: true });
 

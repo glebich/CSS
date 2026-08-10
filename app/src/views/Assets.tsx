@@ -115,32 +115,32 @@ export function Assets() {
   return (
     <main className="canvas canvas-dotted" style={{ position: "relative" }}>
       <FlowSteps current="assets" />
-      {droppedName && (
-        <p
-          className="fade-in"
-          style={{
-            textAlign: "center",
-            marginTop: 64,
-            marginBottom: -60,
-            fontSize: 13,
-            color: "var(--gray-small)",
-          }}
-        >
-          {reading
-            ? `${droppedName} noted. Real Mode will read it. Meanwhile, meet SkyRecall, the seeded resident.`
-            : `${droppedName} is waiting for Real Mode. SkyRecall is ready now.`}
-        </p>
-      )}
       <div
         style={{
           display: "flex",
           gap: 24,
           alignItems: "flex-start",
-          padding: "90px 60px 160px",
+          padding: "76px 60px 160px",
           maxWidth: 1240,
           margin: "0 auto",
+          flexWrap: "wrap",
         }}
       >
+        {droppedName && (
+          <p
+            className="fade-in"
+            style={{
+              flexBasis: "100%",
+              textAlign: "center",
+              fontSize: 13,
+              color: "var(--gray-small)",
+            }}
+          >
+            {reading
+              ? `${droppedName} noted. Real Mode will read it. Meanwhile, meet SkyRecall, the seeded resident.`
+              : `${droppedName} is waiting for Real Mode. SkyRecall is ready now.`}
+          </p>
+        )}
         <div className={`folder-card${reading ? " is-reading" : ""}`}>
           <div className="folder-title">
             Explore

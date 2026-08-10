@@ -278,6 +278,39 @@ magic link; create resident; upload files; version and restore; health
 endpoint green; nightly backup produces a restorable archive (drilled).
 Effort: the largest single increment, 1 to 2 weeks equivalent.
 
+### Increment B2. Bug pass and addendum adoptions. DELIVERED
+
+The bug pass: the responsive floor now reaches 390 with no horizontal
+overflow (tested), the slider and mood dials answer the keyboard with
+slider semantics, the materials note joined the layout properly, and
+the copy audit (no em-dashes, no emoji, no lorem, no render-time
+randomness) stays clean across app, api, and packages.
+
+Adopted from the addenda, chosen for value now:
+- The four StyleModels as real token systems (Aria, Mono Studio, Warm
+  Counsel, Night Shift) with per-style radii, leading the catalog.
+- The deterministic feeling mapping with honest captions ("Bigger,
+  calmer, slower"; "Interpreted as: calmer"), wired into Explore a
+  style as chips plus free text, and the comfort variant scaling the
+  live render's type by 20 percent.
+- The Decision Ledger: every style choice, feeling, finding decision,
+  heal, and transform acceptance appended with context, resident
+  scoped, included in the Address export. Collected from day one
+  because it cannot be reconstructed later.
+- Criterion 28: the examination closes with one sentence of genuine
+  understanding.
+- Demo determinism controls: R three times resets pristine; period
+  opens the hidden settings sheet with the Real Mode switch and
+  format-validated Anthropic and Gemini key fields.
+- The Survival Index: residents stamp last activity on every rdb
+  touch; GET /survival reports alive, total, and weekly cohorts.
+- The Partner Door: POST /partner/import turns an email and a name
+  into a resident, its address, and a claim link, in one call.
+
+Deferred to their stages, noted: the Analysis Theater's agent feed,
+Discover and search, the attention map, /r/{slug} live serving, and
+the BEFORE's full expensively-bad spec.
+
 ### Increment C. Stage 6, the Audience for real
 
 Archetype composition from a sentence, discovery mode with cited

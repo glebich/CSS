@@ -18,12 +18,15 @@ export function MiniApp({
   mood = { energy: 30, style: 25, tone: 65 },
   personaId = "p-maria",
   device = "mobile",
+  comfort = false,
 }: {
   variant: "before" | "live";
   styleId?: string;
   mood?: Mood;
   personaId?: string;
   device?: Device;
+  /** the grandma mapping: type up 20 percent, minimum density, slow */
+  comfort?: boolean;
 }) {
   if (variant === "before") return <Before />;
 
@@ -41,7 +44,8 @@ export function MiniApp({
     persona.id === "p-priya"
       ? "Checkride prep is queued first, June is close."
       : "Your recall holds at 82 percent.";
-  const radius = bold ? 22 : 12;
+  const radius = style.radius + (bold ? 6 : 0);
+  const scale = comfort ? 1.2 : 1;
   const compact = device === "watch";
 
   return (
@@ -69,21 +73,21 @@ export function MiniApp({
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            fontSize: compact ? 9 : 11,
+            fontSize: (compact ? 9 : 11) * scale,
             fontWeight: 700,
           }}
         >
           S
         </div>
         {!compact && (
-          <span style={{ fontWeight: bold ? 700 : 600, fontSize: 14, letterSpacing: "-0.01em" }}>
+          <span style={{ fontWeight: bold ? 700 : 600, fontSize: 14 * scale, letterSpacing: "-0.01em" }}>
             SkyRecall
           </span>
         )}
       </div>
 
       {!compact && (
-        <div style={{ fontSize: 12.5, opacity: 0.62 }}>
+        <div style={{ fontSize: 12.5 * scale, opacity: 0.62, lineHeight: comfort ? 1.7 : 1.45 }}>
           {greeting} {guidance}
         </div>
       )}
@@ -101,7 +105,7 @@ export function MiniApp({
       >
         <span
           style={{
-            fontSize: compact ? 12 : bold ? 22 : 19,
+            fontSize: (compact ? 12 : bold ? 22 : 19) * scale,
             fontWeight: bold ? 750 : 650,
             letterSpacing: "-0.01em",
           }}
@@ -109,7 +113,7 @@ export function MiniApp({
           {compact ? "Radio calls" : "Radio calls, ten minutes"}
         </span>
         {!compact && (
-          <span style={{ fontSize: 12.5, opacity: 0.62, lineHeight: 1.5 }}>
+          <span style={{ fontSize: 12.5 * scale, opacity: 0.62, lineHeight: comfort ? 1.8 : 1.5 }}>
             Runway 27L. ILS 114.30. Tower 118.7. The three calls rehearsed
             before every approach.
           </span>
@@ -122,7 +126,7 @@ export function MiniApp({
             borderRadius: 999,
             background: style.accent,
             color: style.dark ? "#0c0c0e" : "#fff",
-            fontSize: compact ? 10.5 : 13,
+            fontSize: (compact ? 10.5 : 13) * scale,
             fontWeight: 650,
           }}
         >

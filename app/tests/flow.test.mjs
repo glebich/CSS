@@ -37,6 +37,13 @@ await page.waitForTimeout(2900);
 check("materials become understood", (await page.locator(".file-card.is-understood").count()) >= 6);
 await page.getByText("Explore a style", { exact: false }).last().click();
 check("style flow step is current", await page.locator(".flow-step.is-current", { hasText: "Style" }).isVisible());
+
+/* the feeling road: words in, a style and an honest caption out */
+await page.getByPlaceholder("e.g. make it grandma friendly").fill("make it grandma friendly");
+await page.getByPlaceholder("e.g. make it grandma friendly").press("Enter");
+check("grandma maps to the comfort caption", await page.getByText("Bigger, calmer, slower").isVisible());
+check("grandma maps to Warm Counsel", await page.getByText("Continue with Warm Counsel").isVisible());
+
 await page.locator(".style-tile").first().click();
 await page.getByText("Continue with", { exact: false }).click();
 await page.getByText("Create the concept").click();
@@ -86,6 +93,15 @@ await page.waitForTimeout(600);
 check("since-you-left card appears", await page.locator(".since-card").isVisible());
 await page.getByText("Skip").click();
 check("since-you-left dismisses", (await page.locator(".since-card").count()) === 0);
+
+/* the responsive floor: at 390 everything is composed */
+await page.setViewportSize({ width: 390, height: 844 });
+await page.waitForTimeout(500);
+const overflow = await page.evaluate(
+  () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+);
+check("no horizontal overflow at 390", overflow <= 1);
+check("the numeral is visible at 390", await page.locator(".instrument").isVisible());
 
 check("no console or page errors", errors.length === 0);
 if (errors.length) console.log(errors.join("\n"));

@@ -1,6 +1,6 @@
 import { useStore } from "../store";
 import { Page, Sparkle } from "../components/chrome";
-import { examDates, lenses } from "../data/seed";
+import { examClosing, examDates, lenses } from "../data/seed";
 
 function scoreTint(score: number): string {
   if (score < 45) return "var(--bad)";
@@ -70,6 +70,21 @@ export function Examination() {
           );
         })}
       </div>
+
+      <div className="section-label" style={{ marginTop: 34 }}>
+        What the examination understood
+      </div>
+      <p
+        style={{
+          fontStyle: "italic",
+          fontSize: 16,
+          lineHeight: 1.65,
+          color: "var(--ink-body)",
+          maxWidth: 640,
+        }}
+      >
+        {examClosing}
+      </p>
 
       <div style={{ display: "flex", justifyContent: "center", marginTop: 40 }}>
         <button className="pill pill-dark" onClick={() => go("transform")}>

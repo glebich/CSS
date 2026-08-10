@@ -9,7 +9,7 @@ import { MiniApp, previewDevice } from "../components/MiniApp";
  * listens to the mood dials and the primary persona.
  */
 export function Transform() {
-  const { transformAccepted, acceptTransform, go, styleId, mood, personaId, device } = useStore();
+  const { transformAccepted, acceptTransform, go, styleId, mood, personaId, device, comfort } = useStore();
   const [pos, setPos] = useState(0.5);
   const frameRef = useRef<HTMLDivElement>(null);
   const dragging = useRef(false);
@@ -51,6 +51,7 @@ export function Transform() {
             mood={mood}
             personaId={personaId}
             device={previewDevice(device)}
+            comfort={comfort}
           />
         </div>
         <span className="ba-tag" style={{ left: 14 }}>
@@ -59,7 +60,20 @@ export function Transform() {
         <span className="ba-tag" style={{ right: 14 }}>
           After
         </span>
-        <div className="ba-divider" style={{ left: `${pos * 100}%` }}>
+        <div
+          className="ba-divider"
+          style={{ left: `${pos * 100}%` }}
+          role="slider"
+          aria-label="Before and after divider"
+          aria-valuenow={Math.round(pos * 100)}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === "ArrowLeft") setPos((p) => Math.max(0.03, p - 0.05));
+            if (e.key === "ArrowRight") setPos((p) => Math.min(0.97, p + 0.05));
+          }}
+        >
           <span className="ba-handle">
             <svg width="18" height="12" viewBox="0 0 18 12" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
               <path d="M5 1 1 6l4 5M13 1l4 5-4 5" />

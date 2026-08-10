@@ -51,9 +51,10 @@ function StyleThumb({ s }: { s: StyleCard }) {
  * and the gallery. Add is the only verb.
  */
 export function StyleExplore() {
-  const { styleId, setStyleId, go } = useStore();
+  const { styleId, setStyleId, go, applyFeeling, feelingCaption } = useStore();
   const [category, setCategory] = useState<string | null>(null);
   const [query, setQuery] = useState("");
+  const [feeling, setFeeling] = useState("");
 
   const shown = styleCatalog.filter(
     (s) =>
@@ -107,11 +108,47 @@ export function StyleExplore() {
         ))}
       </div>
 
-      <div style={{ textAlign: "center", padding: "12px 0 36px" }}>
+      <div style={{ textAlign: "center", padding: "12px 0 24px" }}>
         <h1 className="statement" style={{ fontSize: "clamp(56px, 6.5vw, 96px)" }}>
           Explore a style
         </h1>
         <p className="statement-sub">Curated by the world&apos;s top designers</p>
+      </div>
+
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: 10,
+          flexWrap: "wrap",
+          padding: "0 16px 30px",
+        }}
+      >
+        <span style={{ fontSize: 13.5, color: "var(--gray-small)" }}>Or say the feeling</span>
+        {["Calm", "Minimal", "Bold"].map((chip) => (
+          <button key={chip} className="pill pill-sm" onClick={() => applyFeeling(chip)}>
+            {chip}
+          </button>
+        ))}
+        <div className="ask-pill" style={{ minWidth: 260, height: 44 }}>
+          <input
+            placeholder="e.g. make it grandma friendly"
+            value={feeling}
+            onChange={(e) => setFeeling(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && feeling.trim()) {
+                applyFeeling(feeling.trim());
+                setFeeling("");
+              }
+            }}
+          />
+        </div>
+        {feelingCaption && (
+          <span className="chip fade-in" key={feelingCaption}>
+            {feelingCaption}
+          </span>
+        )}
       </div>
 
       <div className="style-grid">
