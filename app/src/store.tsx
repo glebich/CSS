@@ -18,6 +18,8 @@ import {
   type InboxEntry,
   inboxSeed,
 } from "./data/seed";
+import { analyzeProject, filesFromInput } from "./engine/analyze";
+import type { AnalyzedProject, ProgressLine } from "./engine/types";
 
 export type View =
   | "landing"
@@ -143,6 +145,12 @@ interface Store {
   /** the theater calls this when its last line lands, or on Skip */
   finishReading: () => void;
   droppedName: string | null;
+  /* the real engine: an actually analyzed project, or null for the example */
+  project: AnalyzedProject | null;
+  analyzeFiles: (dropped: File[]) => Promise<void>;
+  progress: ProgressLine[];
+  realDecisions: Record<string, "accepted" | "aside">;
+  decideReal: (findingId: string, decision: "accepted" | "aside") => void;
   /* journey clarity */
   seenTips: Set<string>;
   markTipSeen: (tip: string) => void;
@@ -206,6 +214,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [tabs, setTabs] = useState<Tab[]>([DEMO_TAB]);
   const [activeTab, setActiveTab] = useState(DEMO_TAB.id);
   const [uploadPhase, setUploadPhase] = useState<"idle" | "reading" | "understood">("idle");
+  const [project, setProject] = useState<AnalyzedProject | null>(null);
+  const [progress, setProgress] = useState<ProgressLine[]>([]);
+  const [realDecisions, setRealDecisions] = useState<Record<string, "accepted" | "aside">>({});
   const [styleId, setStyleIdRaw] = useState(() => loadJson(STYLE_KEY, "st-paper"));
   const [mood, setMoodRaw] = useState<Mood>(() =>
     loadJson<Mood>(MOOD_KEY, { energy: 30, style: 25, tone: 65 }),
@@ -330,8 +341,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     [activeTab],
   );
 
-  /** The theater reads aloud while the gradient sweeps; it decides when done. */
+  /** The example path: the seeded resident, clearly labeled as such. */
   const beginUpload = useCallback((dropped?: string) => {
+    setProject(null);
+    setProgress([]);
     setDroppedName(dropped ?? null);
     setView("assets");
     setUploadPhase("reading");
@@ -339,6 +352,60 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   const finishReading = useCallback(() => {
     setUploadPhase((p) => (p === "reading" ? "understood" : p));
+  }, []);
+
+  /**
+   * The real path: parse what was actually dropped, measure it, and let
+   * the theater speak only true lines. Nothing here is invented.
+   */
+  const analyzeFiles = useCallback(async (dropped: File[]) => {
+    const name =
+      dropped.length === 1
+        ? dropped[0].name.replace(/\.zip$/i, "")
+        : `${dropped.length} files`;
+    setDroppedName(null);
+    setProgress([]);
+    setView("assets");
+    setUploadPhase("reading");
+    try {
+      const files = await filesFromInput(dropped);
+      if (files.size === 0) {
+        setProgress([
+          { phase: "Reassemble", text: "Nothing readable arrived. Try a zip, a folder, or web files." },
+        ]);
+        window.setTimeout(() => setUploadPhase("idle"), 1600);
+        setView("place");
+        return;
+      }
+      const truncated = files.size >= 40;
+      const analyzed = await analyzeProject(
+        name,
+        files,
+        (line) => setProgress((prev) => [...prev, line]),
+        truncated,
+      );
+      setProject(analyzed);
+      setRealDecisions({});
+      record("project.analyzed", {
+        name,
+        files: files.size,
+        vitality: analyzed.vitality,
+        findings: analyzed.lenses.reduce((s, l) => s + l.findings.length, 0),
+      });
+      window.setTimeout(() => setUploadPhase("understood"), 900);
+    } catch {
+      setProgress((prev) => [
+        ...prev,
+        { phase: "Errors", text: "Reading failed partway. What was read still counts; drop again to retry." },
+      ]);
+      window.setTimeout(() => setUploadPhase("understood"), 900);
+    }
+  }, [record]);
+
+  const decideReal = useCallback((findingId: string, decision: "accepted" | "aside") => {
+    setRealDecisions((prev) => ({ ...prev, [findingId]: decision }));
+    appendLedger("finding.decided.real", { findingId, decision });
+    setLedgerCount((n) => n + 1);
   }, []);
 
   const markTipSeen = useCallback((tip: string) => {
@@ -447,12 +514,13 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   );
 
   const vitality = useMemo(() => {
+    if (project) return project.vitality;
     const weighted = lenses.reduce(
       (sum, l) => sum + l.weight * lensScore(l.key),
       0,
     );
     return Math.round(weighted);
-  }, [lensScore]);
+  }, [lensScore, project]);
 
   const heal = useCallback(() => {
     if (healing || healableOpen.length === 0) return;
@@ -519,6 +587,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     setComfort(false);
     setFeelingCaption(null);
     setLedgerCount(0);
+    setProject(null);
+    setProgress([]);
+    setRealDecisions({});
     setDroppedName(null);
     setSeenTips(new Set());
     setJustLaunched(false);
@@ -553,6 +624,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     beginUpload,
     finishReading,
     droppedName,
+    project,
+    analyzeFiles,
+    progress,
+    realDecisions,
+    decideReal,
     seenTips,
     markTipSeen,
     justLaunched,

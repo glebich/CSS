@@ -323,6 +323,32 @@ new-tab navigation both work (a hashchange listener fixed the same-tab
 case); a breadcrumb overlap on Explore a style was found by the
 screenshot pass and fixed. 60 checks total across both suites.
 
+### Increment B4. The real Examination engine. DELIVERED
+
+The pivot from theater to instrument, on the user's direct order to
+stop faking. Dropped files and zips are now actually parsed (40 files,
+5 MB text, capped honestly) and measured by eight lens analyzers, each
+grounded in named research and each producing evidence with file and
+line: WCAG 2.1 contrast mathematics on declared color pairs, alt-text
+and type-size floors, typeface and size-ramp counts, palette size and
+same-hue accent clustering, Hick's-law choice load per screen, the
+deceptive-pattern lexicon (Brignull; Mathur et al. 2019), stray logs
+and TODO debt, committed credentials, eval and raw-HTML injection, and
+script weight. Vitality is the documented weighted mean of measurable
+lenses only; lenses that cannot see say so. The theater streams real
+progress lines during a real run; the findings desk shows severity,
+evidence, grounding, and method limits, with accept-to-plan decisions
+in the ledger; the preview is two live frames of the actual page, side
+by side, the right one wearing the chosen style's token layer,
+honestly labeled. The slider is gone. The example resident remains,
+labeled Example everywhere it appears. Polish from the same feedback:
+Select instead of CTA, the Yours badge moved off the title, the empty
+folder cards replaced by a real inventory card, fake component counts
+removed from Launch. Verified by dropping a deliberately flawed
+fixture project and asserting the engine catches the weak contrast at
+its true line, the committed key, and the dark-pattern copy: 40
+journey checks pass.
+
 ### Increment C. Stage 6, the Audience for real
 
 Archetype composition from a sentence, discovery mode with cited

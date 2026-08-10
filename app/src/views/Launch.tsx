@@ -11,7 +11,7 @@ function moodWords(energy: number, style: number, tone: number): string {
 
 /** Ready to launch: everything chosen, reviewed in one card, one action. */
 export function Launch() {
-  const { goHomeFromLaunch, mood, personaId, styleId, device } = useStore();
+  const { goHomeFromLaunch, mood, personaId, styleId, device, project } = useStore();
   const persona = personas.find((p) => p.id === personaId) ?? personas[0];
   const style = styleCatalog.find((s) => s.id === styleId) ?? styleCatalog[0];
 
@@ -28,8 +28,12 @@ export function Launch() {
 
       <div className="review-card" style={{ maxWidth: 720, margin: "0 auto" }}>
         <div className="review-row">
-          <span className="review-label">Primary goal</span>
-          <span className="review-value">{launchReview.goal}</span>
+          <span className="review-label">{project ? "The project" : "Primary goal"}</span>
+          <span className="review-value">
+            {project
+              ? `${project.inventory.name}: ${project.understanding}`
+              : launchReview.goal}
+          </span>
         </div>
         <div className="review-row">
           <span className="review-label">Audience</span>
@@ -59,21 +63,42 @@ export function Launch() {
       </div>
 
       <div style={{ maxWidth: 720, margin: "26px auto 0" }}>
-        <div className="section-label">{launchReview.screens.length} screens identified</div>
-        {launchReview.screens.map((s) => (
-          <div key={s.name} className="screen-row">
-            <div>
-              <div style={{ fontSize: 14.5, fontWeight: 510 }}>{s.name}</div>
-              <div style={{ fontSize: 12.5, color: "var(--gray-tertiary)", marginTop: 2 }}>
-                {s.detail}
+        {project ? (
+          project.inventory.screens.length > 0 && (
+            <>
+              <div className="section-label">
+                {project.inventory.screens.length} screen
+                {project.inventory.screens.length === 1 ? "" : "s"} found in your files
               </div>
+              {project.inventory.screens.map((path) => (
+                <div key={path} className="screen-row">
+                  <div>
+                    <div style={{ fontSize: 14.5, fontWeight: 510 }}>{path.split("/").pop()}</div>
+                    <div className="mono" style={{ fontSize: 11.5, color: "var(--gray-tertiary)", marginTop: 2 }}>
+                      {path}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </>
+          )
+        ) : (
+          <>
+            <div className="section-label">
+              {launchReview.screens.length} screens identified, example
             </div>
-            <span className="topbar-spacer" />
-            <svg width="10" height="6" viewBox="0 0 10 6" fill="none" aria-hidden style={{ color: "var(--gray-tertiary)" }}>
-              <path d="M1 1l4 3.6L9 1" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </div>
-        ))}
+            {launchReview.screens.map((s) => (
+              <div key={s.name} className="screen-row">
+                <div>
+                  <div style={{ fontSize: 14.5, fontWeight: 510 }}>{s.name}</div>
+                  <div style={{ fontSize: 12.5, color: "var(--gray-tertiary)", marginTop: 2 }}>
+                    {s.detail}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </>
+        )}
       </div>
 
       <div style={{ display: "flex", justifyContent: "center", marginTop: 36 }}>

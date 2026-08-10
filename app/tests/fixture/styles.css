@@ -1,0 +1,12 @@
+body { font-family: Georgia, serif; font-size: 14px; color: #333333; background: #fefefe; }
+h1 { font-family: "Comic Sans MS"; font-size: 42px; color: #1a6ef5; }
+.hero { background: #2b7bff; color: #9db8e8; font-size: 19px; }
+.deal { font-family: Verdana; font-size: 11px; color: #999999; background: #aaaaaa; }
+.actions button { font-size: 13px; background: #3366ff; color: #ffffff; border-radius: 6px; }
+.faded { color: #bbbbbb; background: #cccccc; font-size: 9px; }
+.a { color: #d81e5b; } .b { color: #e8341c; } .c { color: #f2a104; }
+.d { color: #0b6e4f; } .e { color: #12855f; } .f { color: #7a28cb; }
+.g { color: #8e44ad; } .h { color: #16a085; } .i { color: #f39c12; }
+.j { color: #d35400; } .k { color: #c0392b; } .l { color: #2980b9; }
+.m { font-size: 15px; } .n { font-size: 17px; } .o { font-size: 21px; }
+.p { font-size: 23px; } .q { font-size: 27px; } .r { font-size: 31px; }

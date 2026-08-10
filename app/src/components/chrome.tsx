@@ -162,7 +162,7 @@ const NAV: Array<{ view: View; label: string }> = [
   { view: "home", label: "Home" },
   { view: "exam", label: "Examination" },
   { view: "findings", label: "Findings" },
-  { view: "transform", label: "Transform" },
+  { view: "transform", label: "Preview" },
 ];
 
 const LIFE_NAV: Array<{ view: View; label: string; icon: IconName }> = [

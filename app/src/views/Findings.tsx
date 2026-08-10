@@ -92,14 +92,159 @@ function FindingCard({ issue }: { issue: Issue }) {
   );
 }
 
+/** A real finding: severity, evidence with file and line, its grounding. */
+function RealFindingCard({ finding }: { finding: import("../engine/types").RealFinding }) {
+  const { realDecisions, decideReal } = useStore();
+  const decision = realDecisions[finding.id];
+  const sevClass =
+    finding.severity === "high" ? "regressed" : finding.severity === "medium" ? "recurring" : "new";
+  return (
+    <div className="card card-pad" style={decision === "aside" ? { opacity: 0.5 } : undefined}>
+      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        <span className={`issue-state ${sevClass}`}>{finding.severity}</span>
+        <span style={{ fontSize: 15, fontWeight: 510 }}>{finding.title}</span>
+        <span className="topbar-spacer" />
+        <span className="chip">{finding.lens}</span>
+      </div>
+      <p style={{ color: "var(--gray-meta)", marginTop: 8, maxWidth: 660 }}>{finding.detail}</p>
+      <div style={{ marginTop: 10 }}>
+        {finding.evidence.slice(0, 4).map((e, i) => (
+          <div key={i} className="mono" style={{ fontSize: 12, color: "var(--gray-secondary)", padding: "3px 0" }}>
+            {e.file}
+            {e.line ? `:${e.line}` : ""} {"  "}{e.value}
+          </div>
+        ))}
+      </div>
+      <p style={{ fontSize: 12, color: "var(--gray-small)", marginTop: 8 }}>
+        {finding.grounding}
+        {finding.methodNote ? ` ${finding.methodNote}` : ""}
+      </p>
+      <div style={{ display: "flex", gap: 10, marginTop: 14, alignItems: "center" }}>
+        {!decision && (
+          <>
+            <button className="pill pill-sm" onClick={() => decideReal(finding.id, "accepted")}>
+              Accept, add to the plan
+              <Sparkle size={12} />
+            </button>
+            <button
+              className="topbar-quiet"
+              style={{ padding: 0 }}
+              onClick={() => decideReal(finding.id, "aside")}
+            >
+              Set aside
+            </button>
+          </>
+        )}
+        {decision === "accepted" && <span className="issue-state healed">in the plan</span>}
+        {decision === "aside" && (
+          <span style={{ fontSize: 12.5, color: "var(--gray-meta)" }}>
+            Set aside. It stays in the report, quietly.
+          </span>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/** The desk for a really analyzed project: nothing invented, everything cited. */
+function RealFindings() {
+  const { project, realDecisions, go } = useStore();
+  const all = project!.lenses.flatMap((l) => l.findings);
+  const strengthsReal = project!.lenses.flatMap((l) => l.strengths);
+  const undecided = all.filter((f) => !realDecisions[f.id]);
+  const accepted = all.filter((f) => realDecisions[f.id] === "accepted");
+  const allDecided = undecided.length === 0;
+
+  return (
+    <Page>
+      <h1 className="statement statement-page">
+        {allDecided ? (
+          <>
+            All decided. <span className="quiet">Well done.</span>
+          </>
+        ) : (
+          <>
+            Findings, <span className="quiet">with their evidence.</span>
+          </>
+        )}
+      </h1>
+      <p style={{ color: "var(--gray-meta)", marginTop: 6, maxWidth: 680 }}>
+        {allDecided
+          ? "Every finding has an answer. The accepted ones are the plan."
+          : `${undecided.length} finding${undecided.length === 1 ? "" : "s"} from your actual files, each with the line it lives on and the research it rests on. Accept what you trust, set aside what you do not.`}
+      </p>
+
+      {undecided.length > 0 && (
+        <>
+          <div className="section-label" style={{ marginTop: 30 }}>
+            To decide
+          </div>
+          <div style={{ display: "grid", gap: 14 }}>
+            {undecided.map((f) => (
+              <RealFindingCard key={f.id} finding={f} />
+            ))}
+          </div>
+        </>
+      )}
+
+      {accepted.length > 0 && (
+        <>
+          <div className="section-label" style={{ marginTop: 30 }}>
+            The plan, {accepted.length} accepted
+          </div>
+          <div style={{ display: "grid", gap: 14 }}>
+            {accepted.map((f) => (
+              <RealFindingCard key={f.id} finding={f} />
+            ))}
+          </div>
+        </>
+      )}
+
+      {strengthsReal.length > 0 && (
+        <>
+          <div className="section-label" style={{ marginTop: 30 }}>
+            What is genuinely good
+          </div>
+          <div style={{ display: "grid", gap: 14 }}>
+            {strengthsReal.map((s) => (
+              <div key={s.id} className="card card-pad">
+                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <span className="pulse-dot" style={{ animation: "none" }} />
+                  <span style={{ fontSize: 15, fontWeight: 510 }}>{s.title}</span>
+                  <span className="topbar-spacer" />
+                  <span className="chip">{s.lens}</span>
+                </div>
+                <p style={{ color: "var(--gray-meta)", marginTop: 8, maxWidth: 660 }}>{s.detail}</p>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+
+      <div style={{ display: "flex", justifyContent: "center", gap: 12, marginTop: 36 }}>
+        {allDecided ? (
+          <button className="pill pill-dark" onClick={() => go("transform")}>
+            See both futures
+            <Sparkle size={13} />
+          </button>
+        ) : (
+          <button className="pill" onClick={() => go("transform")}>
+            Preview first, decide after
+          </button>
+        )}
+      </div>
+    </Page>
+  );
+}
+
 /**
- * The Findings Desk: everything the examination knows, priced and
- * decidable. What is wrong carries its estimated value; what is good is
- * said plainly; every card takes one decision, and when every decision
- * is made there is one door back to rest.
+ * The Findings Desk: everything the examination knows, decidable. For a
+ * real project the findings come from the engine with their evidence;
+ * for the example, the seeded report with its estimated values.
  */
 export function Findings() {
-  const { decisions, restoreAside, go, healed } = useStore();
+  const { decisions, restoreAside, go, healed, project } = useStore();
+  if (project) return <RealFindings />;
 
   const open = issues.filter(
     (i) => currentState(i.id, healed) !== "healed" || decisions[i.id] === "accepted",

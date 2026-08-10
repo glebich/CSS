@@ -48,6 +48,8 @@ export function Home() {
     transformAccepted,
     inbox,
     seenTips,
+    project,
+    realDecisions,
   } = useStore();
   const [reveal] = useState(justLaunched);
   useEffect(() => {
@@ -56,9 +58,19 @@ export function Home() {
   const [receiptOpen, setReceiptOpen] = useState(false);
   const shown = useRevealCount(vitality, reveal);
   const healedSomething = healed.size > 1; // the guilt banner starts healed in the seed
-  const pulseLine = healedSomething ? pulseLineAfterHeal : pulseLineAtRest;
   const unread = inbox.filter((e) => !e.read).length;
   const healables = issues.filter((i) => healableOpen.includes(i.id));
+
+  /* A real project speaks with its own numbers, never the example's. */
+  const realFindings = project ? project.lenses.flatMap((l) => l.findings) : [];
+  const realUndecided = realFindings.filter((f) => !realDecisions[f.id]);
+  const pulseLine = project
+    ? realUndecided.length > 0
+      ? `Examined. ${realUndecided.length} finding${realUndecided.length === 1 ? "" : "s"} wait on your judgment.`
+      : "Every finding decided. The plan is yours."
+    : healedSomething
+      ? pulseLineAfterHeal
+      : pulseLineAtRest;
 
   return (
     <Page>
@@ -113,18 +125,55 @@ export function Home() {
             fontSize: 13,
           }}
         >
-          <span>
-            <strong style={{ color: "var(--ink)", fontWeight: 510 }}>99.9</strong>{" "}
-            uptime, 30 days
-          </span>
-          <span>
-            <strong style={{ color: "var(--ink)", fontWeight: 510 }}>61st</strong>{" "}
-            percentile, aviation training
-          </span>
+          {project ? (
+            <>
+              <span>
+                <strong style={{ color: "var(--ink)", fontWeight: 510 }}>
+                  {project.inventory.fileCount}
+                </strong>{" "}
+                files measured
+              </span>
+              <span>
+                <strong style={{ color: "var(--ink)", fontWeight: 510 }}>
+                  {realFindings.length}
+                </strong>{" "}
+                findings, each with evidence
+              </span>
+            </>
+          ) : (
+            <>
+              <span>
+                <strong style={{ color: "var(--ink)", fontWeight: 510 }}>99.9</strong>{" "}
+                uptime, 30 days
+              </span>
+              <span>
+                <strong style={{ color: "var(--ink)", fontWeight: 510 }}>61st</strong>{" "}
+                percentile, aviation training
+              </span>
+            </>
+          )}
         </div>
 
         <div style={{ marginTop: 40, display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
-          {healableOpen.length > 0 || healing ? (
+          {project ? (
+            realUndecided.length > 0 ? (
+              <button className="pill pill-dark" onClick={() => go("findings")}>
+                Decide {numberWordLower(realUndecided.length)} finding
+                {realUndecided.length === 1 ? "" : "s"}
+                <Sparkle size={13} />
+              </button>
+            ) : (
+              <>
+                <div className="pulse-line">
+                  <span>The plan is set. See it worn.</span>
+                </div>
+                <button className="pill pill-dark" onClick={() => go("transform")}>
+                  Open both futures
+                  <Sparkle size={13} />
+                </button>
+              </>
+            )
+          ) : healableOpen.length > 0 || healing ? (
             <>
               <button className="pill pill-dark" onClick={heal} disabled={healing}>
                 {healing

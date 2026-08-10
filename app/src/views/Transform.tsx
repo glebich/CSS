@@ -1,95 +1,178 @@
-import { useRef, useState } from "react";
+import { useMemo } from "react";
 import { useStore } from "../store";
 import { Page, Sparkle } from "../components/chrome";
 import { MiniApp, previewDevice } from "../components/MiniApp";
+import { styleCatalog } from "../data/seed";
+import { transformCss } from "../engine/analyze";
+import type { AnalyzedProject } from "../engine/types";
 
 /**
- * The before-and-after slider, one of the signature interactions.
- * The after side is the live render: it wears the chosen style and
- * listens to the mood dials and the primary persona.
+ * The preview: the same product twice, side by side, both alive. No
+ * slider, no trick. For a real project the left frame is the dropped
+ * app as it arrived and the right frame is the same document with the
+ * chosen style tokens applied, honestly labeled as the token layer.
  */
-export function Transform() {
-  const { transformAccepted, acceptTransform, go, styleId, mood, personaId, device, comfort } = useStore();
-  const [pos, setPos] = useState(0.5);
-  const frameRef = useRef<HTMLDivElement>(null);
-  const dragging = useRef(false);
 
-  function move(clientX: number) {
-    const frame = frameRef.current;
-    if (!frame) return;
-    const rect = frame.getBoundingClientRect();
-    setPos(Math.min(0.97, Math.max(0.03, (clientX - rect.left) / rect.width)));
+/** Build a self-contained document from the dropped files. */
+function buildSrcDoc(project: AnalyzedProject, extraCss?: string): string | null {
+  const html = [...project.files.values()].find(
+    (f) => /(^|\/)index\.html?$/i.test(f.path) && f.text,
+  ) ?? [...project.files.values()].find((f) => /\.html?$/i.test(f.path) && f.text);
+  if (!html?.text) return null;
+
+  const find = (href: string) => {
+    const clean = href.replace(/^\.?\//, "").split("?")[0];
+    return [...project.files.values()].find(
+      (f) => f.path === clean || f.path.endsWith(`/${clean}`),
+    );
+  };
+
+  let doc = html.text;
+  /* inline the stylesheets the document links, from the dropped files */
+  doc = doc.replace(
+    /<link[^>]*rel=["']stylesheet["'][^>]*href=["']([^"']+)["'][^>]*>/gi,
+    (tag, href: string) => {
+      const css = find(href);
+      return css?.text ? `<style>${css.text}</style>` : tag;
+    },
+  );
+  /* inline the scripts we actually hold; drop the ones we do not, so the
+     sandbox never fetches against the wrong origin */
+  doc = doc.replace(
+    /<script[^>]*\bsrc=["']([^"']+)["'][^>]*>\s*<\/script>/gi,
+    (_tag, src: string) => {
+      const js = find(src);
+      return js?.text ? `<script>${js.text.replace(/<\/script/gi, "<\\/script")}</script>` : "";
+    },
+  );
+  /* images we do not hold become a quiet placeholder instead of a 404 */
+  doc = doc.replace(/(<img[^>]*\bsrc=)["']([^"']+)["']/gi, (m, pre: string, src: string) => {
+    if (/^(data:|https?:)/i.test(src) || find(src)) return m;
+    return `${pre}"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='80'%3E%3Crect width='120' height='80' fill='%23e5e2de'/%3E%3C/svg%3E"`;
+  });
+  if (extraCss) {
+    doc = doc.includes("</head>")
+      ? doc.replace("</head>", `<style>${extraCss}</style></head>`)
+      : `${doc}<style>${extraCss}</style>`;
+  }
+  return doc;
+}
+
+function RealPreview({ project }: { project: AnalyzedProject }) {
+  const { styleId, comfort, go } = useStore();
+  const style = styleCatalog.find((s) => s.id === styleId) ?? styleCatalog[0];
+
+  const before = useMemo(() => buildSrcDoc(project), [project]);
+  const after = useMemo(
+    () =>
+      buildSrcDoc(
+        project,
+        transformCss({
+          ink: style.ink,
+          paper: style.dark ? "#101014" : "#fbfaf8",
+          accent: style.accent,
+          radius: style.radius,
+          fontStack:
+            '"SF Pro Display", -apple-system, "Inter", "Segoe UI", Roboto, sans-serif',
+          scale: comfort ? 1.2 : 1,
+        }),
+      ),
+    [project, style, comfort],
+  );
+
+  if (!before) {
+    return (
+      <div className="card card-pad" style={{ marginTop: 28 }}>
+        <p style={{ fontSize: 14.5, lineHeight: 1.6, maxWidth: 560 }}>
+          No HTML page arrived, so there is nothing to render live. The
+          examination still measured every file; the findings desk has the
+          results.
+        </p>
+        <button className="pill pill-sm" style={{ marginTop: 14 }} onClick={() => go("findings")}>
+          To the findings
+        </button>
+      </div>
+    );
   }
 
   return (
-    <Page>
-      <h1 className="statement statement-page">
-        Everything it <span className="quiet">could be.</span>
-      </h1>
-      <p style={{ color: "var(--gray-meta)", marginTop: 6 }}>
-        Drag the line. The identity stays. The clutter goes. The right side
-        follows your style, mood, and persona.
-      </p>
-
-      <div
-        ref={frameRef}
-        className="ba-frame"
-        style={{ height: 440, marginTop: 28 }}
-        onPointerDown={(e) => {
-          dragging.current = true;
-          (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
-          move(e.clientX);
-        }}
-        onPointerMove={(e) => dragging.current && move(e.clientX)}
-        onPointerUp={() => (dragging.current = false)}
-      >
-        <MiniApp variant="before" />
-        <div className="ba-after" style={{ clipPath: `inset(0 0 0 ${pos * 100}%)` }}>
-          <MiniApp
-            variant="live"
-            styleId={styleId}
-            mood={mood}
-            personaId={personaId}
-            device={previewDevice(device)}
-            comfort={comfort}
+    <>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginTop: 28 }}>
+        <div>
+          <div className="section-label">As it arrived</div>
+          <iframe
+            title="Before"
+            className="preview-frame"
+            sandbox="allow-scripts"
+            srcDoc={before}
           />
         </div>
-        <span className="ba-tag" style={{ left: 14 }}>
-          Before
-        </span>
-        <span className="ba-tag" style={{ right: 14 }}>
-          After
-        </span>
-        <div
-          className="ba-divider"
-          style={{ left: `${pos * 100}%` }}
-          role="slider"
-          aria-label="Before and after divider"
-          aria-valuenow={Math.round(pos * 100)}
-          aria-valuemin={0}
-          aria-valuemax={100}
-          tabIndex={0}
-          onKeyDown={(e) => {
-            if (e.key === "ArrowLeft") setPos((p) => Math.max(0.03, p - 0.05));
-            if (e.key === "ArrowRight") setPos((p) => Math.min(0.97, p + 0.05));
-          }}
-        >
-          <span className="ba-handle">
-            <svg width="18" height="12" viewBox="0 0 18 12" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-              <path d="M5 1 1 6l4 5M13 1l4 5-4 5" />
-            </svg>
-          </span>
+        <div>
+          <div className="section-label">Wearing {style.name}</div>
+          <iframe
+            title="After"
+            className="preview-frame"
+            sandbox="allow-scripts"
+            srcDoc={after ?? before}
+          />
         </div>
       </div>
+      <p style={{ fontSize: 12, color: "var(--gray-small)", marginTop: 12, maxWidth: 640 }}>
+        Both frames are your real page, live and scrollable. The right one
+        carries the {style.name} token layer: type, color, radius, shadows.
+        Structural repairs come from the findings you accept, not from a
+        reskin.
+      </p>
+    </>
+  );
+}
+
+function ExamplePreview() {
+  const { styleId, mood, personaId, device, comfort } = useStore();
+  return (
+    <>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginTop: 28 }}>
+        <div>
+          <div className="section-label">As it arrived</div>
+          <div className="preview-frame" style={{ overflow: "hidden" }}>
+            <MiniApp variant="before" />
+          </div>
+        </div>
+        <div>
+          <div className="section-label">Wearing your choices</div>
+          <div className="preview-frame" style={{ overflow: "hidden" }}>
+            <MiniApp
+              variant="live"
+              styleId={styleId}
+              mood={mood}
+              personaId={personaId}
+              device={previewDevice(device)}
+              comfort={comfort}
+            />
+          </div>
+        </div>
+      </div>
+      <p style={{ fontSize: 12, color: "var(--gray-small)", marginTop: 12 }}>
+        The example resident, before and after. Drop your own files on the
+        Place step and these frames become your real page.
+      </p>
+    </>
+  );
+}
+
+export function Transform() {
+  const { transformAccepted, acceptTransform, go, project } = useStore();
+
+  return (
+    <Page wide>
+      <h1 className="statement statement-page">
+        Same app. <span className="quiet">Two futures.</span>
+      </h1>
+
+      {project ? <RealPreview project={project} /> : <ExamplePreview />}
 
       <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          gap: 12,
-          marginTop: 32,
-          alignItems: "center",
-        }}
+        style={{ display: "flex", justifyContent: "center", gap: 12, marginTop: 30, alignItems: "center" }}
       >
         {transformAccepted ? (
           <>
@@ -103,8 +186,8 @@ export function Transform() {
           </>
         ) : (
           <>
-            <button className="pill" onClick={() => go("reveal")}>
-              See why, first
+            <button className="pill" onClick={() => go("findings")}>
+              Decide the findings first
             </button>
             <button
               className="pill pill-dark"
@@ -113,7 +196,7 @@ export function Transform() {
                 go("reveal");
               }}
             >
-              Accept the transformation
+              Keep the right one
               <Sparkle size={13} />
             </button>
           </>

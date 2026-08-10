@@ -38,7 +38,7 @@ function StyleThumb({ s }: { s: StyleCard }) {
             fontWeight: 700,
           }}
         >
-          CTA
+          Continue
         </span>
       </div>
     </div>
@@ -156,12 +156,12 @@ export function StyleExplore() {
           <div key={s.id} className="style-tile" onClick={() => setStyleId(s.id)}>
             <StyleThumb s={s} />
             {styleId === s.id ? (
-              <span className="picked">
+              <span className="picked" style={{ left: "auto", right: 12, top: "auto", bottom: 12 }}>
                 <Sparkle size={10} />
                 Yours
               </span>
             ) : (
-              <span className="add">Add</span>
+              <span className="add">Select</span>
             )}
           </div>
         ))}

@@ -3,9 +3,9 @@ import { useStore } from "../store";
 import { FlowSteps, Icon, Sparkle } from "../components/chrome";
 
 /**
- * The place state, matched to the Osyle_N frame: the statement with its
- * Thin last word, type pills floating around it, and the quiet bottom
- * row of a plus circle, the interested-links input, and one dark action.
+ * The place state: a real intake. Dropped files and zips are actually
+ * parsed and measured by the engine; the example resident stands by,
+ * clearly labeled, for anyone with nothing at hand.
  */
 const PILLS: Array<{
   label: string;
@@ -26,7 +26,7 @@ const PILLS: Array<{
 ];
 
 export function Place() {
-  const { beginUpload } = useStore();
+  const { beginUpload, analyzeFiles } = useStore();
   const [dragging, setDragging] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const depth = useRef(0);
@@ -35,8 +35,8 @@ export function Place() {
     e.preventDefault();
     depth.current = 0;
     setDragging(false);
-    const name = e.dataTransfer.files?.[0]?.name;
-    beginUpload(name);
+    const dropped = Array.from(e.dataTransfer.files ?? []);
+    if (dropped.length > 0) void analyzeFiles(dropped);
   }
 
   return (
@@ -110,26 +110,27 @@ export function Place() {
         <input
           ref={fileRef}
           type="file"
+          multiple
           style={{ display: "none" }}
-          onChange={(e) => beginUpload(e.target.files?.[0]?.name)}
+          onChange={(e) => {
+            const chosen = Array.from(e.target.files ?? []);
+            if (chosen.length > 0) void analyzeFiles(chosen);
+          }}
         />
         <button
           className="circle"
           style={{ width: 48, height: 48 }}
           onClick={() => fileRef.current?.click()}
-          aria-label="Choose a file"
+          aria-label="Choose files"
         >
           <Icon name="plus" size={18} />
         </button>
-        <div className="ask-pill" style={{ minWidth: 340 }}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" aria-hidden>
-            <path d="M12 21a9 9 0 1 0-9-9c0 1.8.5 3.4 1.4 4.8L3 21l4.4-1.2A9 9 0 0 0 12 21Z" />
-          </svg>
-          <input placeholder="type interested links" readOnly />
-        </div>
-        <button className="pill pill-dark" onClick={() => beginUpload()}>
-          Drop the SkyRecall materials
+        <button className="pill pill-dark" onClick={() => fileRef.current?.click()}>
+          Choose your files, or drop them anywhere
           <Sparkle size={13} />
+        </button>
+        <button className="pill" onClick={() => beginUpload()}>
+          See the example
         </button>
       </div>
     </main>

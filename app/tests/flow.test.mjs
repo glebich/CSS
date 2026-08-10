@@ -30,7 +30,7 @@ function check(name, ok) {
 await page.goto("http://localhost:5197/");
 await page.getByText("Drop your app", { exact: false }).last().click();
 check("place shows the flow steps", await page.locator(".flow-steps").isVisible());
-await page.getByText("Drop the SkyRecall materials").click();
+await page.getByText("See the example").click();
 await page.waitForTimeout(900);
 check("reading sweep is on", (await page.locator(".is-reading").count()) > 0);
 
@@ -70,7 +70,7 @@ check("heal raises vitality to 69", (await page.locator(".instrument").innerText
 /* No dead ends: home offers the next door after healing */
 check("home offers the next step", await page.getByText("See what changed").isVisible());
 await page.getByText("See what changed").click();
-await page.getByText("Accept the transformation").click();
+await page.getByText("Keep the right one").click();
 check("reveal ends in a door", await page.getByText("See the findings desk").isVisible());
 
 /* The findings desk: priced, decidable, and it lets you rest */
@@ -92,7 +92,13 @@ check("rest door returns home", await page.locator(".instrument").isVisible());
    required: the app stamps the clock on beforeunload, so the aged value
    must land after the old page leaves and before the new one reads it. */
 await page.addInitScript(() => {
-  localStorage.setItem("osyle.demo.lastSeen", JSON.stringify(Date.now() - 5 * 60 * 60 * 1000));
+  /* init scripts run in every frame, including sandboxed preview
+     iframes where storage access throws; only the top frame matters */
+  try {
+    localStorage.setItem("osyle.demo.lastSeen", JSON.stringify(Date.now() - 5 * 60 * 60 * 1000));
+  } catch {
+    /* sandboxed frame, not our target */
+  }
 });
 await page.reload();
 await page.waitForTimeout(600);
@@ -116,6 +122,76 @@ await page.reload();
 await page.waitForTimeout(400);
 check("the logbook survives a reload", await page.getByText("Logbook, 1").isVisible());
 await page.goto("http://localhost:5197/");
+await page.waitForTimeout(600);
+
+/* -----------------------------------------------------------------
+   The real engine: drop an actually flawed project and watch it get
+   genuinely caught. Every assertion below is about measured output. */
+await page.goto("http://localhost:5197/");
+await page.waitForTimeout(500);
+await page.getByText("Reset demo").click();
+await page.getByText("Drop your app", { exact: false }).last().click();
+await page.locator('input[type="file"]').setInputFiles([
+  new URL("./fixture/index.html", import.meta.url).pathname,
+  new URL("./fixture/styles.css", import.meta.url).pathname,
+  new URL("./fixture/app.js", import.meta.url).pathname,
+]);
+check(
+  "the real theater speaks measurements",
+  await page
+    .getByText("Measuring your files, line by line.")
+    .waitFor({ timeout: 6000 })
+    .then(() => true)
+    .catch(() => false),
+);
+await page.getByText("Choose how it should look", { exact: false }).click({ timeout: 25000 });
+check("style step follows a real analysis", await page.locator(".explore-bar").isVisible());
+await page.getByText("Continue with", { exact: false }).click();
+await page.getByText("Create the concept").click();
+await page.waitForTimeout(800);
+check(
+  "home speaks the project's own numbers",
+  await page.getByText("files measured").isVisible(),
+);
+await page.getByText("Decide", { exact: false }).first().click();
+await page.waitForTimeout(500);
+check(
+  "the weak contrast pair is caught with its file",
+  await page.getByText("below the AA floor", { exact: false }).first().isVisible(),
+);
+check(
+  "evidence carries file and line",
+  await page.getByText("styles.css:", { exact: false }).first().isVisible(),
+);
+check(
+  "the committed key is caught",
+  await page.getByText("credential", { exact: false }).first().isVisible(),
+);
+check(
+  "the dark pattern copy is caught",
+  await page.getByText("manipulation pattern", { exact: false }).first().isVisible(),
+);
+check(
+  "findings cite their grounding",
+  await page.getByText("WCAG 2.1", { exact: false }).first().isVisible(),
+);
+await page.getByText("Accept, add to the plan").first().click();
+await page.waitForTimeout(300);
+check("an accepted finding joins the plan", await page.getByText("in the plan").first().isVisible());
+await page.getByText("Preview", { exact: true }).click();
+await page.waitForTimeout(700);
+check("the preview holds two live frames", (await page.locator("iframe.preview-frame").count()) === 2);
+check("frames are labeled honestly", await page.getByText("As it arrived").isVisible());
+
+/* back to the example for the remaining checks */
+await page.getByText("Reset demo").click();
+await page.waitForTimeout(500);
+await page.getByText("Drop your app", { exact: false }).last().click();
+await page.getByText("See the example").click();
+await page.getByText("Skip", { exact: true }).click();
+await page.getByText("Explore a style", { exact: false }).last().click();
+await page.getByText("Continue with", { exact: false }).click();
+await page.getByText("Create the concept").click();
 await page.waitForTimeout(600);
 
 /* the responsive floor: at 390 everything is composed */
