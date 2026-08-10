@@ -980,30 +980,33 @@ input {
   letter-spacing: 0.04em;
 }
 
-/* The reading sweep: an animated gradient passing through the card */
+/* The reading sweep: an animated gradient living inside the card.
+   A background layer cannot leave the box, so the folder tab keeps its
+   overflow and the canvas stays clean. */
 @keyframes sweep {
   0% {
-    transform: translateX(-110%) skewX(-12deg);
+    background-position: 130% 0;
   }
   100% {
-    transform: translateX(230%) skewX(-12deg);
+    background-position: -30% 0;
   }
 }
 
 .is-reading::before {
   content: "";
   position: absolute;
-  inset: -20% auto -20% 0;
-  width: 55%;
-  background: linear-gradient(
+  inset: 0;
+  border-radius: inherit;
+  background-image: linear-gradient(
     100deg,
-    transparent 0%,
-    rgba(192, 76, 221, 0.18) 30%,
-    rgba(123, 107, 255, 0.28) 50%,
-    rgba(247, 104, 255, 0.18) 70%,
-    transparent 100%
+    transparent 32%,
+    rgba(192, 76, 221, 0.14) 42%,
+    rgba(123, 107, 255, 0.22) 50%,
+    rgba(247, 104, 255, 0.14) 58%,
+    transparent 68%
   );
-  filter: blur(6px);
+  background-size: 250% 100%;
+  background-repeat: no-repeat;
   animation: sweep 1.6s ease-in-out infinite;
   pointer-events: none;
 }
