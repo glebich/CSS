@@ -18,7 +18,7 @@ import {
   type InboxEntry,
   inboxSeed,
 } from "./data/seed";
-import { analyzeProject, filesFromInput } from "./engine/analyze";
+import { analyzeProject, filesFromInput, type DroppedFile } from "./engine/analyze";
 import type { AnalyzedProject, ProgressLine } from "./engine/types";
 
 export type View =
@@ -148,7 +148,10 @@ interface Store {
   droppedName: string | null;
   /* the real engine: an actually analyzed project, or null for the example */
   project: AnalyzedProject | null;
-  analyzeFiles: (dropped: File[]) => Promise<void>;
+  analyzeFiles: (dropped: DroppedFile[]) => Promise<void>;
+  /** the residency: persist the dropped app and serve it at its address */
+  realSlug: string | null;
+  giveAddress: () => void;
   progress: ProgressLine[];
   realDecisions: Record<string, "accepted" | "aside">;
   decideReal: (findingId: string, decision: "accepted" | "aside") => void;
@@ -359,10 +362,53 @@ export function StoreProvider({ children }: { children: ReactNode }) {
    * The real path: parse what was actually dropped, measure it, and let
    * the theater speak only true lines. Nothing here is invented.
    */
-  const analyzeFiles = useCallback(async (dropped: File[]) => {
-    const name =
-      dropped.length === 1
-        ? dropped[0].name.replace(/\.zip$/i, "")
+  const [realSlug, setRealSlug] = useState<string | null>(null);
+
+  /**
+   * The residency, real: the dropped app's readable files persist on
+   * this machine and the address serves them. GitHub keeps the code;
+   * the address keeps the life.
+   */
+  const giveAddress = useCallback(() => {
+    if (!project) return;
+    let slug = project.inventory.name
+      .toLowerCase()
+      .replace(/\.zip$/, "")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .slice(0, 30);
+    /* the address route wants a letter first; digits get a quiet prefix */
+    if (!slug || slug === "skyrecall" || !/^[a-z]/.test(slug)) slug = `app-${slug || "one"}`;
+    const registry = loadJson<Record<string, unknown>>("osyle.residents", {});
+    const textFiles = [...project.files.values()]
+      .filter((f) => f.text !== null)
+      .slice(0, 40)
+      .map((f) => ({ path: f.path, text: (f.text as string).slice(0, 200_000) }));
+    registry[slug] = {
+      name: project.inventory.name,
+      vitality: project.vitality,
+      styleId,
+      savedAt: new Date().toISOString(),
+      files: textFiles,
+    };
+    saveJson("osyle.residents", registry);
+    setRealSlug(slug);
+    record("address.given", { slug, files: textFiles.length });
+    setPanel("none");
+    setView("address");
+  }, [project, styleId, record]);
+
+  const analyzeFiles = useCallback(async (dropped: DroppedFile[]) => {
+    const first = dropped[0] instanceof File ? dropped[0] : dropped[0]?.file;
+    const firstPath =
+      dropped[0] instanceof File
+        ? (dropped[0] as File & { webkitRelativePath?: string }).webkitRelativePath ||
+          dropped[0].name
+        : (dropped[0]?.path ?? "project");
+    const name = firstPath.includes("/")
+      ? firstPath.split("/")[0]
+      : dropped.length === 1
+        ? (first?.name ?? "project").replace(/\.zip$/i, "")
         : `${dropped.length} files`;
     setDroppedName(null);
     setProgress([]);
@@ -583,6 +629,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       LEDGER_KEY,
       COMFORT_KEY,
       CAPTION_KEY,
+      "osyle.residents",
     ]);
     setDecisions({});
     setComfort(false);
@@ -591,6 +638,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     setProject(null);
     setProgress([]);
     setRealDecisions({});
+    setRealSlug(null);
     setDroppedName(null);
     setSeenTips(new Set());
     setJustLaunched(false);
@@ -627,6 +675,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     droppedName,
     project,
     analyzeFiles,
+    realSlug,
+    giveAddress,
     progress,
     realDecisions,
     decideReal,

@@ -1,13 +1,115 @@
 import { useState } from "react";
 import { createClient } from "@osyle/sdk";
+import { buildSrcDoc } from "../engine/analyze";
+import type { ProjectFile } from "../engine/types";
 import { styleCatalog } from "../data/seed";
 
 /**
- * The resident, living at its address. This is SkyRecall itself, a real
- * working app: three radio-call drills, a logbook persisted through the
- * resident's own database, all of it wearing the identity chosen in the
- * studio. Navigation works, identity holds, data stays.
+ * The resident, living at its address. The skyrecall slug serves the
+ * example app; every other slug serves an app someone actually dropped,
+ * reassembled from the files the address holds. Either way, the address
+ * is not a metaphor: it serves.
  */
+
+type StoredResident = {
+  name: string;
+  vitality: number;
+  styleId: string;
+  savedAt: string;
+  files: Array<{ path: string; text: string }>;
+};
+
+/** A dropped app, served from its address: the files it arrived with. */
+function RealResident({ slug }: { slug: string }) {
+  const registry = readChoice<Record<string, StoredResident>>("osyle.residents", {});
+  const stored = registry[slug];
+
+  if (!stored) {
+    return (
+      <div
+        style={{
+          minHeight: "100vh",
+          background: "#f3f1ef",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: 14,
+          fontFamily: "var(--font)",
+          color: "#141210",
+        }}
+      >
+        <div style={{ fontSize: 26, fontWeight: 510, letterSpacing: "-0.02em" }}>
+          Nothing lives at {slug}.osyle.app yet.
+        </div>
+        <p style={{ fontSize: 14, color: "rgba(20,18,16,0.55)", maxWidth: 420, textAlign: "center" }}>
+          An address appears when an examined app moves in. Place your app,
+          read its report, and give it the address.
+        </p>
+        <a className="pill" href="#/" style={{ textDecoration: "none" }}>
+          Back to Osyle
+        </a>
+      </div>
+    );
+  }
+
+  const files = new Map<string, ProjectFile>(
+    stored.files.map((f) => [f.path, { path: f.path, text: f.text, bytes: f.text.length }]),
+  );
+  const doc = buildSrcDoc(files);
+
+  return (
+    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#f3f1ef" }}>
+      {doc ? (
+        <iframe
+          title={stored.name}
+          sandbox="allow-scripts"
+          srcDoc={doc}
+          style={{ flex: 1, width: "100%", border: "none", background: "#fff" }}
+        />
+      ) : (
+        <div
+          style={{
+            flex: 1,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 10,
+            fontFamily: "var(--font)",
+            color: "#141210",
+          }}
+        >
+          <div style={{ fontSize: 22, fontWeight: 510 }}>
+            {stored.name} lives here, holding {stored.files.length} file
+            {stored.files.length === 1 ? "" : "s"}.
+          </div>
+          <p style={{ fontSize: 14, color: "rgba(20,18,16,0.55)", maxWidth: 460, textAlign: "center" }}>
+            No page arrived to serve yet. Frameworks that need a build step
+            get their full runtime with the Studio's deeper pass.
+          </p>
+        </div>
+      )}
+      <footer
+        style={{
+          padding: "10px 18px",
+          fontSize: 11.5,
+          color: "rgba(20,18,16,0.5)",
+          display: "flex",
+          gap: 8,
+          alignItems: "center",
+          fontFamily: "var(--font)",
+          borderTop: "1px solid rgba(20,18,16,0.06)",
+        }}
+      >
+        <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#7b6bff", display: "inline-block" }} />
+        {slug}.osyle.app, alive at Osyle
+        <span style={{ flex: 1 }} />
+        <span>Vitality {stored.vitality} when it moved in</span>
+      </footer>
+    </div>
+  );
+}
 
 const CALLS = [
   { call: "Runway 27L, cleared for takeoff", hint: "Say it before the throttle" },
@@ -25,6 +127,11 @@ function readChoice<T>(key: string, fallback: T): T {
 }
 
 export function ResidentApp({ slug }: { slug: string }) {
+  if (slug !== "skyrecall") return <RealResident slug={slug} />;
+  return <SkyRecall slug={slug} />;
+}
+
+function SkyRecall({ slug }: { slug: string }) {
   const styleId = readChoice("osyle.demo.style", "st-paper");
   const comfort = readChoice("osyle.demo.comfort", false);
   const style = styleCatalog.find((s) => s.id === styleId) ?? styleCatalog[0];

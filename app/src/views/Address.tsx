@@ -1,12 +1,121 @@
 import { useState } from "react";
 import { readLedger, sdk, useStore } from "../store";
-import { Page, Sparkle } from "../components/chrome";
+import { FlowSteps, Page, Sparkle } from "../components/chrome";
 import { quotas, resident } from "../data/seed";
+import type { AnalyzedProject } from "../engine/types";
+
+/** The way out is always open: files, report, and ledger in one download. */
+function exportReal(slug: string, project: AnalyzedProject) {
+  const payload = {
+    slug,
+    name: project.inventory.name,
+    vitality: project.vitality,
+    exportedAt: new Date().toISOString(),
+    findings: project.lenses.flatMap((l) => l.findings),
+    files: [...project.files.values()]
+      .filter((f) => f.text !== null)
+      .map((f) => ({ path: f.path, text: f.text })),
+    decisionLedger: readLedger(),
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], {
+    type: "application/json",
+  });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${slug}-export.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
 
 /** Serving: the address holding files, media, and users. The home, literal. */
 export function Address() {
-  const { vitality, ledgerCount } = useStore();
+  const { vitality, ledgerCount, realSlug, project } = useStore();
   const [copied, setCopied] = useState(false);
+
+  /* The real ceremony: a dropped, examined app just moved in. */
+  if (realSlug && project) {
+    const fileCount = [...project.files.values()].filter((f) => f.text !== null).length;
+    return (
+      <Page>
+        <FlowSteps current="address" />
+        <div style={{ textAlign: "center", padding: "10px 0 8px" }}>
+          <h1 className="statement statement-page">
+            It lives <span className="quiet">here now.</span>
+          </h1>
+          <div
+            style={{
+              fontSize: "clamp(22px, 3vw, 34px)",
+              fontWeight: 510,
+              letterSpacing: "-0.01em",
+              marginTop: 18,
+              fontVariantNumeric: "tabular-nums",
+            }}
+          >
+            {realSlug}.osyle.app
+          </div>
+          <div style={{ display: "flex", gap: 10, justifyContent: "center", marginTop: 18 }}>
+            <button
+              className="pill pill-sm"
+              onClick={() => {
+                navigator.clipboard?.writeText(`https://${realSlug}.osyle.app`).catch(() => undefined);
+                setCopied(true);
+              }}
+            >
+              {copied ? "Copied" : "Copy"}
+            </button>
+            <a
+              className="pill pill-sm"
+              href={`#/r/${realSlug}`}
+              target="_blank"
+              rel="noreferrer"
+              style={{ textDecoration: "none" }}
+            >
+              Open
+            </a>
+          </div>
+          <p style={{ fontSize: 13, color: "var(--gray-small)", marginTop: 14 }}>
+            Served from this machine for now. The public address ships with
+            hosted Osyle.
+          </p>
+        </div>
+
+        <div className="card card-pad" style={{ marginTop: 26 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <span className="pulse-dot" />
+            <span style={{ fontSize: 19, fontWeight: 550 }}>{project.inventory.name}</span>
+            <span className="chip">Alive at Osyle</span>
+            <span className="topbar-spacer" />
+            <span style={{ fontSize: 13, color: "var(--gray-meta)" }}>
+              Vitality {project.vitality} at move-in
+            </span>
+          </div>
+          <p style={{ color: "var(--gray-meta)", marginTop: 10, maxWidth: 620 }}>
+            The address holds {fileCount} readable file{fileCount === 1 ? "" : "s"} and
+            serves your page in a sandbox, exactly as it arrived. No GitHub, no
+            deploy pipeline, no build queue. Drop a newer version any time and
+            the examination runs again.
+          </p>
+        </div>
+
+        <div style={{ display: "flex", gap: 10, justifyContent: "center", marginTop: 40 }}>
+          <button className="pill" onClick={() => exportReal(realSlug, project)}>
+            Export everything
+          </button>
+          <a
+            className="pill pill-dark"
+            href={`#/r/${realSlug}`}
+            target="_blank"
+            rel="noreferrer"
+            style={{ textDecoration: "none" }}
+          >
+            Visit it at its address
+            <Sparkle size={13} />
+          </a>
+        </div>
+      </Page>
+    );
+  }
 
   function exportEverything() {
     const payload = {

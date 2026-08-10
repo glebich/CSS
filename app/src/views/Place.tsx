@@ -25,16 +25,58 @@ const PILLS: Array<{
   { label: "Figma Design", variant: "selected", style: { right: "3%", top: "63%" } },
 ];
 
+/** Walk a dropped directory tree; browsers only reveal it entry by entry. */
+async function walkEntry(
+  entry: FileSystemEntry,
+  prefix: string,
+  out: Array<{ file: File; path: string }>,
+): Promise<void> {
+  if (out.length >= 60) return;
+  if (entry.isFile) {
+    const file = await new Promise<File>((resolve, reject) =>
+      (entry as FileSystemFileEntry).file(resolve, reject),
+    ).catch(() => null);
+    if (file) out.push({ file, path: `${prefix}${entry.name}` });
+    return;
+  }
+  if (entry.isDirectory) {
+    if (/^(node_modules|\.git|dist|build|coverage)$/.test(entry.name)) return;
+    const reader = (entry as FileSystemDirectoryEntry).createReader();
+    /* readEntries returns batches; keep reading until it runs dry */
+    for (;;) {
+      const batch = await new Promise<FileSystemEntry[]>((resolve, reject) =>
+        reader.readEntries(resolve, reject),
+      ).catch(() => []);
+      if (batch.length === 0) break;
+      for (const child of batch) {
+        await walkEntry(child, `${prefix}${entry.name}/`, out);
+      }
+    }
+  }
+}
+
 export function Place() {
   const { beginUpload, analyzeFiles } = useStore();
   const [dragging, setDragging] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  const folderRef = useRef<HTMLInputElement>(null);
   const depth = useRef(0);
 
-  function onDrop(e: React.DragEvent) {
+  async function onDrop(e: React.DragEvent) {
     e.preventDefault();
     depth.current = 0;
     setDragging(false);
+    /* folders arrive as entries, not files; walk them for real */
+    const items = Array.from(e.dataTransfer.items ?? []);
+    const entries = items
+      .map((i) => i.webkitGetAsEntry?.())
+      .filter((x): x is FileSystemEntry => x !== null && x !== undefined);
+    if (entries.some((en) => en.isDirectory)) {
+      const walked: Array<{ file: File; path: string }> = [];
+      for (const entry of entries) await walkEntry(entry, "", walked);
+      if (walked.length > 0) void analyzeFiles(walked);
+      return;
+    }
     const dropped = Array.from(e.dataTransfer.files ?? []);
     if (dropped.length > 0) void analyzeFiles(dropped);
   }
@@ -125,9 +167,22 @@ export function Place() {
         >
           <Icon name="plus" size={18} />
         </button>
-        <button className="pill pill-dark" onClick={() => fileRef.current?.click()}>
-          Choose your files, or drop them anywhere
+        <input
+          ref={folderRef}
+          type="file"
+          {...({ webkitdirectory: "" } as Record<string, string>)}
+          style={{ display: "none" }}
+          onChange={(e) => {
+            const chosen = Array.from(e.target.files ?? []);
+            if (chosen.length > 0) void analyzeFiles(chosen);
+          }}
+        />
+        <button className="pill pill-dark" onClick={() => folderRef.current?.click()}>
+          Choose your app folder, or drop it anywhere
           <Sparkle size={13} />
+        </button>
+        <button className="pill" onClick={() => fileRef.current?.click()}>
+          Just files
         </button>
         <button className="pill" onClick={() => beginUpload()}>
           See the example

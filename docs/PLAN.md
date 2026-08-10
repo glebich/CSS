@@ -349,6 +349,28 @@ fixture project and asserting the engine catches the weak contrast at
 its true line, the committed key, and the dark-pattern copy: 40
 journey checks pass.
 
+### Increment B5. Never-empty value and the real residency. DELIVERED
+
+Two direct orders honored at once: a report may never dead-end at zero
+repairs, and Osyle must feel like a home, not an analyzer. Whole
+folders now arrive intact, dropped anywhere (recursive directory walk,
+node_modules and build output skipped) or through the folder picker,
+and the project takes its folder's name. The typography and color
+lenses read JavaScript styling too, so styled apps stop reading as
+invisible. A clean report speaks plainly, offers the grounded
+improvement prompt in place of the repair plan (Nielsen walkthrough,
+state coverage, browser-run WCAG audit, Core Web Vitals budget, calm
+copy pass), and names the lenses that could not see. And the report
+now ends in a door: Give it the address persists the examined files
+into the resident registry and the address genuinely serves them,
+reassembled by the same document builder the preview frames use, in a
+sandbox at #/r/{slug}, surviving reload, with an honest page for
+addresses where nothing lives yet. The real journey's breadcrumb runs
+Place, Materials, The report, The address. Verified end to end: the
+flawed fixture moves in and serves at its address; a deliberately
+clean fixture yields the improvement prompt, never a zero; 55 journey
+checks pass.
+
 ### Increment C. Stage 6, the Audience for real
 
 Archetype composition from a sentence, discovery mode with cited

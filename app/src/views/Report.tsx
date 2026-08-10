@@ -1,8 +1,8 @@
 import { useMemo, useState } from "react";
 import { useStore } from "../store";
-import { Page, Sparkle } from "../components/chrome";
+import { FlowSteps, Page, Sparkle } from "../components/chrome";
 import { styleCatalog } from "../data/seed";
-import { transformCss } from "../engine/analyze";
+import { buildSrcDoc, transformCss } from "../engine/analyze";
 import type { AnalyzedProject, RealFinding } from "../engine/types";
 
 /**
@@ -15,61 +15,45 @@ import type { AnalyzedProject, RealFinding } from "../engine/types";
 
 const REPORT_STYLES = ["st-aria", "st-mono", "st-warm", "st-night"];
 
-function buildSrcDoc(project: AnalyzedProject, extraCss?: string): string | null {
-  const html =
-    [...project.files.values()].find((f) => /(^|\/)index\.html?$/i.test(f.path) && f.text) ??
-    [...project.files.values()].find((f) => /\.html?$/i.test(f.path) && f.text);
-  if (!html?.text) return null;
-  const find = (href: string) => {
-    const clean = href.replace(/^\.?\//, "").split("?")[0];
-    return [...project.files.values()].find(
-      (f) => f.path === clean || f.path.endsWith(`/${clean}`),
-    );
-  };
-  let doc = html.text;
-  doc = doc.replace(
-    /<link[^>]*rel=["']stylesheet["'][^>]*href=["']([^"']+)["'][^>]*>/gi,
-    (tag, href: string) => {
-      const css = find(href);
-      return css?.text ? `<style>${css.text}</style>` : tag;
-    },
-  );
-  doc = doc.replace(
-    /<script[^>]*\bsrc=["']([^"']+)["'][^>]*>\s*<\/script>/gi,
-    (_tag, src: string) => {
-      const js = find(src);
-      return js?.text ? `<script>${js.text.replace(/<\/script/gi, "<\\/script")}</script>` : "";
-    },
-  );
-  doc = doc.replace(/(<img[^>]*\bsrc=)["']([^"']+)["']/gi, (m, pre: string, src: string) => {
-    if (/^(data:|https?:)/i.test(src) || find(src)) return m;
-    return `${pre}"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='80'%3E%3Crect width='120' height='80' fill='%23e5e2de'/%3E%3C/svg%3E"`;
-  });
-  if (extraCss) {
-    doc = doc.includes("</head>")
-      ? doc.replace("</head>", `<style>${extraCss}</style></head>`)
-      : `${doc}<style>${extraCss}</style>`;
-  }
-  return doc;
-}
 
 /** The whole plan as one prompt, ready for the tool that builds. */
 function buildRepairPrompt(project: AnalyzedProject, chosen: RealFinding[]): string {
   const lines: string[] = [];
-  lines.push(`Repair plan for ${project.inventory.name}, from an Osyle examination of ${project.inventory.fileCount} files.`);
-  lines.push("");
-  lines.push("Apply each repair exactly as named. Do not change behavior, structure, or copy beyond what a repair requires.");
-  lines.push("");
-  chosen.forEach((f, i) => {
-    lines.push(`${i + 1}. ${f.title} [${f.severity}]`);
-    lines.push(`   ${f.detail}`);
-    for (const e of f.evidence.slice(0, 4)) {
-      lines.push(`   Evidence: ${e.file}${e.line ? `:${e.line}` : ""} ${e.value}`);
-    }
-    lines.push(`   Grounding: ${f.grounding}`);
+  if (chosen.length > 0) {
+    lines.push(`Repair plan for ${project.inventory.name}, from an Osyle examination of ${project.inventory.fileCount} files.`);
     lines.push("");
-  });
-  lines.push("After the repairs, list what changed, file by file.");
+    lines.push("Apply each repair exactly as named. Do not change behavior, structure, or copy beyond what a repair requires.");
+    lines.push("");
+    chosen.forEach((f, i) => {
+      lines.push(`${i + 1}. ${f.title} [${f.severity}]`);
+      lines.push(`   ${f.detail}`);
+      for (const e of f.evidence.slice(0, 4)) {
+        lines.push(`   Evidence: ${e.file}${e.line ? `:${e.line}` : ""} ${e.value}`);
+      }
+      lines.push(`   Grounding: ${f.grounding}`);
+      lines.push("");
+    });
+    lines.push("After the repairs, list what changed, file by file.");
+    return lines.join("\n");
+  }
+  /* Nothing measurable failed. The prompt still improves the app,
+     honestly framed as what a deeper examination examines. */
+  const na = project.lenses.filter((l) => l.notApplicable).map((l) => l.name);
+  lines.push(`Improvement plan for ${project.inventory.name}, from an Osyle examination of ${project.inventory.fileCount} files.`);
+  lines.push("");
+  lines.push(`Measured: ${project.inventory.framework}, ${project.inventory.screens.length} screens, ${project.inventory.componentCount} components. The static lenses found nothing below their floors.`);
+  if (na.length > 0) {
+    lines.push(`Lenses that could not see this project's styling or code: ${na.join(", ")}.`);
+  }
+  lines.push("");
+  lines.push("Improve the app along these lines, changing behavior only where named:");
+  lines.push("1. Walk the first-time path and remove every step that is not the product's one job. Ground: Nielsen's usability heuristics, aesthetic and minimalist design.");
+  lines.push("2. Give every screen its empty, loading, and error state, each with one plain sentence and one action.");
+  lines.push("3. Run a full WCAG 2.1 AA audit in the browser, contrast, focus order, labels, keyboard paths; static reading cannot see computed styles.");
+  lines.push("4. Lab-test Core Web Vitals on a mid-range phone; budget script under 300 KB shipped.");
+  lines.push("5. Read every string aloud; delete urgency, guilt, and filler. Calm converts better than pressure over time.");
+  lines.push("");
+  lines.push("After the pass, list what changed, file by file.");
   return lines.join("\n");
 }
 
@@ -128,7 +112,7 @@ function FindingCard({ finding }: { finding: RealFinding }) {
 }
 
 export function Report() {
-  const { project, realDecisions, styleId, setStyleId, comfort } = useStore();
+  const { project, realDecisions, styleId, setStyleId, comfort, giveAddress } = useStore();
   const [copied, setCopied] = useState(false);
   const [promptOpen, setPromptOpen] = useState(false);
 
@@ -144,12 +128,12 @@ export function Report() {
     styleCatalog.find((s) => s.id === styleId && REPORT_STYLES.includes(s.id)) ??
     styleCatalog.find((s) => s.id === REPORT_STYLES[0])!;
 
-  const before = useMemo(() => buildSrcDoc(project), [project]);
+  const before = useMemo(() => buildSrcDoc(project.files), [project]);
   const after = useMemo(
     () =>
       before
         ? buildSrcDoc(
-            project,
+            project.files,
             transformCss({
               ink: style.ink,
               paper: style.dark ? "#101014" : "#fbfaf8",
@@ -167,6 +151,7 @@ export function Report() {
 
   return (
     <Page wide>
+      <FlowSteps current="report" />
       {/* 1. The number, and how it was made */}
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", paddingTop: 10 }}>
         <span className="instrument-label">Vitality</span>
@@ -188,14 +173,22 @@ export function Report() {
         <p style={{ fontSize: 12, color: "var(--gray-small)", maxWidth: 640, textAlign: "center", marginTop: 10 }}>
           {project.vitalityWhy}
         </p>
+        {project.lenses.some((l) => l.notApplicable) && (
+          <p style={{ fontSize: 12, color: "var(--warn)", maxWidth: 640, textAlign: "center", marginTop: 6 }}>
+            Could not see: {project.lenses.filter((l) => l.notApplicable).map((l) => l.name).join(", ")}.
+            Framework styling needs the Studio&apos;s deeper pass, coming with its stage.
+          </p>
+        )}
       </div>
 
       {/* 2. What is wrong, yours to decide */}
-      <div className="section-label" style={{ marginTop: 44 }}>
-        {undecided.length > 0
-          ? `What to fix, ${undecided.length} to decide`
-          : "Every finding decided"}
-      </div>
+      {findings.length > 0 && (
+        <div className="section-label" style={{ marginTop: 44 }}>
+          {undecided.length > 0
+            ? `What to fix, ${undecided.length} to decide`
+            : "Every finding decided"}
+        </div>
+      )}
       <div style={{ display: "grid", gap: 14 }}>
         {undecided.map((f) => (
           <FindingCard key={f.id} finding={f} />
@@ -286,30 +279,39 @@ export function Report() {
         </>
       )}
 
-      {/* 5. The door: the plan, portable */}
+      {/* 5. The doors: the plan travels, and the app moves in */}
       <div className="card card-solid card-pad" style={{ marginTop: 44, textAlign: "center" }}>
         <div style={{ fontSize: 18, fontWeight: 510 }}>
-          {accepted.length > 0
-            ? `Your plan holds ${accepted.length} repair${accepted.length === 1 ? "" : "s"}`
-            : `The full plan holds ${findings.length} repair${findings.length === 1 ? "" : "s"}`}
+          {findings.length === 0
+            ? "Nothing measurable to repair. There is still a next step."
+            : accepted.length > 0
+              ? `Your plan holds ${accepted.length} repair${accepted.length === 1 ? "" : "s"}`
+              : `The full plan holds ${findings.length} repair${findings.length === 1 ? "" : "s"}`}
         </div>
         <p style={{ color: "var(--gray-meta)", marginTop: 8, maxWidth: 560, margin: "8px auto 0" }}>
-          Take it to whatever builds your app. Paste the prompt into Cursor,
-          Lovable, Claude, or your editor, and the repairs carry their own
-          evidence.
+          {findings.length === 0
+            ? "The improvement prompt below carries what was measured and what a deeper pass would examine. And the app can move in regardless."
+            : "Take the prompt to whatever builds your app: Cursor, Lovable, Claude, your editor. Then give the app its address, because a report is not a home."}
         </p>
-        <div style={{ display: "flex", gap: 10, justifyContent: "center", marginTop: 18 }}>
+        <div style={{ display: "flex", gap: 10, justifyContent: "center", marginTop: 18, flexWrap: "wrap" }}>
           <button className="pill" onClick={() => setPromptOpen(!promptOpen)}>
             {promptOpen ? "Hide the prompt" : "Read the prompt"}
           </button>
           <button
-            className="pill pill-dark"
+            className="pill"
             onClick={() => {
               navigator.clipboard?.writeText(repairPrompt).catch(() => undefined);
               setCopied(true);
             }}
           >
-            {copied ? "Copied" : "Copy the repair prompt"}
+            {copied
+              ? "Copied"
+              : findings.length === 0
+                ? "Copy the improvement prompt"
+                : "Copy the repair prompt"}
+          </button>
+          <button className="pill pill-dark" onClick={giveAddress}>
+            Give it the address
             <Sparkle size={13} />
           </button>
         </div>

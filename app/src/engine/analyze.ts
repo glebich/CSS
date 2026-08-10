@@ -34,7 +34,10 @@ export const VITALITY_WEIGHTS: Array<{ key: string; weight: number }> = [
   { key: "perf", weight: 0.08 },
 ];
 
-export async function filesFromInput(fileList: File[]): Promise<Map<string, ProjectFile>> {
+/** A dropped file, optionally carrying the path a folder walk found it at. */
+export type DroppedFile = File | { file: File; path: string };
+
+export async function filesFromInput(fileList: DroppedFile[]): Promise<Map<string, ProjectFile>> {
   const out = new Map<string, ProjectFile>();
   let textBudget = MAX_TEXT_BYTES;
 
@@ -48,8 +51,12 @@ export async function filesFromInput(fileList: File[]): Promise<Map<string, Proj
     out.set(path, { path, text, bytes: bytes.length });
   }
 
-  for (const file of fileList) {
-    const rel = (file as File & { webkitRelativePath?: string }).webkitRelativePath || file.name;
+  for (const dropped of fileList) {
+    const file = dropped instanceof File ? dropped : dropped.file;
+    const rel =
+      dropped instanceof File
+        ? (file as File & { webkitRelativePath?: string }).webkitRelativePath || file.name
+        : dropped.path;
     if (/\.zip$/i.test(file.name)) {
       const raw = new Uint8Array(await file.arrayBuffer());
       let entries: Record<string, Uint8Array>;
@@ -144,6 +151,51 @@ export async function analyzeProject(
     files,
     analyzedAt: new Date().toISOString(),
   };
+}
+
+/**
+ * Build a self-contained document from a project's files: linked
+ * stylesheets inlined, held scripts inlined, missing assets quieted.
+ * Serves both the Report's live frames and the resident's address.
+ */
+export function buildSrcDoc(
+  files: Map<string, ProjectFile>,
+  extraCss?: string,
+): string | null {
+  const all = [...files.values()];
+  const html =
+    all.find((f) => /(^|\/)index\.html?$/i.test(f.path) && f.text) ??
+    all.find((f) => /\.html?$/i.test(f.path) && f.text);
+  if (!html?.text) return null;
+  const find = (href: string) => {
+    const clean = href.replace(/^\.?\//, "").split("?")[0];
+    return all.find((f) => f.path === clean || f.path.endsWith(`/${clean}`));
+  };
+  let doc = html.text;
+  doc = doc.replace(
+    /<link[^>]*rel=["']stylesheet["'][^>]*href=["']([^"']+)["'][^>]*>/gi,
+    (tag, href: string) => {
+      const css = find(href);
+      return css?.text ? `<style>${css.text}</style>` : tag;
+    },
+  );
+  doc = doc.replace(
+    /<script[^>]*\bsrc=["']([^"']+)["'][^>]*>\s*<\/script>/gi,
+    (_tag, src: string) => {
+      const js = find(src);
+      return js?.text ? `<script>${js.text.replace(/<\/script/gi, "<\\/script")}</script>` : "";
+    },
+  );
+  doc = doc.replace(/(<img[^>]*\bsrc=)["']([^"']+)["']/gi, (m, pre: string, src: string) => {
+    if (/^(data:|https?:)/i.test(src) || find(src)) return m;
+    return `${pre}"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='80'%3E%3Crect width='120' height='80' fill='%23e5e2de'/%3E%3C/svg%3E"`;
+  });
+  if (extraCss) {
+    doc = doc.includes("</head>")
+      ? doc.replace("</head>", `<style>${extraCss}</style></head>`)
+      : `${doc}<style>${extraCss}</style>`;
+  }
+  return doc;
 }
 
 /** The style-token transform for the live preview: real CSS, honestly scoped. */

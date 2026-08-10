@@ -131,7 +131,7 @@ await page.goto("http://localhost:5197/");
 await page.waitForTimeout(500);
 await page.getByText("Reset demo").click();
 await page.getByText("Drop your app", { exact: false }).last().click();
-await page.locator('input[type="file"]').setInputFiles([
+await page.locator('input[type="file"]:not([webkitdirectory])').setInputFiles([
   new URL("./fixture/index.html", import.meta.url).pathname,
   new URL("./fixture/styles.css", import.meta.url).pathname,
   new URL("./fixture/app.js", import.meta.url).pathname,
@@ -186,6 +186,73 @@ check(
   promptText.includes("styles.css") && promptText.includes("Grounding:"),
 );
 check("the prompt is portable by one tap", await page.getByText("Copy the repair prompt").isVisible());
+
+/* -----------------------------------------------------------------
+   The residency: the examined app moves in, and the address serves
+   the actual dropped files, not a metaphor for them. */
+await page.getByText("Give it the address").click();
+await page.waitForTimeout(500);
+check("the ceremony opens", await page.getByText("It lives here now.").isVisible());
+check("the address is spoken", await page.getByText("app-3-files.osyle.app").first().isVisible());
+check(
+  "the address flow step is current",
+  await page.locator(".flow-step.is-current", { hasText: "The address" }).isVisible(),
+);
+await page.goto("http://localhost:5197/#/r/app-3-files");
+await page.waitForTimeout(700);
+check(
+  "the dropped app is served at its address",
+  await page.frameLocator("iframe").getByText("Sunrise Tracker").first().isVisible(),
+);
+check(
+  "the resident footer marks the life",
+  await page.getByText("app-3-files.osyle.app, alive at Osyle").isVisible(),
+);
+await page.reload();
+await page.waitForTimeout(700);
+check(
+  "the residency survives a reload",
+  await page.frameLocator("iframe").getByText("Sunrise Tracker").first().isVisible(),
+);
+await page.goto("http://localhost:5197/#/r/nowhere");
+await page.waitForTimeout(400);
+check(
+  "an unknown address is honest",
+  await page.getByText("Nothing lives at nowhere.osyle.app yet.").isVisible(),
+);
+
+/* -----------------------------------------------------------------
+   A clean project is never a dead end: the folder picker takes a
+   whole directory, the report offers the improvement prompt, and
+   the app can still move in. Zero repairs is never spoken. */
+await page.goto("http://localhost:5197/");
+await page.waitForTimeout(500);
+await page.getByText("Drop your app", { exact: false }).last().click();
+await page
+  .locator("input[webkitdirectory]")
+  .setInputFiles(new URL("./clean", import.meta.url).pathname);
+await page.getByText("See the report", { exact: false }).click({ timeout: 25000 });
+await page.waitForTimeout(600);
+check(
+  "a clean app is never a dead end",
+  await page.getByText("Nothing measurable to repair. There is still a next step.").isVisible(),
+);
+check(
+  "the improvement prompt replaces the empty plan",
+  await page.getByText("Copy the improvement prompt").isVisible(),
+);
+const reportText = await page.locator("body").innerText();
+check("zero repairs is never spoken", !reportText.includes("0 repairs"));
+await page.getByText("Read the prompt").click();
+await page.waitForTimeout(300);
+const improveText = await page.locator("pre").last().innerText();
+check(
+  "the improvement prompt carries the deeper pass",
+  improveText.includes("heuristic") && improveText.includes("WCAG"),
+);
+await page.getByText("Give it the address").click();
+await page.waitForTimeout(500);
+check("a folder drop is named by its folder", await page.getByText("clean.osyle.app").first().isVisible());
 
 /* back to the example for the remaining checks */
 await page.getByText("Reset demo").click();

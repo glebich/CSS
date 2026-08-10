@@ -301,6 +301,7 @@ const FLOW_STEPS_REAL: Array<{ view: View; label: string }> = [
   { view: "place", label: "Place" },
   { view: "assets", label: "Materials" },
   { view: "report", label: "The report" },
+  { view: "address", label: "The address" },
 ];
 
 /**

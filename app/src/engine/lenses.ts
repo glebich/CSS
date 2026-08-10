@@ -135,10 +135,11 @@ export function lensAccessibility(files: Files): LensResult {
 /* ------------------------------------------------------- typography */
 
 export function lensTypography(files: Files): LensResult {
-  const css = textFiles(files, /\.(css|scss|less)$/i);
+  const css = textFiles(files, /\.(css|scss|less|html?)$/i);
+  const js = textFiles(files, /\.([jt]sx?|vue|svelte)$/i);
   const findings: RealFinding[] = [];
   const strengths: RealStrength[] = [];
-  if (css.length === 0) {
+  if (css.length + js.length === 0) {
     return {
       key: "type",
       name: "Typography",
@@ -146,7 +147,7 @@ export function lensTypography(files: Files): LensResult {
       scoreWhy: "No stylesheets to measure.",
       findings,
       strengths,
-      notApplicable: "No CSS arrived; typography cannot be measured from markup alone.",
+      notApplicable: "No stylesheets or components arrived; typography cannot be measured.",
     };
   }
   const families = new Set<string>();
@@ -157,6 +158,20 @@ export function lensTypography(files: Files): LensResult {
       const fam = m[1].split(",")[0].trim().replace(/["']/g, "").toLowerCase();
       if (!families.has(fam)) familyEvidence.push({ file: f.path, line, value: fam });
       families.add(fam);
+    });
+    eachMatch(/font-size\s*:\s*([\d.]+(?:px|rem|em|pt))/gi, f.text!, (m) => {
+      sizes.add(m[1]);
+    });
+  }
+  /* styling written in JS counts too: inline styles and styled strings */
+  for (const f of js) {
+    eachMatch(/fontFamily\s*:\s*["']([^"']+)["']/g, f.text!, (m, line) => {
+      const fam = m[1].split(",")[0].trim().toLowerCase();
+      if (!families.has(fam)) familyEvidence.push({ file: f.path, line, value: fam });
+      families.add(fam);
+    });
+    eachMatch(/fontSize\s*:\s*["']?(\d+(?:\.\d+)?)(px|rem|em)?/g, f.text!, (m) => {
+      sizes.add(`${m[1]}${m[2] ?? "px"}`);
     });
     eachMatch(/font-size\s*:\s*([\d.]+(?:px|rem|em|pt))/gi, f.text!, (m) => {
       sizes.add(m[1]);
@@ -180,7 +195,7 @@ export function lensTypography(files: Files): LensResult {
       title: `${sizes.size} distinct font sizes, no ramp survives that`,
       detail: "A deliberate scale has 5 to 8 steps; this many sizes means sizes were picked ad hoc.",
       severity: "medium",
-      evidence: [{ file: css[0].path, value: [...sizes].slice(0, 10).join(", ") }],
+      evidence: [{ file: (css[0] ?? js[0]).path, value: [...sizes].slice(0, 10).join(", ") }],
       grounding: "Modular scale practice; consistent ramps measurably improve scanability.",
     });
   }
@@ -206,7 +221,7 @@ export function lensTypography(files: Files): LensResult {
 /* ------------------------------------------------- color discipline */
 
 export function lensColor(files: Files): LensResult {
-  const css = textFiles(files, /\.(css|scss|less)$/i);
+  const css = textFiles(files, /\.(css|scss|less|html?|[jt]sx?|vue|svelte)$/i);
   const findings: RealFinding[] = [];
   const strengths: RealStrength[] = [];
   if (css.length === 0) {
@@ -217,7 +232,7 @@ export function lensColor(files: Files): LensResult {
       scoreWhy: "No stylesheets to measure.",
       findings,
       strengths,
-      notApplicable: "No CSS arrived; color cannot be measured.",
+      notApplicable: "No stylesheets or markup arrived; color cannot be measured.",
     };
   }
   const colors = new Map<string, Evidence>();
