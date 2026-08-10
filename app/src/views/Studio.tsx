@@ -194,7 +194,10 @@ export function Studio() {
       </div>
       <div className="card card-pad" style={{ maxWidth: 560 }}>
         <div style={{ display: "grid", gap: 10 }}>
-          <label style={{ fontSize: 11, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--gray-small)" }}>
+          <label
+            style={{ fontSize: 11, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--gray-small)" }}
+            title="Your Anthropic key runs live Studio edits when Real Mode arrives"
+          >
             Claude
           </label>
           <input
@@ -211,7 +214,10 @@ export function Studio() {
               {aOk ? "Looks right" : "Not a key we recognize"}
             </span>
           )}
-          <label style={{ fontSize: 11, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--gray-small)", marginTop: 6 }}>
+          <label
+            style={{ fontSize: 11, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--gray-small)", marginTop: 6 }}
+            title="Your Gemini key is the second route through the model gateway"
+          >
             Gemini
           </label>
           <input

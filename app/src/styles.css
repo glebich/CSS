@@ -606,6 +606,36 @@ input {
   color: rgba(245, 244, 255, 0.4);
 }
 
+/* the rail: partner marks, single ink, reduced opacity, uniform */
+.brand-works {
+  margin-top: 46px;
+  display: flex;
+  gap: 22px;
+  align-items: baseline;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.works-label {
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(245, 244, 255, 0.35);
+}
+
+.works-mark {
+  font-size: 13px;
+  font-weight: 510;
+  letter-spacing: 0.02em;
+  color: rgba(245, 244, 255, 0.48);
+  cursor: default;
+  transition: color 0.2s ease-out;
+}
+
+.works-mark:hover {
+  color: rgba(245, 244, 255, 0.8);
+}
+
 /* the six promises, one quiet line above the foot */
 .brand-promises {
   position: absolute;

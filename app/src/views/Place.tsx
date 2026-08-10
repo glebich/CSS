@@ -173,7 +173,11 @@ export function Place() {
               onKeyDown={(e) => e.key === "Enter" && void connectRepo()}
             />
           </div>
-          <button className="pill" onClick={() => void connectRepo()}>
+          <button
+            className="pill"
+            onClick={() => void connectRepo()}
+            title="GitHub serves the repository zip; Osyle reads it in your browser, nothing in between"
+          >
             {reaching ? "Reaching the repository" : "Connect the repo"}
           </button>
         </div>

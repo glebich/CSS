@@ -65,6 +65,8 @@ export interface Inventory {
   framework: string;
   screens: string[];
   componentCount: number;
+  /** connectors actually fingerprinted in the dropped text */
+  services: string[];
   truncated: boolean;
 }
 

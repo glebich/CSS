@@ -544,6 +544,24 @@ preview, the Capacitor-class wrap pipeline, the Living Store Kit
 regenerating on change. The device switcher from this branch becomes the
 wardrobe's front door.
 
+### Increment I1. Stage 12, the Ecosystem Rail. DELIVERED
+
+The room where everything already used finally connects, worn per
+the logo behavior rules. The landing carries the Works with band,
+eight nominative marks, GitHub, Lovable, Cursor, Claude, v0, Bolt,
+Replit, Figma, single ink at reduced opacity, uniform, each with a
+tooltip stating exactly what its integration does, never implying
+endorsement. The Studio's key sheet marks carry their tooltips. The
+connectors are real: the engine fingerprints services actually
+present in the dropped text, Firebase, Supabase, Stripe, OpenAI,
+Anthropic, Google APIs, AWS, and the report wears the detected
+marks with quiet status dots and the honest note that live status
+checks arrive with Real Mode. The repo door carries the GitHub
+integration sentence. The official App Store and Google Play badges
+are deferred to the publish stage on the rule's own terms: they may
+appear only in their official form, and official assets cannot ship
+from this build environment. 112 journey checks pass.
+
 ### Increment I. Stages 12 to 15, in spec order
 
 Ecosystem rail (per §10's logo laws), viral surfaces and audience-aware

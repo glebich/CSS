@@ -184,6 +184,21 @@ export function Report() {
         <p style={{ fontSize: 12, color: "var(--gray-small)", maxWidth: 640, textAlign: "center", marginTop: 10 }}>
           {project.vitalityWhy}
         </p>
+        {project.inventory.services.length > 0 && (
+          <p style={{ fontSize: 12.5, color: "var(--gray-meta)", marginTop: 10, display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", justifyContent: "center" }}>
+            Connections, detected in your files:
+            {project.inventory.services.map((s) => (
+              <span
+                key={s}
+                className="chip"
+                title="Found by fingerprint in the dropped text. Live status checks arrive with Real Mode."
+              >
+                <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--gray-faint)", display: "inline-block", marginRight: 6 }} />
+                {s}
+              </span>
+            ))}
+          </p>
+        )}
         {/* the ten lenses, each speaking its own state: a score, an honest
             could-not-see, or the stage it arrives with */}
         <div className="lens-strip">

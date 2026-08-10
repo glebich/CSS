@@ -2,6 +2,18 @@ import { useEffect, useRef, useState } from "react";
 import { useStore } from "../store";
 import { Sparkle } from "../components/chrome";
 
+/** Nominative marks only: we integrate with these, nothing implied. */
+const WORKS_WITH: Array<{ name: string; does: string }> = [
+  { name: "GitHub", does: "Connect a repository and Osyle reads the app from it" },
+  { name: "Lovable", does: "Lovable output imports as files, a zip, or a repo" },
+  { name: "Cursor", does: "Cursor projects import as files, a zip, or a repo" },
+  { name: "Claude", does: "Your Claude key powers live Studio edits with Real Mode" },
+  { name: "v0", does: "v0 output imports as files, a zip, or a repo" },
+  { name: "Bolt", does: "Bolt projects import as files, a zip, or a repo" },
+  { name: "Replit", does: "Replit projects import as files, a zip, or a repo" },
+  { name: "Figma", does: "Figma exports arrive as materials for the identity" },
+];
+
 function validKey(kind: "anthropic" | "gemini", value: string): boolean | null {
   if (!value) return null;
   return kind === "anthropic" ? /^sk-ant-/.test(value) : /^AIza/.test(value);
@@ -60,6 +72,16 @@ export function Landing() {
           <Sparkle size={13} />
           Drop your app
         </button>
+        {/* the rail: worn openly, monochrome, nominative, every mark
+            saying exactly what its integration does */}
+        <div className="brand-works">
+          <span className="works-label">Works with</span>
+          {WORKS_WITH.map((w) => (
+            <span key={w.name} className="works-mark" title={w.does}>
+              {w.name}
+            </span>
+          ))}
+        </div>
       </div>
       <div className="brand-promises">
         Safe. Designed. Usable. Tested. Evolving. Shared.

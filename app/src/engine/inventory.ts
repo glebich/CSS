@@ -79,8 +79,32 @@ export function buildInventory(
     framework,
     screens: [...new Set(screens)].slice(0, 12),
     componentCount,
+    services: detectServices(files),
     truncated,
   };
+}
+
+/* The connectors, actually detected: a service counts only when its
+   fingerprint appears in the dropped text. Nominative, never guessed. */
+const SERVICE_MARKS: Array<{ name: string; test: RegExp }> = [
+  { name: "Firebase", test: /firebase/i },
+  { name: "Supabase", test: /supabase/i },
+  { name: "Stripe", test: /stripe|pk_(live|test)_/i },
+  { name: "OpenAI", test: /openai|sk-proj-/i },
+  { name: "Anthropic", test: /anthropic|sk-ant-/i },
+  { name: "Google APIs", test: /googleapis|maps\.google|AIza[\w-]{20,}/ },
+  { name: "AWS", test: /amazonaws\.com|AKIA[A-Z0-9]{16}/ },
+];
+
+function detectServices(files: Map<string, ProjectFile>): string[] {
+  const found = new Set<string>();
+  for (const f of files.values()) {
+    if (!f.text) continue;
+    for (const s of SERVICE_MARKS) {
+      if (s.test.test(f.text)) found.add(s.name);
+    }
+  }
+  return [...found];
 }
 
 /**
