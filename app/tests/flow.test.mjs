@@ -7,12 +7,32 @@ import { chromium } from "playwright-core";
 import { createServer } from "vite";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
-import { readFileSync } from "node:fs";
+import { readFileSync, mkdtempSync } from "node:fs";
+import { execSync, spawn } from "node:child_process";
+import { tmpdir } from "node:os";
 import { strToU8, zipSync } from "fflate";
 
 const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const server = await createServer({ root, server: { port: 5197 } });
 await server.listen();
+
+/* Real Mode's other half: the actual API stack, booted for the test */
+const apiDir = path.join(path.dirname(root), "api");
+execSync("npm run build", { cwd: apiDir, stdio: "ignore" });
+const apiProc = spawn("node", ["dist/server.js"], {
+  cwd: apiDir,
+  env: { ...process.env, OSYLE_DATA: mkdtempSync(path.join(tmpdir(), "osyle-api-")) },
+  stdio: "ignore",
+});
+let apiReady = false;
+for (let i = 0; i < 40 && !apiReady; i += 1) {
+  try {
+    apiReady = (await fetch("http://localhost:8787/health")).ok;
+  } catch {
+    await new Promise((r) => setTimeout(r, 250));
+  }
+}
+if (!apiReady) console.log("FAIL  the api stack did not come up");
 
 const browser = await chromium.launch({
   executablePath: process.env.CHROMIUM_PATH ?? "/opt/pw-browsers/chromium",
@@ -370,9 +390,12 @@ await page.waitForTimeout(600);
 
 /* -----------------------------------------------------------------
    The real engine: drop an actually flawed project and watch it get
-   genuinely caught. Every assertion below is about measured output. */
+   genuinely caught. Every assertion below is about measured output.
+   Real Mode goes on here so the stack probe runs for the rest. */
 await page.goto("http://localhost:5197/");
-await page.waitForTimeout(500);
+await page.evaluate(() => localStorage.setItem("osyle.realMode", "true"));
+await page.reload();
+await page.waitForTimeout(600);
 await page.getByText("Reset demo").click();
 await page.getByText("Drop your app", { exact: false }).last().click();
 await page.locator('input[type="file"]:not([webkitdirectory])').setInputFiles([
@@ -483,6 +506,20 @@ check(
 await page.getByText("Invite a builder").click();
 await page.waitForTimeout(200);
 check("the invite copies in one tap", await page.getByText("Invite copied").isVisible());
+
+/* Real Mode: the stack answers, the claim registers server side */
+check("the stack's door is open", await page.getByText("The stack is answering").isVisible());
+await page.getByPlaceholder("you@yourdomain.com").fill("resident@example.com");
+await page.getByText("Claim it on the stack").click();
+await page.waitForTimeout(900);
+check(
+  "the claim comes back with the address",
+  await page
+    .getByText("Claimed. app-3-files.osyle.app is registered on the stack.")
+    .isVisible(),
+);
+const survival = await (await fetch("http://localhost:8787/survival")).json();
+check("the resident lives in the stack's database", survival.total >= 1);
 await page.goto("http://localhost:5197/#/r/app-3-files");
 await page.waitForTimeout(700);
 check(
@@ -636,6 +673,7 @@ if (errors.length) console.log(errors.join("\n"));
 
 await browser.close();
 await server.close();
+apiProc.kill();
 if (failures > 0) {
   console.log(`\n${failures} check(s) failed`);
   process.exit(1);

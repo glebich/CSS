@@ -578,6 +578,24 @@ board now measures both loops with real local counts, cards
 downloaded and invites copied, alongside the residents carrying the
 mark and the director's notes. 116 journey checks pass.
 
+### Increment K1. Stage 14 first slice, the Real Mode wire. DELIVERED
+
+The switch stops being a promise. With Real Mode on, the app probes
+the stack's /health once at open; the real Address then carries the
+claim door, an email in, POST /partner/import out, and the resident
+registers server side with its magic-link claim, the ceremony
+confirming the registered address. An unreachable stack degrades to
+one quiet sentence while everything local keeps working, which is
+the doctrine. The Owner console's Health tab reads the stack's own
+/health live, database, blobs, uptime, when Real Mode names a base.
+The journey test now boots the actual Fastify API with a fresh data
+directory, claims through the real browser flow, and verifies the
+resident landed by reading the public Survival endpoint: the SPA and
+the stack, talking for real. And the product's public address went
+live during this increment: GitHub Pages now serves the gh-pages
+branch the deploy workflow refreshes on every push. 119 journey
+checks pass.
+
 ### Increment I. Stages 12 to 15, in spec order
 
 Ecosystem rail (per §10's logo laws), viral surfaces and audience-aware

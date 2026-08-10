@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { artDirector, growthLoops, promptsSeed, resident } from "../data/seed";
 import type { InboxEntry } from "../data/seed";
 import { readLedger } from "../store";
@@ -373,10 +373,63 @@ function Health() {
         <span>{stats.ledger} decisions in the ledger</span>
         <span>All state local and exportable through the Address</span>
       </div>
+      <StackHealth />
+    </div>
+  );
+}
+
+/** The stack's own /health, read live when Real Mode names a base. */
+function StackHealth() {
+  const on = (() => {
+    try {
+      return localStorage.getItem("osyle.realMode") === "true";
+    } catch {
+      return false;
+    }
+  })();
+  const base = (() => {
+    try {
+      return localStorage.getItem("osyle.apiBase") ?? "http://localhost:8787";
+    } catch {
+      return "http://localhost:8787";
+    }
+  })();
+  const [health, setHealth] = useState<
+    { ok: boolean; db: boolean; blobs: boolean; uptimeSeconds: number } | "down" | null
+  >(null);
+  useEffect(() => {
+    if (!on) return;
+    fetch(`${base}/health`)
+      .then((r) => r.json())
+      .then((j) => setHealth(j as { ok: boolean; db: boolean; blobs: boolean; uptimeSeconds: number }))
+      .catch(() => setHealth("down"));
+  }, [on, base]);
+
+  if (!on) {
+    return (
       <p style={{ fontSize: 12, color: "var(--gray-small)", marginTop: 12 }}>
-        The stack&apos;s health, Caddy, api, worker, Postgres, MinIO, arrives
-        with Real Mode&apos;s deployment. This console reads what exists.
+        The stack&apos;s health appears here when Real Mode is on and a base
+        answers. This console reads what exists.
       </p>
+    );
+  }
+  if (health === null) {
+    return (
+      <p style={{ fontSize: 12, color: "var(--gray-small)", marginTop: 12 }}>Reaching {base}</p>
+    );
+  }
+  if (health === "down") {
+    return (
+      <p style={{ fontSize: 12, color: "var(--gray-small)", marginTop: 12 }}>
+        The stack at {base} is not answering. Everything local keeps working.
+      </p>
+    );
+  }
+  return (
+    <div style={{ marginTop: 12, fontSize: 13, color: "var(--gray-meta)", display: "grid", gap: 4 }}>
+      <span style={{ fontWeight: 550, color: "var(--ink)" }}>The stack answers</span>
+      <span>Database {health.db ? "healthy" : "down"}, blobs {health.blobs ? "healthy" : "down"}</span>
+      <span>Up {health.uptimeSeconds} seconds at {base}</span>
     </div>
   );
 }

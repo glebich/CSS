@@ -176,6 +176,10 @@ interface Store {
   analyzeFiles: (dropped: DroppedFile[]) => Promise<void>;
   /** connect a GitHub repo; resolves to a human error sentence, or null */
   analyzeRepo: (text: string) => Promise<string | null>;
+  /* Real Mode: the stack, probed and spoken to honestly */
+  stack: { on: boolean; up: boolean | null; base: string };
+  stackClaim: { address: string; note: string } | null;
+  claimOnStack: (email: string) => Promise<string | null>;
   /** the residency: persist the dropped app and serve it at its address */
   realSlug: string | null;
   giveAddress: () => void;
@@ -605,6 +609,67 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     [analyzeFiles, record],
   );
 
+  /**
+   * Real Mode's wire: when the switch is on, the stack is probed once
+   * and spoken to honestly. Unreachable degrades to one quiet line;
+   * everything local keeps working, which is the entire doctrine.
+   */
+  const stackOn = (() => {
+    try {
+      return localStorage.getItem("osyle.realMode") === "true";
+    } catch {
+      return false;
+    }
+  })();
+  const stackBase = (() => {
+    try {
+      return localStorage.getItem("osyle.apiBase") ?? "http://localhost:8787";
+    } catch {
+      return "http://localhost:8787";
+    }
+  })();
+  const [stackUp, setStackUp] = useState<boolean | null>(null);
+  const [stackClaim, setStackClaim] = useState<{ address: string; note: string } | null>(null);
+  useEffect(() => {
+    if (!stackOn) return;
+    const ctl = new AbortController();
+    const t = window.setTimeout(() => ctl.abort(), 2500);
+    fetch(`${stackBase}/health`, { signal: ctl.signal })
+      .then((r) => setStackUp(r.ok))
+      .catch(() => setStackUp(false))
+      .finally(() => window.clearTimeout(t));
+    return () => {
+      ctl.abort();
+      window.clearTimeout(t);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const claimOnStack = useCallback(
+    async (email: string): Promise<string | null> => {
+      if (!project || !realSlug) return "Give it the address first.";
+      if (!email.includes("@")) return "A real email address claims it.";
+      try {
+        const res = await fetch(`${stackBase}/partner/import`, {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ email, name: project.inventory.name, slug: realSlug }),
+        });
+        if (!res.ok) return `The stack answered ${res.status}. The local address still serves.`;
+        const body = (await res.json()) as {
+          resident: { address: string };
+          note: string;
+        };
+        setStackClaim({ address: body.resident.address, note: body.note });
+        record("stack.claimed", { slug: realSlug, address: body.resident.address });
+        return null;
+      } catch {
+        return "The stack did not answer. The local address still serves.";
+      }
+    },
+    [project, realSlug, stackBase, record],
+  );
+
   const decideReal = useCallback((findingId: string, decision: "accepted" | "aside") => {
     setRealDecisions((prev) => ({ ...prev, [findingId]: decision }));
     appendLedger("finding.decided.real", { findingId, decision });
@@ -845,6 +910,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     project,
     analyzeFiles,
     analyzeRepo,
+    stack: { on: stackOn, up: stackUp, base: stackBase },
+    stackClaim,
+    claimOnStack,
     realSlug,
     giveAddress,
     progress,

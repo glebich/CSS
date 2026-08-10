@@ -52,9 +52,12 @@ function exportReal(slug: string, project: AnalyzedProject) {
 
 /** Serving: the address holding files, media, and users. The home, literal. */
 export function Address() {
-  const { vitality, ledgerCount, realSlug, project, styleId } = useStore();
+  const { vitality, ledgerCount, realSlug, project, styleId, stack, stackClaim, claimOnStack } =
+    useStore();
   const [copied, setCopied] = useState(false);
   const [invited, setInvited] = useState(false);
+  const [claimEmail, setClaimEmail] = useState("");
+  const [claimError, setClaimError] = useState<string | null>(null);
 
   /* The real ceremony: a dropped, examined app just moved in. */
   if (realSlug && project) {
@@ -151,6 +154,53 @@ export function Address() {
             <Sparkle size={13} />
           </a>
         </div>
+        {/* Real Mode: the stack, spoken to honestly */}
+        {stack.on && stack.up === false && (
+          <p style={{ textAlign: "center", fontSize: 12.5, color: "var(--gray-small)", marginTop: 22 }}>
+            Real Mode is on, but the stack at {stack.base} is not answering.
+            Everything above still works from this machine.
+          </p>
+        )}
+        {stack.on && stack.up && !stackClaim && (
+          <div className="card card-pad" style={{ marginTop: 26, maxWidth: 560, marginLeft: "auto", marginRight: "auto" }}>
+            <div style={{ fontWeight: 550 }}>The stack is answering</div>
+            <p style={{ fontSize: 13, color: "var(--gray-meta)", marginTop: 6 }}>
+              Claim the address on it and the resident is registered
+              server side, tied to your email by a magic link.
+            </p>
+            <div style={{ display: "flex", gap: 10, marginTop: 12, flexWrap: "wrap" }}>
+              <div className="ask-pill" style={{ minWidth: 240, flex: 1 }}>
+                <input
+                  placeholder="you@yourdomain.com"
+                  value={claimEmail}
+                  onChange={(e) => setClaimEmail(e.target.value)}
+                />
+              </div>
+              <button
+                className="pill pill-sm"
+                onClick={async () => {
+                  setClaimError(null);
+                  const err = await claimOnStack(claimEmail.trim());
+                  if (err) setClaimError(err);
+                }}
+              >
+                Claim it on the stack
+              </button>
+            </div>
+            {claimError && (
+              <p style={{ fontSize: 12.5, color: "var(--gray-meta)", marginTop: 8 }}>{claimError}</p>
+            )}
+          </div>
+        )}
+        {stackClaim && (
+          <div className="card card-pad fade-in" style={{ marginTop: 26, maxWidth: 560, marginLeft: "auto", marginRight: "auto" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <span className="pulse-dot" />
+              <span style={{ fontWeight: 550 }}>Claimed. {stackClaim.address} is registered on the stack.</span>
+            </div>
+            <p style={{ fontSize: 12.5, color: "var(--gray-meta)", marginTop: 8 }}>{stackClaim.note}</p>
+          </div>
+        )}
         <p
           style={{
             textAlign: "center",
