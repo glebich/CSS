@@ -386,14 +386,28 @@ preview section takes the deck's exact heading, Same app. Two
 futures. And the address ceremony closes on the deck's law: a tool
 makes software, a home keeps it alive. 58 journey checks pass.
 
-### Increment C. Stage 6, the Audience for real
+### Increment C. Stage 6, the Audience for real. DELIVERED
 
-Archetype composition from a sentence, discovery mode with cited
-rationale, the funnel dial at 60fps with live reach estimates, wired into
-adaptation and benchmarks (criteria 37 to 39, 42). The panels from this
-branch become the real thing; the age dial gets real interpolation and
-per-archetype trait toggles; no protected-category targeting exists by
-construction (an interface audit is part of acceptance).
+The Audience is now a surface of its own, reached from the life nav
+and from the prompt bar. One screen, two ways in, as specified: a
+sentence composes an archetype deterministically (name, portrait
+line, context, motivation, fear, honest caption when interpreted
+loosely), and discovery proposes three ranked audiences, each with
+its evidence cited in one line, adopted in one tap. Up to three
+archetypes per resident, one primary, persisted and recorded in the
+Decision Ledger. The primary archetype carries the funnel dial: an
+age band with two handles, trait toggles that each narrow the funnel,
+and the reach numeral set large, easing toward its target and labeled
+an estimate. Adaptation is wired and testable: the SkyRecall resident
+reads the primary archetype and renders calm at an older midpoint,
+dense at a younger one, exactly the criterion-39 demonstration. The
+Promote summary now delivers against the live primary archetype
+instead of a static line, with a door back to change the audience.
+Targeting is age, context, and interest only, by construction; no
+other control exists. One real bug found on the way: the reach
+easing hook scheduled animation frames inside a state updater, which
+StrictMode turns into an exponential frame storm; the loop moved into
+the effect where it belongs. 67 journey checks pass.
 
 ### Increment D. Stage 7, Studio and BYOK
 

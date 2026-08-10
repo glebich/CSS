@@ -170,6 +170,7 @@ const LIFE_NAV: Array<{ view: View; label: string; icon: IconName }> = [
   { view: "monitor", label: "Monitor", icon: "monitor" },
   { view: "inbox", label: "Inbox", icon: "inbox" },
   { view: "sdk", label: "SDK", icon: "sdk" },
+  { view: "audience", label: "Audience", icon: "persona" },
   { view: "promote", label: "Promote", icon: "promote" },
 ];
 

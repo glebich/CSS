@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { sdk, useStore } from "../store";
 import { Page, Sparkle } from "../components/chrome";
-import { audienceSummary, promoteTiers } from "../data/seed";
+import { formatReach, promoteTiers, reachEstimate } from "../data/seed";
 
 /**
  * The Promote tab renders now, honestly staged: four package tiers,
@@ -9,10 +9,14 @@ import { audienceSummary, promoteTiers } from "../data/seed";
  * Opening soon sheet with a waitlist. No price appears anywhere.
  */
 export function Promote() {
-  const { go } = useStore();
+  const { go, audience } = useStore();
   const [mode, setMode] = useState<"views" | "leads">("views");
   const [email, setEmail] = useState("");
   const [joined, setJoined] = useState(false);
+  /* packages deliver against the primary archetype, which is the
+     entire meaning of qualified */
+  const primary =
+    audience.archetypes.find((a) => a.id === audience.primaryId) ?? audience.archetypes[0];
 
   return (
     <Page>
@@ -39,12 +43,20 @@ export function Promote() {
       <div className="card card-pad" style={{ marginTop: 26, display: "flex", gap: 14, alignItems: "center" }}>
         <span className="pulse-dot" />
         <div>
-          <span style={{ fontWeight: 550 }}>{audienceSummary.name}, {audienceSummary.ageRange}</span>
+          <span style={{ fontWeight: 550 }}>
+            {primary.name}, {primary.ageRange[0]} to {primary.ageRange[1]}
+          </span>
           <span style={{ color: "var(--gray-meta)" }}>
             {" "}
-            &middot; {audienceSummary.portrait} &middot; {audienceSummary.reach}, an estimate
+            &middot; {primary.portrait} &middot;{" "}
+            {formatReach(reachEstimate(primary, primary.ageRange, primary.activeTraits.length))}, an
+            estimate
           </span>
         </div>
+        <span className="topbar-spacer" />
+        <button className="pill pill-sm" onClick={() => go("audience")}>
+          Change the audience
+        </button>
       </div>
 
       <div className="tier-grid" style={{ marginTop: 16 }}>

@@ -92,6 +92,74 @@ await page.getByText("Back to the rest").click();
 await page.waitForTimeout(300);
 check("rest door returns home", await page.locator(".instrument").isVisible());
 
+/* -----------------------------------------------------------------
+   The Audience: archetypes from a sentence, discovery with cited
+   rationale, and the funnel dial with its labeled estimate. */
+await page.getByLabel("Audience", { exact: true }).click();
+await page.waitForTimeout(400);
+check(
+  "the seeded archetype is present and primary",
+  await page.getByText("The professional refresher").first().isVisible(),
+);
+check("the reach numeral speaks", await page.getByText("fit this", { exact: false }).first().isVisible());
+check("the estimate says it is one", await page.getByText("An estimate", { exact: true }).isVisible());
+check(
+  "discovery cites its evidence",
+  await page.getByText("Session starts cluster on Saturday mornings", { exact: false }).isVisible(),
+);
+
+/* the dial: age range in, a visibly different estimate out */
+const reachBefore = await page.locator(".reach-numeral").innerText();
+await page.getByLabel("Oldest age").focus();
+for (let i = 0; i < 8; i += 1) await page.keyboard.press("ArrowLeft");
+await page.waitForTimeout(600);
+const reachAfter = await page.locator(".reach-numeral").innerText();
+check("the dial narrows the reach live", reachBefore !== reachAfter);
+/* widen back so the refresher stays an older audience for adaptation */
+for (let i = 0; i < 8; i += 1) await page.keyboard.press("ArrowRight");
+await page.waitForTimeout(300);
+
+/* a sentence composes an archetype, deterministically */
+await page
+  .getByPlaceholder("e.g. pilots who fly rarely and fear getting rusty")
+  .fill("students preparing for the checkride");
+await page.getByText("Compose the archetype").click();
+await page.waitForTimeout(400);
+check(
+  "a sentence composes the student aviator",
+  await page.getByText("The student aviator").first().isVisible(),
+);
+
+/* the primary archetype changes how the resident renders */
+await page.goto("http://localhost:5197/#/r/skyrecall");
+await page.waitForTimeout(500);
+check(
+  "a young primary renders dense",
+  (await page.locator("[data-adapt]").getAttribute("data-adapt")) === "dense",
+);
+await page.goto("http://localhost:5197/");
+await page.waitForTimeout(500);
+await page.getByLabel("Audience", { exact: true }).click();
+await page.waitForTimeout(400);
+await page.getByText("Make primary").first().click();
+await page.waitForTimeout(300);
+await page.goto("http://localhost:5197/#/r/skyrecall");
+await page.waitForTimeout(500);
+check(
+  "an older primary renders calm",
+  (await page.locator("[data-adapt]").getAttribute("data-adapt")) === "calm",
+);
+await page.goto("http://localhost:5197/");
+await page.waitForTimeout(500);
+
+/* promote delivers against the chosen audience */
+await page.getByLabel("Promote", { exact: true }).click();
+await page.waitForTimeout(400);
+check(
+  "promote names the audience it delivers to",
+  await page.getByText("The professional refresher", { exact: false }).first().isVisible(),
+);
+
 /* The return moment, simulated by aging the away-clock. An init script is
    required: the app stamps the clock on beforeunload, so the aged value
    must land after the old page leaves and before the new one reads it. */

@@ -9,12 +9,15 @@ import {
 } from "react";
 import { createClient } from "./sdk/osyle";
 import {
+  composeArchetype,
   issues,
   lenses,
   mapFeeling,
   personas,
   resident,
+  seedArchetype,
   styleCatalog,
+  type Archetype,
   type InboxEntry,
   inboxSeed,
 } from "./data/seed";
@@ -38,7 +41,8 @@ export type View =
   | "monitor"
   | "inbox"
   | "sdk"
-  | "promote";
+  | "promote"
+  | "audience";
 
 export type Device = "mobile" | "desktop" | "website" | "watch";
 
@@ -70,6 +74,7 @@ const DECISIONS_KEY = "osyle.demo.findingDecisions";
 const LEDGER_KEY = "osyle.demo.ledger";
 const COMFORT_KEY = "osyle.demo.comfort";
 const CAPTION_KEY = "osyle.demo.feelingCaption";
+const AUDIENCE_KEY = "osyle.demo.audience";
 
 export interface LedgerEntry {
   at: string;
@@ -124,6 +129,23 @@ function loadJson<T>(key: string, fallback: T): T {
   }
 }
 
+/** An archetype as carried by the resident: dial and traits included. */
+export interface StoredArchetype extends Archetype {
+  activeTraits: string[];
+  /** the rationale it was adopted on, when discovery proposed it */
+  adoptedWhy: string | null;
+}
+
+export interface AudienceState {
+  archetypes: StoredArchetype[];
+  primaryId: string;
+}
+
+const defaultAudience = (): AudienceState => ({
+  archetypes: [{ ...seedArchetype, activeTraits: [], adoptedWhy: null }],
+  primaryId: seedArchetype.id,
+});
+
 export function currentState(issueId: string, healed: Set<string>) {
   const issue = issues.find((i) => i.id === issueId);
   if (!issue) return "new";
@@ -177,6 +199,14 @@ interface Store {
   ledgerCount: number;
   personaId: string;
   setPersonaId: (id: string) => void;
+  /* the Audience: archetypes, one primary, dial state per archetype */
+  audience: AudienceState;
+  describeAudience: (text: string) => void;
+  adoptArchetype: (a: Archetype, rationale: string) => void;
+  setPrimaryArchetype: (id: string) => void;
+  removeArchetype: (id: string) => void;
+  setArchetypeRange: (id: string, range: [number, number]) => void;
+  toggleArchetypeTrait: (id: string, trait: string) => void;
   device: Device;
   setDevice: (d: Device) => void;
   /* floating panels */
@@ -240,6 +270,84 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const record = useCallback((kind: string, detail: Record<string, unknown>) => {
     appendLedger(kind, detail);
     setLedgerCount((n) => n + 1);
+  }, []);
+
+  /* The Audience: archetypes the resident is built to win, persisted. */
+  const [audience, setAudience] = useState<AudienceState>(() =>
+    loadJson(AUDIENCE_KEY, defaultAudience()),
+  );
+  useEffect(() => {
+    saveJson(AUDIENCE_KEY, audience);
+  }, [audience]);
+
+  const describeAudience = useCallback(
+    (text: string) => {
+      const made = composeArchetype(text);
+      setAudience((prev) => {
+        if (prev.archetypes.some((a) => a.id === made.id)) return { ...prev, primaryId: made.id };
+        const next = [...prev.archetypes, { ...made, activeTraits: [], adoptedWhy: null }];
+        return { archetypes: next.slice(-3), primaryId: made.id };
+      });
+      record("audience.described", { text, archetype: made.id });
+    },
+    [record],
+  );
+
+  const adoptArchetype = useCallback(
+    (a: Archetype, rationale: string) => {
+      setAudience((prev) => {
+        if (prev.archetypes.some((x) => x.id === a.id)) return { ...prev, primaryId: a.id };
+        const next = [...prev.archetypes, { ...a, activeTraits: [], adoptedWhy: rationale }];
+        return { archetypes: next.slice(-3), primaryId: a.id };
+      });
+      record("audience.adopted", { archetype: a.id, rationale });
+    },
+    [record],
+  );
+
+  const setPrimaryArchetype = useCallback(
+    (id: string) => {
+      setAudience((prev) =>
+        prev.archetypes.some((a) => a.id === id) ? { ...prev, primaryId: id } : prev,
+      );
+      record("audience.primary", { archetype: id });
+    },
+    [record],
+  );
+
+  const removeArchetype = useCallback((id: string) => {
+    setAudience((prev) => {
+      const rest = prev.archetypes.filter((a) => a.id !== id);
+      /* an audience never empties; the last archetype stays */
+      if (rest.length === 0) return prev;
+      return {
+        archetypes: rest,
+        primaryId: prev.primaryId === id ? rest[0].id : prev.primaryId,
+      };
+    });
+  }, []);
+
+  const setArchetypeRange = useCallback((id: string, range: [number, number]) => {
+    setAudience((prev) => ({
+      ...prev,
+      archetypes: prev.archetypes.map((a) => (a.id === id ? { ...a, ageRange: range } : a)),
+    }));
+  }, []);
+
+  const toggleArchetypeTrait = useCallback((id: string, trait: string) => {
+    setAudience((prev) => ({
+      ...prev,
+      archetypes: prev.archetypes.map((a) =>
+        a.id === id
+          ? {
+              ...a,
+              activeTraits: a.activeTraits.includes(trait)
+                ? a.activeTraits.filter((t) => t !== trait)
+                : [...a.activeTraits, trait],
+            }
+          : a,
+      ),
+    }));
   }, []);
 
   useEffect(() => {
@@ -629,8 +737,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       LEDGER_KEY,
       COMFORT_KEY,
       CAPTION_KEY,
+      AUDIENCE_KEY,
       "osyle.residents",
     ]);
+    setAudience(defaultAudience());
     setDecisions({});
     setComfort(false);
     setFeelingCaption(null);
@@ -697,6 +807,13 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     ledgerCount,
     personaId,
     setPersonaId,
+    audience,
+    describeAudience,
+    adoptArchetype,
+    setPrimaryArchetype,
+    removeArchetype,
+    setArchetypeRange,
+    toggleArchetypeTrait,
     device,
     setDevice,
     panel,

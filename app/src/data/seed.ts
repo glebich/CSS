@@ -256,13 +256,150 @@ export const promoteTiers = [
   { views: "1,000,000", leads: "40,000", timeline: "a season" },
 ];
 
-export const audienceSummary = {
+/* ------------------------------------------------------------------------
+   The Audience: the people the resident is built to win. Archetypes
+   compose deterministically from a sentence, discovery proposes ranked
+   audiences with cited rationale, and the funnel dial turns an age
+   range into a felt reach estimate. Age, context, and interest only:
+   no other targeting exists here, by construction.
+------------------------------------------------------------------------ */
+
+export interface Archetype {
+  id: string;
+  name: string;
+  /** one portrait line, about the person */
+  portrait: string;
+  context: string;
+  motivation: string;
+  fear: string;
+  ageRange: [number, number];
+  /** interest and context traits, each toggleable; never a protected category */
+  traits: string[];
+  /** people per year of age window, the deterministic base of the estimate */
+  perYear: number;
+  /** the category benchmarks compare within */
+  category: string;
+  /** honest note when the sentence was interpreted loosely */
+  caption: string | null;
+}
+
+export const seedArchetype: Archetype = {
+  id: "a-refresher",
   name: "The professional refresher",
   portrait: "Pilots who fly rarely and fear getting rusty",
-  ageRange: "35 to 60",
-  reach: "about 2.1M people fit this",
-  rationale: "Your completion rate among returning users fits the professional refresher pattern, not the student pattern.",
+  context: "Certified, employed, short windows between flights",
+  motivation: "Stay sharp enough that the radio never surprises them",
+  fear: "Sounding hesitant on a frequency everyone hears",
+  ageRange: [35, 60],
+  traits: ["Flies professionally", "Trains in short sessions"],
+  perYear: 84_000,
+  category: "professional training tools",
+  caption: null,
 };
+
+const ARCHETYPE_LIBRARY: Array<{ test: RegExp; make: Archetype }> = [
+  {
+    test: /(student|checkride|learn|exam|study)/,
+    make: {
+      id: "a-student",
+      name: "The student aviator",
+      portrait: "Working toward the checkride, drilling in stolen minutes",
+      context: "Training hours are expensive, practice happens between them",
+      motivation: "Walk into the checkride with the calls already automatic",
+      fear: "Freezing on the radio with the examiner listening",
+      ageRange: [18, 30],
+      traits: ["In flight training", "Studies on a schedule"],
+      perYear: 96_000,
+      category: "exam preparation tools",
+      caption: null,
+    },
+  },
+  {
+    test: /(weekend|hobby|leisure|rarely|rusty|occasional)/,
+    make: {
+      id: "a-weekend",
+      name: "The weekend pilot",
+      portrait: "Flies for the love of it, a few Saturdays a season",
+      context: "Long gaps between flights, no employer keeping them current",
+      motivation: "Arrive at the airfield feeling current, not cautious",
+      fear: "The slow fade of skills nobody is checking",
+      ageRange: [30, 65],
+      traits: ["Flies for leisure", "Practices on weekends"],
+      perYear: 110_000,
+      category: "personal practice tools",
+      caption: null,
+    },
+  },
+  {
+    test: /(instructor|teach|coach|mentor)/,
+    make: {
+      id: "a-instructor",
+      name: "The instructor",
+      portrait: "Teaches the calls and wants a drill worth assigning",
+      context: "Evaluates tools before students ever see them",
+      motivation: "Send students something that actually holds standards",
+      fear: "Recommending a tool that teaches bad habits",
+      ageRange: [28, 60],
+      traits: ["Teaches actively", "Assigns practice work"],
+      perYear: 22_000,
+      category: "instruction tools",
+      caption: null,
+    },
+  },
+];
+
+/** A sentence in, an archetype out, deterministic, honest when loose. */
+export function composeArchetype(text: string): Archetype {
+  const t = text.toLowerCase();
+  for (const entry of ARCHETYPE_LIBRARY) {
+    if (entry.test.test(t)) return { ...entry.make };
+  }
+  if (/(pilot|fly|flight|aviat|radio)/.test(t)) return { ...seedArchetype, id: "a-refresher" };
+  return {
+    id: "a-open",
+    name: "The early adopter",
+    portrait: "Tries new tools before they are finished",
+    context: "Finds software through the people who make it",
+    motivation: "Be the one who found it first",
+    fear: "Investing in a tool that gets abandoned",
+    ageRange: [22, 45],
+    traits: ["Tries tools early", "Shares what works"],
+    perYear: 130_000,
+    category: "general productivity tools",
+    caption: "Interpreted as: people who try new tools early",
+  };
+}
+
+/** Discovery: ranked audiences the evidence points to, each with its why. */
+export const discoveryProposals: Array<{ archetype: Archetype; rationale: string }> = [
+  {
+    archetype: seedArchetype,
+    rationale:
+      "Your completion rate among returning users fits the professional refresher pattern, not the student pattern.",
+  },
+  {
+    archetype: ARCHETYPE_LIBRARY[1].make,
+    rationale:
+      "Session starts cluster on Saturday mornings, the shape of leisure practice, not commute drilling.",
+  },
+  {
+    archetype: ARCHETYPE_LIBRARY[0].make,
+    rationale:
+      "Short streaks with long gaps read as exam-driven bursts, a smaller fit than the refresher pattern.",
+  },
+];
+
+/** The reach model: age window times density, narrowed by each active trait. */
+export function reachEstimate(a: Archetype, range: [number, number], activeTraits: number): number {
+  const years = Math.max(1, range[1] - range[0]);
+  return Math.round(a.perYear * years * Math.pow(0.62, activeTraits));
+}
+
+export function formatReach(n: number): string {
+  if (n >= 1_000_000) return `about ${(n / 1_000_000).toFixed(1)}M people fit this`;
+  if (n >= 1_000) return `about ${Math.round(n / 1_000)}k people fit this`;
+  return `about ${n} people fit this`;
+}
 
 /* ------------------------------------------------------------------------
    The materials SkyRecall arrived with, and what the system understood.
@@ -459,6 +596,7 @@ export const promptSuggestions: Array<{ text: string; view: string }> = [
   { text: "What is worth fixing first", view: "findings" },
   { text: "Show me both futures", view: "transform" },
   { text: "Show me the weather stall", view: "monitor" },
+  { text: "Who is it built to win", view: "audience" },
   { text: "What happened while I was away", view: "inbox" },
 ];
 

@@ -135,7 +135,16 @@ function SkyRecall({ slug }: { slug: string }) {
   const styleId = readChoice("osyle.demo.style", "st-paper");
   const comfort = readChoice("osyle.demo.comfort", false);
   const style = styleCatalog.find((s) => s.id === styleId) ?? styleCatalog[0];
-  const scale = comfort ? 1.2 : 1;
+  /* Adaptation: the primary archetype's age range sets scale and pace.
+     An older audience gets bigger and calmer, a younger one denser. */
+  const audience = readChoice<{
+    archetypes: Array<{ id: string; ageRange: [number, number] }>;
+    primaryId: string;
+  }>("osyle.demo.audience", { archetypes: [], primaryId: "" });
+  const primary = audience.archetypes.find((a) => a.id === audience.primaryId);
+  const mid = primary ? (primary.ageRange[0] + primary.ageRange[1]) / 2 : 47;
+  const adapt = mid >= 45 ? "calm" : mid <= 32 ? "dense" : "neutral";
+  const scale = (comfort ? 1.2 : 1) * (adapt === "calm" ? 1.08 : adapt === "dense" ? 0.95 : 1);
   const sdk = createClient(slug);
 
   const [screen, setScreen] = useState<"home" | "drill" | "done" | "logbook">("home");
@@ -173,6 +182,7 @@ function SkyRecall({ slug }: { slug: string }) {
 
   return (
     <div
+      data-adapt={adapt}
       style={{
         minHeight: "100vh",
         background: style.swatch,
