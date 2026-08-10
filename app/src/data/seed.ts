@@ -216,10 +216,57 @@ export interface InboxEntry {
   when: string;
   text: string;
   read: boolean;
+  /** present when the entry is a composed Art Director note; the same
+      shape the Owner console will fill by hand in the concierge era */
+  director?: {
+    kind: "weekly" | "intervention" | "rounds";
+    quote?: string;
+    evidence: string;
+    action?: { label: string; view: string };
+  };
 }
 
+/** The director: named, calm, tasteful, silent when there is nothing. */
+export const artDirector = {
+  name: "Milan Rada",
+  title: "your Art Director",
+};
+
 export const inboxSeed: InboxEntry[] = [
+  {
+    id: "in-dir-weekly",
+    when: "August 9, 08:00",
+    text: "Weekly review. One suggestion: give the home screen a single point of focus. Nine buttons carry equal weight below the call, so the eye settles nowhere and the first drill starts later than it should.",
+    read: false,
+    director: {
+      kind: "weekly",
+      quote: "An app that respects silence earns the moment it speaks.",
+      evidence: "Predicted attention, examination three: the CTA verdict split across nine equal weights on the home screen.",
+      action: { label: "See the lens", view: "exam" },
+    },
+  },
   { id: "in-1", when: "August 9, 09:12", text: "Your third examination finished. Vitality held at 66. One regression: runway contrast slipped back below AA.", read: false },
+  {
+    id: "in-dir-rounds",
+    when: "August 8, 09:00",
+    text: "Rounds made. Product, monitor, category movement. Nothing worth your attention today.",
+    read: true,
+    director: {
+      kind: "rounds",
+      evidence: "27 checks across the three rounds, all quiet.",
+    },
+  },
+  {
+    id: "in-dir-intervention",
+    when: "August 5, 14:47",
+    text: "Intervention. The weather briefing is stalling live sessions, so I moved the drill door above the forecast card until the key heals. Arrivals land on something that works.",
+    read: true,
+    director: {
+      kind: "intervention",
+      evidence: "Monitor, August 5: four of nine sessions stalled at the briefing between 14:00 and 14:47.",
+      action: { label: "See the stall", view: "monitor" },
+    },
+  },
   { id: "in-2", when: "August 9, 09:12", text: "The weather briefing key failed its check again, day 14. The Fix Prompt is ready when you are.", read: false },
   { id: "in-3", when: "August 5, 16:40", text: "Four of nine sessions stalled at the weather briefing since 14:00. The broken key is the likely cause.", read: true },
   { id: "in-4", when: "August 2, 09:05", text: "Your second examination finished. Vitality rose 4 points. The guilt banner is gone and psychology is your strongest lens.", read: true },

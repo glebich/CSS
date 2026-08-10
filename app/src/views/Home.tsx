@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { currentState, useStore } from "../store";
 import { Page, Sparkle, Tip } from "../components/chrome";
-import { issues, pulseLineAfterHeal, pulseLineAtRest } from "../data/seed";
+import { artDirector, issues, pulseLineAfterHeal, pulseLineAtRest } from "../data/seed";
 
 function keyStillBroken(healed: Set<string>): boolean {
   return currentState("weather-key", healed) !== "healed";
@@ -115,6 +115,17 @@ export function Home() {
           <span className={`pulse-dot${healedSomething ? " swell" : ""}`} />
           <span>{pulseLine}</span>
         </div>
+
+        {/* the unprompted note: the director spoke, the door is quiet */}
+        {inbox.some((e) => !e.read && e.director) && (
+          <button
+            className="pill pill-sm fade-in"
+            style={{ marginTop: 14 }}
+            onClick={() => go("inbox")}
+          >
+            {artDirector.name}, {artDirector.title}, left you a note
+          </button>
+        )}
 
         <div
           style={{

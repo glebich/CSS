@@ -430,12 +430,25 @@ Real Mode arrives with its stage. The model gateway with live calls,
 budgets, and degradation remains with Real Mode hardening, where it
 can be tested against a real network. 74 journey checks pass.
 
-### Increment E. Stage 8, the Art Director
+### Increment E. Stage 8, the Art Director. DELIVERED
 
-Daily rounds and the weekly composed note (worker jobs), interventions on
-Monitor drop-offs, every claim citing evidence, silence otherwise. The
-Owner console's hand-composed notes come in stage F. This is return-loop
-fix 17 landing for real.
+The director has a name, Milan Rada, and a voice that arrives where
+everything arrives: the one quiet stream. Three composed notes seed
+the demo, each in the exact shape the Owner console will fill by hand
+in the concierge era. The weekly review carries one suggestion with
+its evidence cited (the attention lens's nine equal weights), one
+attached action door, and the quotable line. The intervention lands
+within the hour of the live stall, says what was done and why, and
+doors to the monitor. And one rounds entry says the honest thing
+nobody else says: nothing worth your attention today, 27 checks
+quiet. Home carries the first-unprompted-note moment as a quiet pill
+under the pulse line, gone once the note is read. Every claim cites
+its evidence, and the composed-note data model is the concierge
+interface, ready for stage 9's Owner console to write into. 80
+journey checks pass.
+
+Still ahead for the director when Real Mode arrives: the worker jobs
+that run rounds on a clock instead of a seed.
 
 ### Increment F. Stage 9, Owner console
 

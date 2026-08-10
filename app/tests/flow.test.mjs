@@ -186,6 +186,40 @@ check(
 await page.locator('input[placeholder="sk-ant-..."]').fill("sk-ant-demo123");
 check("a key that looks right is told so", await page.getByText("Looks right").isVisible());
 
+/* -----------------------------------------------------------------
+   The Art Director: a named, calm voice whose notes arrive in the
+   one quiet stream, every claim cited, silence said honestly. */
+await page.getByLabel("Osyle", { exact: true }).click();
+await page.waitForTimeout(400);
+check(
+  "the unprompted note waits on home",
+  await page.getByText("left you a note", { exact: false }).isVisible(),
+);
+await page.getByText("left you a note", { exact: false }).click();
+await page.waitForTimeout(400);
+check(
+  "the director signs the note",
+  await page.getByText("Milan Rada, your Art Director", { exact: true }).first().isVisible(),
+);
+check(
+  "the weekly review holds one quotable line",
+  await page.getByText("An app that respects silence earns the moment it speaks.").isVisible(),
+);
+check(
+  "every claim cites its evidence",
+  await page.getByText("Evidence:", { exact: false }).first().isVisible(),
+);
+check(
+  "silence is said honestly",
+  await page.getByText("Nothing worth your attention today.", { exact: false }).isVisible(),
+);
+await page.getByText("See the stall").click();
+await page.waitForTimeout(400);
+check(
+  "the intervention door lands on the monitor",
+  await page.getByText("stalled at the weather briefing", { exact: false }).first().isVisible(),
+);
+
 /* The return moment, simulated by aging the away-clock. An init script is
    required: the app stamps the clock on beforeunload, so the aged value
    must land after the old page leaves and before the new one reads it. */
