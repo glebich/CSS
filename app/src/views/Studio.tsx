@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useStore } from "../store";
 import { Page, Sparkle } from "../components/chrome";
-import { mapStudio, studioEdits, type StudioEdit } from "../data/seed";
+import { mapStudio, studioEdits, voicePasses, type StudioEdit } from "../data/seed";
 
 /**
  * The Studio: say the change in plain language, see the diff, decide.
@@ -103,10 +103,12 @@ export function Studio() {
   const { appliedEdits } = useStore();
   const [text, setText] = useState("");
   const [asked, setAsked] = useState<string | null>(null);
+  const [voice, setVoice] = useState<string | null>(null);
   const [anthropicKey, setAnthropicKey] = useState(() => loadKey("anthropic"));
   const [geminiKey, setGeminiKey] = useState(() => loadKey("gemini"));
 
   const edit = asked ? mapStudio(asked) : null;
+  const voiceEdit = voice ? (voicePasses.find((v) => v.id === voice) ?? null) : null;
   const aOk = keyLooksRight("anthropic", anthropicKey);
   const gOk = keyLooksRight("gemini", geminiKey);
 
@@ -163,6 +165,28 @@ export function Studio() {
           </p>
         </div>
       )}
+
+      {/* The Voice Director, lite: one register, one honest diff */}
+      <div className="section-label" style={{ marginTop: 40 }}>
+        The Voice Director
+      </div>
+      <p style={{ fontSize: 13, color: "var(--gray-meta)", maxWidth: 620 }}>
+        A copy pass in a chosen voice: microcopy, empty states, errors, all
+        strings and nothing else. Pick a register to read its pass.
+      </p>
+      <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
+        {voicePasses.map((v) => (
+          <button
+            key={v.id}
+            className="pill pill-sm"
+            style={voice === v.id ? { boxShadow: "inset 0 0 0 1.5px var(--ink-strong)" } : undefined}
+            onClick={() => setVoice(voice === v.id ? null : v.id)}
+          >
+            {v.ask}
+          </button>
+        ))}
+      </div>
+      {voiceEdit && <EditCard key={voiceEdit.id} edit={voiceEdit} />}
 
       {/* BYOK: the keys, stored here, spoken about honestly */}
       <div className="section-label" style={{ marginTop: 40 }}>

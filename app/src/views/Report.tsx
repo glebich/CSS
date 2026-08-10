@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { useStore } from "../store";
 import { FlowSteps, Page, Sparkle } from "../components/chrome";
-import { styleCatalog } from "../data/seed";
+import { motionFor, styleCatalog } from "../data/seed";
 import { buildSrcDoc, transformCss } from "../engine/analyze";
 import type { AnalyzedProject, RealFinding } from "../engine/types";
 
@@ -141,7 +141,9 @@ export function Report() {
               radius: style.radius,
               fontStack: '"SF Pro Display", -apple-system, "Inter", "Segoe UI", Roboto, sans-serif',
               scale: comfort ? 1.2 : 1,
-            }),
+            }) +
+              `/* the style's motion DNA, compiled */\n` +
+              `button, a, input, [role="button"] { transition: all ${motionFor(style).ms}ms ${motionFor(style).ease}; }`,
           )
         : null,
     [project, before, style, comfort],
@@ -287,6 +289,10 @@ export function Report() {
             Both frames are your real page, live. The right one carries the{" "}
             {style.name} token layer: type, color, radius, shadows. The
             structural repairs are the plan above.
+          </p>
+          <p style={{ fontSize: 12, color: "var(--gray-small)", marginTop: 4 }}>
+            Motion: {motionFor(style).name}, {motionFor(style).ms}ms.{" "}
+            {motionFor(style).line}.
           </p>
         </>
       )}

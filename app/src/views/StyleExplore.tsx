@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useStore } from "../store";
 import { FlowSteps, Icon, Sparkle } from "../components/chrome";
-import { styleCatalog, styleCategories, type StyleCard } from "../data/seed";
+import { styleCatalog, styleCategories, tasteSources, type StyleCard } from "../data/seed";
 
 /** A miniature interface drawn in the style's own materials. */
 function StyleThumb({ s }: { s: StyleCard }) {
@@ -55,6 +55,8 @@ export function StyleExplore() {
   const [category, setCategory] = useState<string | null>(null);
   const [query, setQuery] = useState("");
   const [feeling, setFeeling] = useState("");
+  const [tasteId, setTasteId] = useState<string | null>(null);
+  const taste = tasteId ? (tasteSources.find((t) => t.id === tasteId) ?? null) : null;
 
   const shown = styleCatalog.filter(
     (s) =>
@@ -165,6 +167,48 @@ export function StyleExplore() {
             )}
           </div>
         ))}
+      </div>
+
+      {/* Taste Transfer, lite: principles from admired work, never pixels */}
+      <div style={{ maxWidth: 1240, margin: "10px auto 130px", padding: "0 60px" }}>
+        <div className="section-label">Taste Transfer</div>
+        <p style={{ fontSize: 13, color: "var(--gray-meta)", maxWidth: 620 }}>
+          Name a product you admire and the system studies its principles,
+          density, rhythm, tone, hierarchy, never its pixels. The demo
+          studies three admired patterns; links arrive with Real Mode.
+        </p>
+        <div style={{ display: "flex", gap: 8, marginTop: 12, flexWrap: "wrap" }}>
+          {tasteSources.map((t) => (
+            <button
+              key={t.id}
+              className="pill pill-sm"
+              style={tasteId === t.id ? { boxShadow: "inset 0 0 0 1.5px var(--ink-strong)" } : undefined}
+              onClick={() => setTasteId(tasteId === t.id ? null : t.id)}
+            >
+              {t.name}
+            </button>
+          ))}
+        </div>
+        {taste && (
+          <div className="card card-pad fade-in" style={{ marginTop: 14, maxWidth: 640 }}>
+            <div style={{ display: "grid", gap: 5, fontSize: 13.5, color: "var(--ink-body)" }}>
+              <span>Density: {taste.principles.density}</span>
+              <span>Rhythm: {taste.principles.rhythm}</span>
+              <span>Tone: {taste.principles.tone}</span>
+              <span>Hierarchy: {taste.principles.hierarchy}</span>
+            </div>
+            <p style={{ fontSize: 12.5, color: "var(--gray-small)", marginTop: 10 }}>{taste.caption}</p>
+            <button
+              className="pill pill-sm"
+              style={{ marginTop: 12 }}
+              onClick={() => setStyleId(taste.variantStyleId)}
+            >
+              {styleId === taste.variantStyleId
+                ? "Worn. The variant is yours"
+                : `Wear the variant, ${styleCatalog.find((s) => s.id === taste.variantStyleId)?.name}`}
+            </button>
+          </div>
+        )}
       </div>
 
       <div

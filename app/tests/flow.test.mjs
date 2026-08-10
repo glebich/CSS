@@ -54,6 +54,15 @@ await page.getByPlaceholder("e.g. make it grandma friendly").press("Enter");
 check("grandma maps to the comfort caption", await page.getByText("Bigger, calmer, slower").isVisible());
 check("grandma maps to Warm Counsel", await page.getByText("Continue with Warm Counsel").isVisible());
 
+/* Taste Transfer: principles extracted, pixels never taken */
+await page.getByText("A Swiss editorial magazine").click();
+await page.waitForTimeout(300);
+check("taste transfer extracts principles", await page.getByText("Density:", { exact: false }).isVisible());
+check(
+  "pixels are never taken",
+  await page.getByText("never its pixels", { exact: false }).first().isVisible(),
+);
+
 await page.locator(".style-tile").first().click();
 await page.getByText("Continue with", { exact: false }).click();
 await page.getByText("Create the concept").click();
@@ -186,6 +195,18 @@ check(
 await page.locator('input[placeholder="sk-ant-..."]').fill("sk-ant-demo123");
 check("a key that looks right is told so", await page.getByText("Looks right").isVisible());
 
+/* the Voice Director: a register picked, a strings-only diff shown */
+await page.getByText("Warm", { exact: true }).click();
+await page.waitForTimeout(300);
+check(
+  "the voice pass is strings only",
+  await page.getByText("Strings only. No layout, color, or logic moves in a voice pass.").first().isVisible(),
+);
+check(
+  "the voice diff rewrites real copy",
+  await page.getByText("Your first drill will change that.", { exact: false }).isVisible(),
+);
+
 /* -----------------------------------------------------------------
    The Art Director: a named, calm voice whose notes arrive in the
    one quiet stream, every claim cited, silence said honestly. */
@@ -293,6 +314,33 @@ await page.goto("http://localhost:5197/#/r/skyrecall");
 await page.waitForTimeout(500);
 check("the resident serves at its address", await page.getByText("Radio calls", { exact: false }).first().isVisible());
 check("the resident wears the mark", await page.getByText("Alive at Osyle").isVisible());
+
+/* the X-ray: one gesture, blueprint view, measured numbers */
+await page.keyboard.press("x");
+await page.waitForTimeout(300);
+check("x flips the blueprint on", (await page.locator('[data-xray="on"]').count()) === 1);
+check(
+  "the x-ray speaks in measurements",
+  await page.getByText("Ink on surface", { exact: false }).isVisible(),
+);
+check("the x-ray carries the motion identity", await page.getByText("Motion:", { exact: false }).isVisible());
+await page.keyboard.press("x");
+await page.waitForTimeout(200);
+check("x flips it back off", (await page.locator('[data-xray="on"]').count()) === 0);
+
+/* the Hallmark: the live certificate, honest about its signature */
+await page.goto("http://localhost:5197/#/mark/skyrecall");
+await page.waitForTimeout(600);
+check(
+  "the hallmark certifies in the brand voice",
+  await page.getByText("Examined and maintained at Osyle").isVisible(),
+);
+check(
+  "the certificate is honest about signing",
+  await page.getByText("The signing key arrives with Real Mode.", { exact: false }).isVisible(),
+);
+await page.goto("http://localhost:5197/#/r/skyrecall");
+await page.waitForTimeout(500);
 await page.getByText("Begin the drill").click();
 await page.getByText("Said it, next").click();
 await page.getByText("Said it, next").click();
@@ -362,6 +410,10 @@ await page.waitForTimeout(300);
 check("an accepted finding joins the plan", await page.getByText("in the plan").first().isVisible());
 check("the report holds two live frames", (await page.locator("iframe.preview-frame").count()) === 2);
 check("frames are labeled honestly", await page.getByText("As it arrived").isVisible());
+check(
+  "the style carries its motion identity",
+  await page.getByText("Motion: Settle", { exact: false }).first().isVisible(),
+);
 await page.getByText("Night Shift").click();
 await page.waitForTimeout(400);
 check("style chips switch the future live", await page.getByText("Wearing Night Shift").isVisible());

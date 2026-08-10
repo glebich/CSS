@@ -787,6 +787,35 @@ input {
   color: var(--gray-small);
 }
 
+/* ---------------------------------------------------------- the x-ray */
+
+.xray-on {
+  background-image:
+    radial-gradient(rgba(123, 107, 255, 0.28) 1px, transparent 1px) !important;
+  background-size: 24px 24px !important;
+}
+
+.xray-on main *,
+.xray-on header *,
+.xray-on footer * {
+  outline: 1px dashed rgba(123, 107, 255, 0.45);
+  outline-offset: -1px;
+}
+
+.xray-panel {
+  position: fixed;
+  top: 18px;
+  right: 18px;
+  z-index: 40;
+  background: rgba(12, 12, 18, 0.88);
+  color: #efedff;
+  border-radius: 14px;
+  padding: 14px 16px;
+  max-width: 300px;
+  backdrop-filter: blur(6px);
+  font-variant-numeric: tabular-nums;
+}
+
 /* ------------------------------------------------------------- sections */
 
 .section-label {

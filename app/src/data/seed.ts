@@ -526,6 +526,71 @@ export function mapStudio(text: string): StudioEdit | null {
   return studioEdits.find((e) => e.match.test(text)) ?? null;
 }
 
+/**
+ * The Voice Director, lite: a copy pass in a chosen voice, shown as
+ * the same honest diff every Studio change wears. Scripted in the
+ * demo, deterministic, three voices.
+ */
+export const voicePasses: StudioEdit[] = [
+  {
+    id: "ed-voice-calm",
+    ask: "Calm",
+    match: /^$/,
+    summary: "The copy pass in the Calm voice: shorter, slower, no pressure anywhere.",
+    why: "Calm converts better than pressure over time, and a recall app should never sound like a race.",
+    identityNote: "Strings only. No layout, color, or logic moves in a voice pass.",
+    hunks: [
+      {
+        file: "src/strings.ts",
+        lines: [
+          { kind: "del", text: 'home.subtitle: "The three calls that decay first."' },
+          { kind: "add", text: 'home.subtitle: "Three calls, kept warm."' },
+          { kind: "del", text: 'drill.done: "Logged."' },
+          { kind: "add", text: 'drill.done: "Logged. Well flown."' },
+        ],
+      },
+    ],
+  },
+  {
+    id: "ed-voice-warm",
+    ask: "Warm",
+    match: /^$/,
+    summary: "The copy pass in the Warm voice: a person talking, not a system.",
+    why: "The logbook is a private ritual. Warmth earns the return visit that a neutral log never asks for.",
+    identityNote: "Strings only. No layout, color, or logic moves in a voice pass.",
+    hunks: [
+      {
+        file: "src/strings.ts",
+        lines: [
+          { kind: "del", text: 'logbook.empty: "Empty, honestly. One drill fixes that."' },
+          { kind: "add", text: 'logbook.empty: "Nothing here yet. Your first drill will change that."' },
+          { kind: "del", text: 'drill.hint: "Say it before the throttle"' },
+          { kind: "add", text: 'drill.hint: "Out loud, like you mean it"' },
+        ],
+      },
+    ],
+  },
+  {
+    id: "ed-voice-precise",
+    ask: "Precise",
+    match: /^$/,
+    summary: "The copy pass in the Precise voice: every word earns its place.",
+    why: "Pilots read checklists all day. Matching that register makes the app feel native to the cockpit.",
+    identityNote: "Strings only. No layout, color, or logic moves in a voice pass.",
+    hunks: [
+      {
+        file: "src/strings.ts",
+        lines: [
+          { kind: "del", text: 'home.title: "Radio calls, ten minutes"' },
+          { kind: "add", text: 'home.title: "Radio calls. Ten minutes."' },
+          { kind: "del", text: 'drill.progress: "Call {n} of {total}"' },
+          { kind: "add", text: 'drill.progress: "{n} / {total}"' },
+        ],
+      },
+    ],
+  },
+];
+
 /* ------------------------------------------------------------------------
    The Owner console's raw materials: the prompt library that Real Mode
    will run, versioned from day one, and the six growth loops with what
@@ -625,6 +690,89 @@ export const styleCategories = [
   "Material",
   "Brutalism",
 ] as const;
+
+/* ------------------------------------------------------------------------
+   Motion Identity: every style carries motion DNA, how it eases,
+   settles, and breathes, compiled from the category into real CSS.
+   Two residents can share a layout and feel like different souls.
+------------------------------------------------------------------------ */
+
+export interface StyleMotion {
+  name: string;
+  ease: string;
+  ms: number;
+  line: string;
+}
+
+export function motionFor(s: StyleCard): StyleMotion {
+  switch (s.category) {
+    case "Minimalism":
+      return { name: "Settle", ease: "cubic-bezier(0.2, 0, 0, 1)", ms: 220, line: "Eases out and settles, nothing bounces" };
+    case "Editorial":
+      return { name: "Drift", ease: "cubic-bezier(0.33, 0, 0.2, 1)", ms: 280, line: "Slow starts and long landings, page-turn calm" };
+    case "Dark Pro":
+      return { name: "Snap", ease: "cubic-bezier(0.3, 0, 0.1, 1)", ms: 200, line: "Quick and certain, instrument grade" };
+    case "Glass":
+      return { name: "Float", ease: "cubic-bezier(0.25, 0.1, 0.25, 1)", ms: 300, line: "Weightless entries, soft stops" };
+    case "Material":
+      return { name: "Glide", ease: "cubic-bezier(0.4, 0, 0.2, 1)", ms: 240, line: "The standard curve, honestly kept" };
+    case "Brutalism":
+      return { name: "Cut", ease: "steps(1, end)", ms: 200, line: "No easing at all, by conviction" };
+  }
+}
+
+/* ------------------------------------------------------------------------
+   Taste Transfer, lite: the system studies an admired product and
+   extracts its principles, density, rhythm, tone, hierarchy, never
+   its pixels, then proposes an identity variant in conversation.
+------------------------------------------------------------------------ */
+
+export interface TasteSource {
+  id: string;
+  name: string;
+  principles: { density: string; rhythm: string; tone: string; hierarchy: string };
+  variantStyleId: string;
+  caption: string;
+}
+
+export const tasteSources: TasteSource[] = [
+  {
+    id: "taste-bank",
+    name: "A calm banking app",
+    principles: {
+      density: "One decision per screen, numbers given room",
+      rhythm: "Slow, even spacing, no rush anywhere",
+      tone: "Reassuring, plain, never urgent",
+      hierarchy: "The balance first, everything else waits",
+    },
+    variantStyleId: "st-aria",
+    caption: "Principles carried from calm banking, never its pixels",
+  },
+  {
+    id: "taste-editorial",
+    name: "A Swiss editorial magazine",
+    principles: {
+      density: "Generous margins, text as the interface",
+      rhythm: "A strict grid felt but never shown",
+      tone: "Confident, quiet, typographic",
+      hierarchy: "One headline rules each spread",
+    },
+    variantStyleId: "st-swiss",
+    caption: "Principles carried from Swiss editorial, never its pixels",
+  },
+  {
+    id: "taste-camera",
+    name: "A professional camera tool",
+    principles: {
+      density: "Dense where hands work, empty where eyes rest",
+      rhythm: "Immediate response, zero decoration",
+      tone: "Technical, exact, trusting the user",
+      hierarchy: "The live value largest, controls at the edge",
+    },
+    variantStyleId: "st-cockpit",
+    caption: "Principles carried from pro camera tools, never their pixels",
+  },
+];
 
 /**
  * The four StyleModels are real token systems, binding per the spec's

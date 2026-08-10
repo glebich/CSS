@@ -472,10 +472,27 @@ promotion desk reads the real waitlist rows; health counts the real
 local storage, keys, and ledger. 88 journey checks pass. The
 reference library remains for the stage that gives it content.
 
-### Increment G. Stage 10, signatures wave one
+### Increment G. Stage 10, signatures wave one. DELIVERED
 
-Motion identity (tokens to springs compiler), X-ray flip, Voice Director
-lite, Taste Transfer lite, the Hallmark with its signed certificate page.
+Five signatures, each a real slice. Motion Identity: every style
+category carries motion DNA (name, curve, duration, one line of
+character), compiled into real CSS transitions on the resident and
+into the report's after-frame, and spoken on the report. X-ray: the
+x key or the footer door flips the live SkyRecall into blueprint
+view, violet grid, dashed outlines, and a panel whose numbers are
+measured, the ink and accent contrast computed with the engine's
+WCAG math against the style's own tokens, type ramp, spacing, radius,
+and motion listed. Voice Director lite: three registers in the
+Studio, Calm, Warm, Precise, each a strings-only diff in the same
+honest renderer as every Studio change, applyable to the ledger.
+Taste Transfer lite: three admired patterns studied for their
+principles, density, rhythm, tone, hierarchy, never their pixels,
+each proposing a wearable identity variant; links arrive with Real
+Mode and say so. The Hallmark: #/mark/{slug} renders the live
+certificate as a brand surface, name, Vitality read from real state,
+last examination, uptime, and a real SHA-256 content hash with the
+honest line that the signing key arrives with Real Mode; unearned
+slugs get no certificate. 99 journey checks pass.
 
 ### Increment H. Stage 11, devices and stores
 

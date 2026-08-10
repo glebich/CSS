@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createClient } from "@osyle/sdk";
 import { buildSrcDoc } from "../engine/analyze";
+import { contrastRatio, parseColor } from "../engine/color";
 import type { ProjectFile } from "../engine/types";
-import { styleCatalog } from "../data/seed";
+import { motionFor, styleCatalog } from "../data/seed";
 
 /**
  * The resident, living at its address. The skyrecall slug serves the
@@ -145,7 +146,27 @@ function SkyRecall({ slug }: { slug: string }) {
   const mid = primary ? (primary.ageRange[0] + primary.ageRange[1]) / 2 : 47;
   const adapt = mid >= 45 ? "calm" : mid <= 32 ? "dense" : "neutral";
   const scale = (comfort ? 1.2 : 1) * (adapt === "calm" ? 1.08 : adapt === "dense" ? 0.95 : 1);
+  const motion = motionFor(style);
   const sdk = createClient(slug);
+
+  /* X-ray: one gesture flips the live app into blueprint view */
+  const [xray, setXray] = useState(false);
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key.toLowerCase() === "x" && !(e.target instanceof HTMLInputElement)) {
+        setXray((v) => !v);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+  /* the blueprint's numbers are measured, not decorative */
+  const surfaceHex = style.swatch.match(/#[0-9a-fA-F]{6}/)?.[0] ?? "#ffffff";
+  const inkRgb = parseColor(style.ink);
+  const surfaceRgb = parseColor(surfaceHex);
+  const accentRgb = parseColor(style.accent);
+  const inkContrast = inkRgb && surfaceRgb ? contrastRatio(inkRgb, surfaceRgb) : 0;
+  const accentContrast = accentRgb && surfaceRgb ? contrastRatio(accentRgb, surfaceRgb) : 0;
 
   const [screen, setScreen] = useState<"home" | "drill" | "done" | "logbook">("home");
   const [step, setStep] = useState(0);
@@ -174,6 +195,7 @@ function SkyRecall({ slug }: { slug: string }) {
         fontSize: 15 * scale,
         fontWeight: 650,
         fontFamily: "inherit",
+        transition: `all ${motion.ms}ms ${motion.ease}`,
       }}
     >
       {label}
@@ -183,6 +205,8 @@ function SkyRecall({ slug }: { slug: string }) {
   return (
     <div
       data-adapt={adapt}
+      data-xray={xray ? "on" : "off"}
+      className={xray ? "xray-on" : undefined}
       style={{
         minHeight: "100vh",
         background: style.swatch,
@@ -192,8 +216,29 @@ function SkyRecall({ slug }: { slug: string }) {
         flexDirection: "column",
         alignItems: "center",
         padding: "0 20px",
+        position: "relative",
       }}
     >
+      {xray && (
+        <aside className="xray-panel">
+          <div style={{ fontSize: 11, letterSpacing: "0.1em", textTransform: "uppercase", opacity: 0.7 }}>
+            X-ray, measured live
+          </div>
+          <div style={{ marginTop: 8, display: "grid", gap: 3, fontSize: 12 }}>
+            <span>Type ramp: {Math.round(30 * scale)} / {Math.round(26 * scale)} / {Math.round(17 * scale)} / {Math.round(14.5 * scale)} / {Math.round(12 * scale)}</span>
+            <span>Spacing: 28 / 22 / 12 / 10</span>
+            <span>Radius: {style.radius} on cards, full on actions</span>
+            <span>
+              Ink on surface {inkContrast.toFixed(1)} to 1{inkContrast >= 4.5 ? ", clears AA" : ", below AA 4.5"}
+            </span>
+            <span>
+              Accent on surface {accentContrast.toFixed(1)} to 1, large text needs 3
+            </span>
+            <span>Motion: {motion.name}, {motion.ms}ms</span>
+          </div>
+          <div style={{ marginTop: 8, fontSize: 11, opacity: 0.65 }}>Press x to close</div>
+        </aside>
+      )}
       <header
         style={{
           width: "100%",
@@ -331,9 +376,18 @@ function SkyRecall({ slug }: { slug: string }) {
         )}
       </main>
 
-      <footer style={{ paddingBottom: 18, fontSize: 11.5, color: faint, display: "flex", gap: 6, alignItems: "center" }}>
+      <footer style={{ paddingBottom: 18, fontSize: 11.5, color: faint, display: "flex", gap: 12, alignItems: "center" }}>
         <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#7b6bff", display: "inline-block" }} />
         Alive at Osyle
+        <button
+          onClick={() => setXray((v) => !v)}
+          style={{ background: "none", border: "none", color: faint, cursor: "pointer", fontSize: 11.5, fontFamily: "inherit", textDecoration: "underline", padding: 0 }}
+        >
+          {xray ? "Close X-ray" : "X-ray"}
+        </button>
+        <a href={`#/mark/${slug}`} style={{ color: faint, fontSize: 11.5 }}>
+          Hallmark
+        </a>
       </footer>
     </div>
   );
