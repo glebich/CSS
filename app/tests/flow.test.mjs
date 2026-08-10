@@ -58,7 +58,22 @@ check("heal raises vitality to 69", (await page.locator(".instrument").innerText
 check("home offers the next step", await page.getByText("See what changed").isVisible());
 await page.getByText("See what changed").click();
 await page.getByText("Accept the transformation").click();
-check("reveal ends in a door", await page.getByText("See the issues", { exact: false }).isVisible());
+check("reveal ends in a door", await page.getByText("See the findings desk").isVisible());
+
+/* The findings desk: priced, decidable, and it lets you rest */
+await page.getByText("See the findings desk").click();
+check(
+  "undecided value is totaled as an estimate",
+  await page.getByText("About $310 a month is waiting in 1 undecided finding", { exact: false }).isVisible(),
+);
+check("strengths are said plainly", await page.getByText("No manipulation anywhere").isVisible());
+await page.getByText("Accept, I will fix the key").click();
+await page.waitForTimeout(300);
+check("accepted key waits on the user", await page.getByText("waiting on your key").isVisible());
+check("all decided shows the rest state", await page.getByText("All decided.", { exact: false }).isVisible());
+await page.getByText("Back to the rest").click();
+await page.waitForTimeout(300);
+check("rest door returns home", await page.locator(".instrument").isVisible());
 
 /* The return moment, simulated by aging the away-clock. An init script is
    required: the app stamps the clock on beforeunload, so the aged value

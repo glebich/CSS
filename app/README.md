@@ -15,6 +15,18 @@ npm run build    # typecheck + production build
 npm test         # walks the whole journey in Chromium, asserts each step
 ```
 
+## The Findings Desk
+
+Once a resident is analyzed, Findings shows everything in one decidable
+dashboard: each problem carries its evidence and an estimated monthly
+value of fixing it, always labeled an estimate and always citing where
+the number comes from; what is genuinely good is said plainly beside it.
+Every card takes exactly one decision, accept or set aside. Accepting a
+healable finding heals it on the spot; accepting the broken key hands
+over the Fix Prompt. Set-aside findings dim, stay in the report, and can
+be brought back. When every decision is made, the desk says so and
+offers one door: back to the rest.
+
 ## The journey
 
 Setup runs on a visible breadcrumb: Place (a real dropzone), Materials

@@ -39,8 +39,8 @@ export function Reveal() {
       <div style={{ display: "flex", justifyContent: "center", gap: 12, marginTop: 36 }}>
         {healableOpen.length > 0 ? (
           <>
-            <button className="pill" onClick={() => go("issues")}>
-              See the issues&apos; lives
+            <button className="pill" onClick={() => go("findings")}>
+              Decide them one by one
             </button>
             <button className="pill pill-dark" onClick={() => { heal(); go("home"); }}>
               Heal these now
@@ -48,8 +48,8 @@ export function Reveal() {
             </button>
           </>
         ) : (
-          <button className="pill pill-dark" onClick={() => go("issues")}>
-            See the issues&apos; lives
+          <button className="pill pill-dark" onClick={() => go("findings")}>
+            See the findings desk
             <Sparkle size={13} />
           </button>
         )}

@@ -26,6 +26,7 @@ export type View =
   | "launch"
   | "home"
   | "exam"
+  | "findings"
   | "transform"
   | "reveal"
   | "issues"
@@ -61,6 +62,7 @@ const PERSONA_KEY = "osyle.demo.persona";
 const SEEN_KEY = "osyle.demo.seenTips";
 const LAST_SEEN_KEY = "osyle.demo.lastSeen";
 const LAUNCHED_KEY = "osyle.demo.launched";
+const DECISIONS_KEY = "osyle.demo.findingDecisions";
 
 /** Away long enough that the resident has a story to tell. */
 const RETURN_AFTER_MS = 4 * 60 * 60 * 1000;
@@ -118,6 +120,10 @@ interface Store {
   /* floating panels */
   panel: "none" | "mood" | "personas" | "run";
   togglePanel: (p: "mood" | "personas" | "run") => void;
+  /* the findings desk: one decision per finding, then back to rest */
+  decisions: Record<string, "accepted" | "aside">;
+  decide: (issueId: string, decision: "accepted" | "aside") => void;
+  restoreAside: () => void;
   /* the examination and heal */
   healed: Set<string>;
   healing: boolean;
@@ -157,9 +163,19 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [personaId, setPersonaIdRaw] = useState(() => loadJson(PERSONA_KEY, "p-maria"));
   const [device, setDevice] = useState<Device>("mobile");
   const [panel, setPanel] = useState<"none" | "mood" | "personas" | "run">("none");
-  const [healed, setHealed] = useState<Set<string>>(
-    () => new Set(loadJson<string[]>(HEALED_KEY, [])),
+  const [decisions, setDecisions] = useState<Record<string, "accepted" | "aside">>(
+    () => loadJson(DECISIONS_KEY, {}),
   );
+  /* An accepted healable finding is healed, even if the tab closed
+     before the heal animation landed. Decisions are the truth. */
+  const [healed, setHealed] = useState<Set<string>>(() => {
+    const stored = new Set(loadJson<string[]>(HEALED_KEY, []));
+    const accepted = loadJson<Record<string, string>>(DECISIONS_KEY, {});
+    issues.forEach((i) => {
+      if (i.healable && accepted[i.id] === "accepted") stored.add(i.id);
+    });
+    return stored;
+  });
   const [healing, setHealing] = useState(false);
   const [transformAccepted, setTransformAccepted] = useState(() =>
     loadJson<boolean>(ACCEPT_KEY, false),
@@ -270,6 +286,33 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   const dismissReturn = useCallback(() => setReturned(false), []);
 
+  useEffect(() => {
+    localStorage.setItem(DECISIONS_KEY, JSON.stringify(decisions));
+  }, [decisions]);
+
+  /**
+   * One decision per finding. Accepting a healable finding heals it on
+   * the spot, and the pulse rises; accepting the key queues the Fix
+   * Prompt; setting aside is quiet and reversible.
+   */
+  const decide = useCallback((issueId: string, decision: "accepted" | "aside") => {
+    setDecisions((prev) => ({ ...prev, [issueId]: decision }));
+    if (decision === "accepted") {
+      const issue = issues.find((i) => i.id === issueId);
+      if (issue?.healable) {
+        window.setTimeout(() => {
+          setHealed((prev) => new Set([...prev, issueId]));
+        }, 400);
+      }
+    }
+  }, []);
+
+  const restoreAside = useCallback(() => {
+    setDecisions((prev) =>
+      Object.fromEntries(Object.entries(prev).filter(([, d]) => d !== "aside")),
+    );
+  }, []);
+
   const setStyleId = useCallback((id: string) => {
     if (styleCatalog.some((s) => s.id === id)) setStyleIdRaw(id);
   }, []);
@@ -367,7 +410,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       SEEN_KEY,
       LAST_SEEN_KEY,
       LAUNCHED_KEY,
+      DECISIONS_KEY,
     ].forEach((k) => localStorage.removeItem(k));
+    setDecisions({});
     setDroppedName(null);
     setSeenTips(new Set());
     setJustLaunched(false);
@@ -418,6 +463,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     setDevice,
     panel,
     togglePanel,
+    decisions,
+    decide,
+    restoreAside,
     healed,
     healing,
     heal,

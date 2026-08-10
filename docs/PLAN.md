@@ -218,6 +218,16 @@ dropped by decision: desktop web first, the browser owns history.
 Remaining from the list: 5 (responsive floor), 10, 13, 16 to 18, 20,
 scheduled with their stages.
 
+### Increment A2. The Findings Desk. DELIVERED
+
+Requested after A: the examination's output as one decidable dashboard.
+Every finding carries its evidence and an estimated monthly value of
+fixing it (labeled an estimate, citing its source); strengths are shown
+beside faults; each card takes one decision, accept or set aside;
+accepting heals on the spot or hands over the Fix Prompt; when all is
+decided, one door returns to rest. Findings replaced Issues in the
+product nav; the lifecycle view remains one door deeper.
+
 ### Increment B. Stage 2, backend foundation
 
 Goal (spec §13): the five-container stack up, auth, residents, Vault with

@@ -9,6 +9,7 @@ import { StyleExplore } from "./views/StyleExplore";
 import { Launch } from "./views/Launch";
 import { Home } from "./views/Home";
 import { Examination } from "./views/Examination";
+import { Findings } from "./views/Findings";
 import { Transform } from "./views/Transform";
 import { Reveal } from "./views/Reveal";
 import { Issues } from "./views/Issues";
@@ -38,6 +39,8 @@ function Screen() {
       return <Home />;
     case "exam":
       return <Examination />;
+    case "findings":
+      return <Findings />;
     case "transform":
       return <Transform />;
     case "reveal":

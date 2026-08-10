@@ -168,7 +168,7 @@ export function Home() {
               <div className="pulse-line">
                 <span>One thing waits on you: the weather key.</span>
               </div>
-              <button className="pill pill-dark" onClick={() => go("issues")}>
+              <button className="pill pill-dark" onClick={() => go("findings")}>
                 Open the Fix Prompt
                 <Sparkle size={13} />
               </button>

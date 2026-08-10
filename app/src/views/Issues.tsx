@@ -1,20 +1,7 @@
 import { useState } from "react";
 import { currentState, useStore } from "../store";
 import { Page, Sparkle } from "../components/chrome";
-import { examDates, issues, lenses, type IssueState } from "../data/seed";
-
-const FIX_PROMPT = `SkyRecall, weather briefing connector.
-The METAR provider returns 401 Unauthorized on every call.
-
-Failing call:
-  GET https://api.metar.example/v1/brief?icao=KSFO
-  Header: Authorization: Bearer <WEATHER_KEY>
-
-What to do:
-1. Issue a fresh key in the provider console.
-2. Set WEATHER_KEY in the resident settings, connectors, weather.
-3. The connector re-checks within a minute. The lens re-scores on the
-   next examination.`;
+import { examDates, fixPrompt, issues, lenses, type IssueState } from "../data/seed";
 
 function stateAt(history: IssueState[], examIdx: number): IssueState | null {
   if (examIdx < (3 - history.length)) return null;
@@ -96,13 +83,13 @@ export function Issues() {
                       color: "var(--ink-soft)",
                     }}
                   >
-                    {FIX_PROMPT}
+                    {fixPrompt}
                   </pre>
                   <button
                     className="pill"
                     style={{ marginTop: 10 }}
                     onClick={() => {
-                      navigator.clipboard?.writeText(FIX_PROMPT).catch(() => undefined);
+                      navigator.clipboard?.writeText(fixPrompt).catch(() => undefined);
                       setCopied(true);
                     }}
                   >

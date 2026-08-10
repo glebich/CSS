@@ -161,8 +161,8 @@ export function TopBar({ inResident }: { inResident: boolean }) {
 const NAV: Array<{ view: View; label: string }> = [
   { view: "home", label: "Home" },
   { view: "exam", label: "Examination" },
+  { view: "findings", label: "Findings" },
   { view: "transform", label: "Transform" },
-  { view: "issues", label: "Issues" },
 ];
 
 const LIFE_NAV: Array<{ view: View; label: string; icon: IconName }> = [
@@ -227,7 +227,11 @@ export function BottomBar() {
   const { view, go, inbox, panel, togglePanel } = useStore();
   const unread = inbox.filter((e) => !e.read).length;
   const active = (v: View) =>
-    v === view || (v === "transform" && view === "reveal") ? " is-active" : "";
+    v === view ||
+    (v === "transform" && view === "reveal") ||
+    (v === "findings" && view === "issues")
+      ? " is-active"
+      : "";
   return (
     <nav className="bottombar">
       <div className="bar-shell">

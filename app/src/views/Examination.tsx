@@ -54,14 +54,14 @@ export function Examination() {
                   <>
                     {" "}
                     <button
-                      onClick={() => go("issues")}
+                      onClick={() => go("findings")}
                       style={{
                         color: "var(--bad)",
                         fontWeight: 550,
                         fontSize: 13,
                       }}
                     >
-                      See the issue
+                      See the finding
                     </button>
                   </>
                 )}

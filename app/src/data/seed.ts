@@ -30,6 +30,10 @@ export interface Issue {
   healGain: number;
   /** the why-annotation shown in the Reveal */
   why: string;
+  /** estimated monthly value of fixing it, whole dollars, always an estimate */
+  valueMonthly: number;
+  /** where the estimate comes from, cited like every claim */
+  valueWhy: string;
 }
 
 export interface Repair {
@@ -76,6 +80,8 @@ export const issues: Issue[] = [
     healable: false,
     healGain: 0,
     why: "A dead key cannot be healed from here. The Fix Prompt carries the exact call, the header that fails, and where a fresh key goes.",
+    valueMonthly: 310,
+    valueWhy: "Four of nine sessions stall at the briefing. Recovered at your category's completion rate, about $310 a month, an estimate.",
   },
   {
     id: "runway-contrast",
@@ -87,6 +93,8 @@ export const issues: Issue[] = [
     healable: true,
     healGain: 8,
     why: "Contrast was raised to 4.6 to 1. Runway numbers must read in direct sunlight, which is the cockpit condition, not the office one.",
+    valueMonthly: 120,
+    valueWhy: "Contrast failures suppress outdoor completions. Category data prices this near $120 a month, an estimate.",
   },
   {
     id: "timer-reset",
@@ -98,6 +106,8 @@ export const issues: Issue[] = [
     healable: true,
     healGain: 6,
     why: "The timer now persists to the resident database each tick. An interrupted drill resumes where it stopped, because losing a timed attempt reads as losing progress.",
+    valueMonthly: 95,
+    valueWhy: "Interrupted drills read as lost progress and quietly end returns. About $95 a month, an estimate.",
   },
   {
     id: "empty-state",
@@ -109,6 +119,8 @@ export const issues: Issue[] = [
     healable: true,
     healGain: 5,
     why: "The blank logbook now offers one line and one action: start the radio-call drill. First sessions need a runway, not a lobby.",
+    valueMonthly: 140,
+    valueWhy: "First sessions that find no first step rarely become second sessions. About $140 a month, an estimate.",
   },
   {
     id: "cta-contest",
@@ -120,6 +132,8 @@ export const issues: Issue[] = [
     healable: true,
     healGain: 7,
     why: "The streak banner stepped back to a quiet line and settings left the first screen. One screen, one verb: begin the drill.",
+    valueMonthly: 180,
+    valueWhy: "A contested primary action costs first drills. At your traffic, about $180 a month, an estimate.",
   },
   {
     id: "guilt-banner",
@@ -131,8 +145,38 @@ export const issues: Issue[] = [
     healable: true,
     healGain: 0,
     why: "Manipulation was removed, not softened. A pilot who returns after a month is greeted, not scolded, because fear is already why they are here.",
+    valueMonthly: 0,
+    valueWhy: "Already healed. Its value is the trust that stays.",
   },
 ];
+
+/** What is genuinely good, said plainly. Findings praise software too. */
+export interface Strength {
+  id: string;
+  title: string;
+  why: string;
+  lens: string;
+}
+
+export const strengths: Strength[] = [
+  { id: "str-psych", lens: "psychology", title: "No manipulation anywhere", why: "The guilt banner is gone and nothing took its place. Returning pilots are greeted, not scolded. This is rarer than it should be." },
+  { id: "str-length", lens: "market", title: "Session length beats the category", why: "Six-minute median drills against a nine-minute category norm. Short enough to survive a workday, which is the whole promise." },
+  { id: "str-clarity", lens: "value", title: "The product knows who it serves", why: "A memory instrument for pilots whose licence outlives their practice. Few products can be described in one honest sentence. This one can." },
+];
+
+/** The exact prompt for the one fix that needs a human hand. */
+export const fixPrompt = `SkyRecall, weather briefing connector.
+The METAR provider returns 401 Unauthorized on every call.
+
+Failing call:
+  GET https://api.metar.example/v1/brief?icao=KSFO
+  Header: Authorization: Bearer <WEATHER_KEY>
+
+What to do:
+1. Issue a fresh key in the provider console.
+2. Set WEATHER_KEY in the resident settings, connectors, weather.
+3. The connector re-checks within a minute. The lens re-scores on the
+   next examination.`;
 
 /** Repairs shown in the Reveal, the accepted transformation's annotations. */
 export const repairs: Repair[] = [
