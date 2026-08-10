@@ -1,0 +1,36 @@
+name: Deploy the demo to GitHub Pages
+
+on:
+  push:
+    branches: [claude/project-steps-1-3-5-30sl7c, main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install and build
+        run: |
+          npm ci --workspaces --include-workspace-root
+          npm run build --workspace app
+      - name: Publish to the gh-pages branch
+        run: |
+          cd app/dist
+          touch .nojekyll
+          git init -b gh-pages
+          git config user.name "osyle-deploy"
+          git config user.email "deploy@users.noreply.github.com"
+          git add -A
+          git commit -m "Deploy ${{ github.sha }}"
+          git push --force "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" gh-pages
