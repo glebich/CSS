@@ -494,6 +494,28 @@ last examination, uptime, and a real SHA-256 content hash with the
 honest line that the signing key arrives with Real Mode; unearned
 slugs get no certificate. 99 journey checks pass.
 
+### Increment G2. The repo door and the public address. DELIVERED
+
+The product's own connectivity, both directions. Inward: people
+connect the repository their app lives in, github.com/you/your-app
+named on the Place screen, the zipball fetched client side and run
+through the whole real examination, with an honest sentence for
+unreachable or private repositories and the token flow named as
+Real Mode's. Proven by stubbing GitHub at the network edge with a
+real zip of the flawed fixture. Outward: a Pages workflow publishes
+the built app to the gh-pages branch on every push, so the product
+carries a public URL that people can open without anything installed,
+and the Vite base went relative so one build serves anywhere.
+
+### Increment G3. The make-it-real pass. DELIVERED
+
+On the review note that demo text still leaked into real journeys:
+with a real project open, the browser title, the tab chip, and the
+home surface all speak the project's own name and numbers, the reset
+door says Start over, and the example's furniture, heal doors, the
+director's note, the since-you-left card, the ten-lens tip, stays in
+the example where it belongs. 106 journey checks pass.
+
 ### Increment H. Stage 11, devices and stores
 
 The wardrobe row on real frames, tablet and desktop compositions, watch
