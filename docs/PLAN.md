@@ -450,12 +450,27 @@ journey checks pass.
 Still ahead for the director when Real Mode arrives: the worker jobs
 that run rounds on a clock instead of a seed.
 
-### Increment F. Stage 9, Owner console
+### Increment F. Stage 9, Owner console. DELIVERED
 
-Residents desk with god-view, Prompt studio (versioned, test-runnable
-against SkyRecall, rollbackable), reference library, love and viral
-dashboards, promotion desk, system health. Operated by a non-engineer:
-every action is a sentence and a button.
+The operator's room at #/owner, built for a non-engineer, and honest
+to the bone: everything it shows is read from the same storage the
+product writes. The residents desk holds god-view over the demo
+resident (its style, applied studio edits, primary archetype, ledger
+count, all live) and lists every moved-in app with its address and a
+visit door. The composer writes a director note by hand, kind chosen,
+evidence required, quote optional, and the note lands in the
+product's Inbox unread and signed in Milan Rada's voice: the
+concierge era working end to end, proven by a journey test that
+composes in the console and reads the note in the stream. The Prompt
+studio ships the three prompts Real Mode will run, versioned from
+day one; editing writes a new version, rollback restores the one
+before, and test runs say honestly that they arrive with Real Mode.
+The growth board shows the six loops with the two measurable ones
+measured (residents carrying the mark, director notes delivered) and
+the rest labeled example until their share surfaces ship; the
+promotion desk reads the real waitlist rows; health counts the real
+local storage, keys, and ledger. 88 journey checks pass. The
+reference library remains for the stage that gives it content.
 
 ### Increment G. Stage 10, signatures wave one
 

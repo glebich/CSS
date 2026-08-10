@@ -526,6 +526,39 @@ export function mapStudio(text: string): StudioEdit | null {
   return studioEdits.find((e) => e.match.test(text)) ?? null;
 }
 
+/* ------------------------------------------------------------------------
+   The Owner console's raw materials: the prompt library that Real Mode
+   will run, versioned from day one, and the six growth loops with what
+   can be measured today measured and the rest labeled example.
+------------------------------------------------------------------------ */
+
+export const promptsSeed: Array<{ id: string; name: string; text: string }> = [
+  {
+    id: "pr-exam",
+    name: "Examination, lens narration",
+    text: "You are examining a resident. Speak only measured findings, one per line, each with file and line evidence. Findings are about the software, never the person. No praise without a measurement behind it.",
+  },
+  {
+    id: "pr-director",
+    name: "Art Director, weekly review",
+    text: "You are the resident's Art Director. Calm, specific, kind, brief. One suggestion per week, its evidence cited, one attached action. If nothing is worth saying, say nothing.",
+  },
+  {
+    id: "pr-studio",
+    name: "Studio, edit composer",
+    text: "Turn the instruction into the smallest diff that honors it. Stay inside the identity tokens. Show the diff before anything applies. Refuse edits that add manipulation patterns.",
+  },
+];
+
+export const growthLoops: Array<{ name: string; metric: string; real: boolean }> = [
+  { name: "The address is the ad", metric: "", real: true },
+  { name: "The shareable Report Card", metric: "share rate 0.0 percent, example", real: false },
+  { name: "Examine anyone", metric: "claim rate 0.0 percent, example", real: false },
+  { name: "The transformation post", metric: "0 published, example", real: false },
+  { name: "Referral in kind", metric: "k-factor 0.0, example", real: false },
+  { name: "The Art Director speaks", metric: "", real: true },
+];
+
 /** The reach model: age window times density, narrowed by each active trait. */
 export function reachEstimate(a: Archetype, range: [number, number], activeTraits: number): number {
   const years = Math.max(1, range[1] - range[0]);

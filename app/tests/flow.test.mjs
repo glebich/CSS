@@ -220,6 +220,56 @@ check(
   await page.getByText("stalled at the weather briefing", { exact: false }).first().isVisible(),
 );
 
+/* -----------------------------------------------------------------
+   The Owner console: the operator's room at #/owner, reading the
+   same storage the product writes. The composed note round-trips
+   into the resident's inbox, which is the concierge era working. */
+await page.goto("http://localhost:5197/#/owner");
+await page.waitForTimeout(500);
+check("the console opens on the residents desk", await page.getByText("Owner console").isVisible());
+check(
+  "god-view reads the demo resident truly",
+  await page.getByText("ledger decision", { exact: false }).isVisible(),
+);
+await page.getByText("Compose a note").click();
+await page
+  .getByPlaceholder("The note itself, as one or two human sentences")
+  .fill("The checkride flow deserves a gentler start.");
+await page
+  .getByPlaceholder("Evidence, cited plainly")
+  .fill("Composed by hand in the console, concierge era.");
+await page.getByText("Leave the note").click();
+await page.waitForTimeout(300);
+check(
+  "the composed note confirms",
+  await page.getByText("unread, signed", { exact: false }).isVisible(),
+);
+await page.getByText("Prompt studio").click();
+await page.waitForTimeout(300);
+check(
+  "prompts are versioned from day one",
+  (await page.getByText("v1", { exact: true }).count()) === 3,
+);
+await page.getByText("Edit", { exact: true }).first().click();
+await page.locator("textarea").fill("Speak only measured findings, calmly.");
+await page.getByText("Save as v2").click();
+await page.waitForTimeout(200);
+check("editing writes a new version", await page.getByText("v2", { exact: true }).isVisible());
+await page.getByText("Roll back to v1").click();
+await page.waitForTimeout(200);
+check(
+  "rollback restores the one before",
+  (await page.getByText("v1", { exact: true }).count()) === 3,
+);
+await page.goto("http://localhost:5197/");
+await page.waitForTimeout(600);
+await page.getByLabel("Inbox", { exact: true }).click();
+await page.waitForTimeout(400);
+check(
+  "the concierge note arrives in the stream, signed",
+  await page.getByText("The checkride flow deserves a gentler start.").isVisible(),
+);
+
 /* The return moment, simulated by aging the away-clock. An init script is
    required: the app stamps the clock on beforeunload, so the aged value
    must land after the old page leaves and before the new one reads it. */
@@ -390,6 +440,19 @@ check(
 await page.getByText("Give it the address").click();
 await page.waitForTimeout(500);
 check("a folder drop is named by its folder", await page.getByText("clean.osyle.app").first().isVisible());
+
+/* the residents desk lists every moved-in app with its address */
+await page.goto("http://localhost:5197/#/owner");
+await page.waitForTimeout(500);
+check(
+  "the desk lists the moved-in apps",
+  (await page.getByText("app-3-files.osyle.app").isVisible()) &&
+    (await page.getByText("clean.osyle.app").isVisible()),
+);
+await page.goto("http://localhost:5197/");
+await page.waitForTimeout(500);
+await page.getByText("Drop your app", { exact: false }).last().click();
+await page.waitForTimeout(300);
 
 /* back to the example for the remaining checks */
 await page.getByText("Reset demo").click();

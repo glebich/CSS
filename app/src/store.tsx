@@ -728,12 +728,19 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     });
   }, [healing, healableOpen, record]);
 
+  /* Notes the founder composed by hand in the Owner console arrive
+     here like any other director note: unread, signed, first. */
+  const composedNotes = useMemo(
+    () => loadJson<InboxEntry[]>("osyle.owner.composed", []),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  );
   const inbox = useMemo(
     () =>
-      [...extraInbox, ...inboxSeed].map((e) =>
+      [...composedNotes, ...extraInbox, ...inboxSeed].map((e) =>
         readIds.has(e.id) ? { ...e, read: true } : e,
       ),
-    [extraInbox, readIds],
+    [composedNotes, extraInbox, readIds],
   );
 
   const markRead = useCallback((entryId: string) => {
@@ -762,6 +769,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       AUDIENCE_KEY,
       STUDIO_KEY,
       "osyle.residents",
+      "osyle.owner.composed",
+      "osyle.owner.prompts",
     ]);
     setAudience(defaultAudience());
     setAppliedEdits([]);
