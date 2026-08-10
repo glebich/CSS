@@ -421,6 +421,14 @@ check(
   "the style carries its motion identity",
   await page.getByText("Motion: Settle", { exact: false }).first().isVisible(),
 );
+check(
+  "the wardrobe wears three devices at once",
+  (await page.locator(".wardrobe iframe").count()) === 3,
+);
+check(
+  "the tablet is honest about its stage",
+  await page.getByText("The tablet composition and the native wrap builds", { exact: false }).isVisible(),
+);
 await page.getByText("Night Shift").click();
 await page.waitForTimeout(400);
 check("style chips switch the future live", await page.getByText("Wearing Night Shift").isVisible());
@@ -443,6 +451,13 @@ check("the address is spoken", await page.getByText("app-3-files.osyle.app").fir
 check(
   "the address flow step is current",
   await page.locator(".flow-step.is-current", { hasText: "The address" }).isVisible(),
+);
+const kitDownload = page.waitForEvent("download", { timeout: 8000 }).catch(() => null);
+await page.getByText("Download the store kit").click();
+const kit = await kitDownload;
+check(
+  "the store kit downloads complete",
+  kit !== null && kit.suggestedFilename() === "app-3-files-store-kit.zip",
 );
 await page.goto("http://localhost:5197/#/r/app-3-files");
 await page.waitForTimeout(700);

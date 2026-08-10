@@ -516,6 +516,27 @@ door says Start over, and the example's furniture, heal doors, the
 director's note, the since-you-left card, the ten-lens tip, stays in
 the example where it belongs. 106 journey checks pass.
 
+### Increment H1. Stage 11 first slice, the wardrobe and the store kit. DELIVERED
+
+Moment eight arrives on the real report: the wardrobe, one app
+wearing phone, desktop, and watch at once, the first two frames the
+person's actual page at each device's width through the chosen
+identity's tokens, the watch wearing the glance pattern, the app's
+name and its one number. The tablet composition and native wrap
+builds are named as arriving with their stage, on the surface
+itself. And the kit downloads complete, per the spec's exact words:
+from the real Address, one zip holding the app icon drawn from the
+identity's real tokens as SVG, store copy written from what the
+examination actually understood, metadata, and an honest preflight
+that lists what still needs a human, screenshots, a privacy policy,
+native builds, store accounts, plus the examination's own findings
+named as rejection risks. Also fixed here: the artifact bundler was
+corrupting the shipped JavaScript because String.replace treats
+dollar patterns in replacements specially, which blanked the shared
+demo page; injections now use function replacements and the bundle
+is render-verified in Chromium before every publish. 109 journey
+checks pass.
+
 ### Increment H. Stage 11, devices and stores
 
 The wardrobe row on real frames, tablet and desktop compositions, watch

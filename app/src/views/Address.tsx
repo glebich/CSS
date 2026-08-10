@@ -3,6 +3,27 @@ import { readLedger, sdk, useStore } from "../store";
 import { FlowSteps, Page, Sparkle } from "../components/chrome";
 import { quotas, resident } from "../data/seed";
 import type { AnalyzedProject } from "../engine/types";
+import { buildStoreKit } from "../engine/storekit";
+import { styleCatalog } from "../data/seed";
+
+/** The kit downloads complete, per the spec, from real state only. */
+function downloadStoreKit(slug: string, project: AnalyzedProject, styleId: string) {
+  const s = styleCatalog.find((c) => c.id === styleId) ?? styleCatalog[0];
+  const bytes = buildStoreKit(project, {
+    name: s.name,
+    ink: s.ink,
+    accent: s.accent,
+    radius: s.radius,
+    dark: s.dark,
+  });
+  const blob = new Blob([new Uint8Array(bytes)], { type: "application/zip" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${slug}-store-kit.zip`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
 
 /** The way out is always open: files, report, and ledger in one download. */
 function exportReal(slug: string, project: AnalyzedProject) {
@@ -30,7 +51,7 @@ function exportReal(slug: string, project: AnalyzedProject) {
 
 /** Serving: the address holding files, media, and users. The home, literal. */
 export function Address() {
-  const { vitality, ledgerCount, realSlug, project } = useStore();
+  const { vitality, ledgerCount, realSlug, project, styleId } = useStore();
   const [copied, setCopied] = useState(false);
 
   /* The real ceremony: a dropped, examined app just moved in. */
@@ -98,9 +119,12 @@ export function Address() {
           </p>
         </div>
 
-        <div style={{ display: "flex", gap: 10, justifyContent: "center", marginTop: 40 }}>
+        <div style={{ display: "flex", gap: 10, justifyContent: "center", marginTop: 40, flexWrap: "wrap" }}>
           <button className="pill" onClick={() => exportReal(realSlug, project)}>
             Export everything
+          </button>
+          <button className="pill" onClick={() => downloadStoreKit(realSlug, project, styleId)}>
+            Download the store kit
           </button>
           <a
             className="pill pill-dark"

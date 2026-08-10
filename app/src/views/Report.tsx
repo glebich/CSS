@@ -15,6 +15,15 @@ import type { AnalyzedProject, RealFinding } from "../engine/types";
 
 const REPORT_STYLES = ["st-aria", "st-mono", "st-warm", "st-night"];
 
+/** The watch glance: the one number that matters, worn small. */
+function buildGlance(name: string, vitality: number): string {
+  return `<body style="margin:0;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;background:#0c0c0e;color:#fff;font-family:-apple-system,'SF Pro Display',sans-serif">
+<div style="font-size:10px;letter-spacing:2px;opacity:.55">${name.slice(0, 12).toUpperCase()}</div>
+<div style="font-size:52px;font-weight:600;letter-spacing:-1px">${vitality}</div>
+<div style="font-size:10px;letter-spacing:2px;opacity:.55">VITALITY</div>
+</body>`;
+}
+
 
 /** The whole plan as one prompt, ready for the tool that builds. */
 function buildRepairPrompt(project: AnalyzedProject, chosen: RealFinding[]): string {
@@ -293,6 +302,52 @@ export function Report() {
           <p style={{ fontSize: 12, color: "var(--gray-small)", marginTop: 4 }}>
             Motion: {motionFor(style).name}, {motionFor(style).ms}ms.{" "}
             {motionFor(style).line}.
+          </p>
+
+          {/* the wardrobe: one app, every screen it deserves */}
+          <div className="section-label" style={{ marginTop: 44 }}>
+            The wardrobe
+          </div>
+          <p style={{ fontSize: 13, color: "var(--gray-meta)", maxWidth: 640, marginBottom: 16 }}>
+            One app wearing every device. The phone and desktop frames are
+            your real page at each width; the watch wears the glance pattern,
+            one number and nothing else.
+          </p>
+          <div className="wardrobe" style={{ display: "flex", gap: 26, alignItems: "flex-end", flexWrap: "wrap" }}>
+            <div className="phone-frame" style={{ width: 240, height: 490, padding: 8 }}>
+              <div className="phone-screen">
+                <iframe
+                  title="Phone"
+                  sandbox="allow-scripts"
+                  srcDoc={after ?? before}
+                  style={{ width: "100%", height: "100%", border: "none", background: "#fff" }}
+                />
+              </div>
+            </div>
+            <div className="desktop-frame" style={{ width: 520, height: 350 }}>
+              <div className="desktop-screen">
+                <iframe
+                  title="Desktop"
+                  sandbox="allow-scripts"
+                  srcDoc={after ?? before}
+                  style={{ width: "100%", height: "100%", border: "none", background: "#fff" }}
+                />
+              </div>
+            </div>
+            <div className="watch-frame" style={{ width: 150, height: 178, padding: 9 }}>
+              <div className="watch-screen">
+                <iframe
+                  title="Watch"
+                  sandbox="allow-scripts"
+                  srcDoc={buildGlance(project.inventory.name, project.vitality)}
+                  style={{ width: "100%", height: "100%", border: "none" }}
+                />
+              </div>
+            </div>
+          </div>
+          <p style={{ fontSize: 12, color: "var(--gray-small)", marginTop: 12 }}>
+            The tablet composition and the native wrap builds arrive with
+            their stage.
           </p>
         </>
       )}
