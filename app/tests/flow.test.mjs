@@ -69,6 +69,10 @@ check(
 );
 await page.getByText("Drop your app", { exact: false }).last().click();
 check("place shows the flow steps", await page.locator(".flow-steps").isVisible());
+check(
+  "loose files have one door, wearing the clip",
+  (await page.getByLabel("Just files", { exact: true }).count()) === 1,
+);
 await page.getByText("See the example").click();
 await page.waitForTimeout(900);
 check("reading sweep is on", (await page.locator(".is-reading").count()) > 0);

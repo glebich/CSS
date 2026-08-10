@@ -197,14 +197,6 @@ export function Place() {
             if (chosen.length > 0) void analyzeFiles(chosen);
           }}
         />
-        <button
-          className="circle"
-          style={{ width: 48, height: 48 }}
-          onClick={() => fileRef.current?.click()}
-          aria-label="Choose files"
-        >
-          <Icon name="plus" size={18} />
-        </button>
         <input
           ref={folderRef}
           type="file"
@@ -219,8 +211,15 @@ export function Place() {
           Choose your app folder, or drop it anywhere
           <Sparkle size={13} />
         </button>
-        <button className="pill" onClick={() => fileRef.current?.click()}>
-          Just files
+        {/* one door for loose files, wearing the clip rather than saying it */}
+        <button
+          className="circle"
+          style={{ width: 48, height: 48 }}
+          onClick={() => fileRef.current?.click()}
+          title="Just files"
+          aria-label="Just files"
+        >
+          <Icon name="clip" size={19} />
         </button>
         <button className="pill" onClick={() => beginUpload()}>
           See the example

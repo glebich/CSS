@@ -42,7 +42,8 @@ export type IconName =
   | "plus"
   | "mic"
   | "back"
-  | "edit";
+  | "edit"
+  | "clip";
 
 /** 24px stroke icons drawn to match the Osyle_N icon sheet: 1.6 stroke, round caps. */
 export function Icon({ name, size = 22 }: { name: IconName; size?: number }) {
@@ -63,6 +64,9 @@ export function Icon({ name, size = 22 }: { name: IconName; size?: number }) {
     mic: <path d="M12 4a2.6 2.6 0 0 1 2.6 2.6v5a2.6 2.6 0 1 1-5.2 0v-5A2.6 2.6 0 0 1 12 4Zm-6 8a6 6 0 0 0 12 0M12 18v3" />,
     back: <path d="M14 6l-6 6 6 6" />,
     edit: <path d="m5 19 .9-3.6L16.6 4.7a2 2 0 0 1 2.8 2.8L8.7 18.1 5 19Z" />,
+    clip: (
+      <path d="M18.5 11.5 12 18a4 4 0 0 1-5.7-5.7l7-7a2.7 2.7 0 0 1 3.8 3.8l-7 7a1.4 1.4 0 0 1-2-2l6.4-6.4" />
+    ),
   };
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
