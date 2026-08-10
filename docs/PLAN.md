@@ -562,6 +562,22 @@ are deferred to the publish stage on the rule's own terms: they may
 appear only in their official form, and official assets cannot ship
 from this build environment. 112 journey checks pass.
 
+### Increment J1. Stage 13 first slice, the Report Card and referral. DELIVERED
+
+Two of the six loops become touchable. The shareable Report Card is
+a real PNG drawn on a canvas from real state only, the brand surface
+frozen at its widest breath: near-black, the violet glow, the
+letterspaced wordmark, the resident's name, the Vitality numeral,
+one striking finding, and the address line. It downloads from the
+real report in one tap; the percentile waits for the network's
+density and is not invented. Referral in kind opens as the invite
+door on the Address, copying the product link in one tap; the
+in-product rewards begin counting with the network, and the door
+says so by counting only what is real. The Owner console's growth
+board now measures both loops with real local counts, cards
+downloaded and invites copied, alongside the residents carrying the
+mark and the director's notes. 116 journey checks pass.
+
 ### Increment I. Stages 12 to 15, in spec order
 
 Ecosystem rail (per §10's logo laws), viral surfaces and audience-aware

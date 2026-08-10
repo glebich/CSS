@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { artDirector, growthLoops, promptsSeed, resident } from "../data/seed";
 import type { InboxEntry } from "../data/seed";
 import { readLedger } from "../store";
+import { readGrowth } from "../engine/reportcard";
 
 /**
  * The Owner console at #/owner: the operator's room, built for a
@@ -299,6 +300,10 @@ function Growth() {
   const liveMetric = (name: string): string => {
     if (name === "The address is the ad")
       return `${1 + Object.keys(registry).length} resident${Object.keys(registry).length === 0 ? "" : "s"} carrying the mark`;
+    if (name === "The shareable Report Card")
+      return `${readGrowth("reportcards")} card${readGrowth("reportcards") === 1 ? "" : "s"} downloaded`;
+    if (name === "Referral in kind")
+      return `${readGrowth("invites")} invite${readGrowth("invites") === 1 ? "" : "s"} copied`;
     return `${3 + composed.length} notes delivered`;
   };
 

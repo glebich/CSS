@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { useStore } from "../store";
 import { FlowSteps, Page, Sparkle } from "../components/chrome";
+import { bumpGrowth, drawReportCard } from "../engine/reportcard";
 import { motionFor, styleCatalog } from "../data/seed";
 import { buildSrcDoc, transformCss } from "../engine/analyze";
 import type { AnalyzedProject, RealFinding } from "../engine/types";
@@ -121,9 +122,24 @@ function FindingCard({ finding }: { finding: RealFinding }) {
 }
 
 export function Report() {
-  const { project, realDecisions, styleId, setStyleId, comfort, giveAddress } = useStore();
+  const { project, realDecisions, styleId, setStyleId, comfort, giveAddress, realSlug } = useStore();
   const [copied, setCopied] = useState(false);
   const [promptOpen, setPromptOpen] = useState(false);
+  const [cardDrawn, setCardDrawn] = useState(false);
+
+  async function downloadReportCard() {
+    if (!project) return;
+    const blob = await drawReportCard(project, realSlug);
+    if (!blob) return;
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${project.inventory.name.replace(/[^a-z0-9]+/gi, "-").toLowerCase()}-report-card.png`;
+    a.click();
+    URL.revokeObjectURL(url);
+    bumpGrowth("reportcards");
+    setCardDrawn(true);
+  }
 
   if (!project) return null;
 
@@ -397,6 +413,9 @@ export function Report() {
               : findings.length === 0
                 ? "Copy the improvement prompt"
                 : "Copy the repair prompt"}
+          </button>
+          <button className="pill" onClick={() => void downloadReportCard()}>
+            {cardDrawn ? "The card is yours" : "Download the report card"}
           </button>
           <button className="pill pill-dark" onClick={giveAddress}>
             Give it the address

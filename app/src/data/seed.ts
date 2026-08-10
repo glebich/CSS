@@ -617,10 +617,10 @@ export const promptsSeed: Array<{ id: string; name: string; text: string }> = [
 
 export const growthLoops: Array<{ name: string; metric: string; real: boolean }> = [
   { name: "The address is the ad", metric: "", real: true },
-  { name: "The shareable Report Card", metric: "share rate 0.0 percent, example", real: false },
-  { name: "Examine anyone", metric: "claim rate 0.0 percent, example", real: false },
-  { name: "The transformation post", metric: "0 published, example", real: false },
-  { name: "Referral in kind", metric: "k-factor 0.0, example", real: false },
+  { name: "The shareable Report Card", metric: "", real: true },
+  { name: "Examine anyone", metric: "the repo door counts when claims ship, example", real: false },
+  { name: "The transformation post", metric: "0 published, arrives with the network", real: false },
+  { name: "Referral in kind", metric: "", real: true },
   { name: "The Art Director speaks", metric: "", real: true },
 ];
 

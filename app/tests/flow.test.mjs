@@ -453,6 +453,15 @@ check(
 );
 check("the prompt is portable by one tap", await page.getByText("Copy the repair prompt").isVisible());
 
+/* the report card: the brand surface as a real PNG */
+const cardDownload = page.waitForEvent("download", { timeout: 8000 }).catch(() => null);
+await page.getByText("Download the report card").click();
+const card = await cardDownload;
+check(
+  "the report card downloads as a real image",
+  card !== null && card.suggestedFilename().endsWith("-report-card.png"),
+);
+
 /* -----------------------------------------------------------------
    The residency: the examined app moves in, and the address serves
    the actual dropped files, not a metaphor for them. */
@@ -471,6 +480,9 @@ check(
   "the store kit downloads complete",
   kit !== null && kit.suggestedFilename() === "app-3-files-store-kit.zip",
 );
+await page.getByText("Invite a builder").click();
+await page.waitForTimeout(200);
+check("the invite copies in one tap", await page.getByText("Invite copied").isVisible());
 await page.goto("http://localhost:5197/#/r/app-3-files");
 await page.waitForTimeout(700);
 check(
@@ -535,6 +547,10 @@ check(
   (await page.getByText("app-3-files.osyle.app").isVisible()) &&
     (await page.getByText("clean.osyle.app").isVisible()),
 );
+await page.getByText("Growth", { exact: true }).click();
+await page.waitForTimeout(300);
+check("the growth board counts real cards", await page.getByText("1 card downloaded").isVisible());
+check("the growth board counts real invites", await page.getByText("1 invite copied").isVisible());
 await page.goto("http://localhost:5197/");
 await page.waitForTimeout(500);
 await page.getByText("Drop your app", { exact: false }).last().click();

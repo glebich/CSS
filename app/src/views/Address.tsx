@@ -4,6 +4,7 @@ import { FlowSteps, Page, Sparkle } from "../components/chrome";
 import { quotas, resident } from "../data/seed";
 import type { AnalyzedProject } from "../engine/types";
 import { buildStoreKit } from "../engine/storekit";
+import { bumpGrowth } from "../engine/reportcard";
 import { styleCatalog } from "../data/seed";
 
 /** The kit downloads complete, per the spec, from real state only. */
@@ -53,6 +54,7 @@ function exportReal(slug: string, project: AnalyzedProject) {
 export function Address() {
   const { vitality, ledgerCount, realSlug, project, styleId } = useStore();
   const [copied, setCopied] = useState(false);
+  const [invited, setInvited] = useState(false);
 
   /* The real ceremony: a dropped, examined app just moved in. */
   if (realSlug && project) {
@@ -125,6 +127,18 @@ export function Address() {
           </button>
           <button className="pill" onClick={() => downloadStoreKit(realSlug, project, styleId)}>
             Download the store kit
+          </button>
+          <button
+            className="pill"
+            onClick={() => {
+              navigator.clipboard
+                ?.writeText(`${location.origin}${location.pathname}`)
+                .catch(() => undefined);
+              bumpGrowth("invites");
+              setInvited(true);
+            }}
+          >
+            {invited ? "Invite copied" : "Invite a builder"}
           </button>
           <a
             className="pill pill-dark"
