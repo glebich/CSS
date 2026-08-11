@@ -476,6 +476,14 @@ input {
   color: var(--gray-tertiary);
 }
 
+/* the wide ask: grows with the line, yields on phones */
+.ask-pill.ask-pill-wide {
+  min-width: min(340px, 100%);
+  max-width: 480px;
+  flex: 1 1 240px;
+  box-shadow: var(--shadow-pill);
+}
+
 /* ------------------------------------------------------------- the pulse */
 
 @keyframes breathe {

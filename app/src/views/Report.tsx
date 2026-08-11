@@ -355,7 +355,7 @@ export function Report() {
                 />
               </div>
             </div>
-            <div className="desktop-frame" style={{ width: "min(520px, 100%)", height: 350 }}>
+            <div className="desktop-frame" style={{ width: "min(520px, 100%)", aspectRatio: "520 / 350", height: "auto" }}>
               <div className="desktop-screen">
                 <iframe
                   title="Desktop"

@@ -681,12 +681,11 @@ check("the browser title carries the project", (await page.title()).includes("su
 check("the reset door renames honestly", await page.getByText("Start over").isVisible());
 
 /* the report holds the 390 floor: futures stack, wardrobe fits */
+const overflowNow = () =>
+  page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
 await page.setViewportSize({ width: 390, height: 844 });
 await page.waitForTimeout(500);
-const reportOverflow = await page.evaluate(
-  () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
-);
-check("the report holds the 390 floor", reportOverflow <= 1);
+check("the report holds the 390 floor", (await overflowNow()) <= 1);
 check(
   "the two futures stack on phones",
   await page.evaluate(() => {
@@ -770,10 +769,7 @@ await page.waitForTimeout(600);
 /* the responsive floor: at 390 everything is composed */
 await page.setViewportSize({ width: 390, height: 844 });
 await page.waitForTimeout(500);
-const overflow = await page.evaluate(
-  () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
-);
-check("no horizontal overflow at 390", overflow <= 1);
+check("no horizontal overflow at 390", (await overflowNow()) <= 1);
 check("the numeral is visible at 390", await page.locator(".instrument").isVisible());
 
 /* the place's mobile floor: decor steps back, the doors stack */
@@ -783,20 +779,14 @@ await page.getByText("Reset demo").click();
 await page.getByText("Drop your app", { exact: false }).last().click();
 await page.setViewportSize({ width: 390, height: 844 });
 await page.waitForTimeout(400);
-const placeOverflow = await page.evaluate(
-  () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
-);
-check("place holds the 390 floor", placeOverflow <= 1);
+check("place holds the 390 floor", (await overflowNow()) <= 1);
 check("decor steps back on small screens", await page.locator(".place-decor").first().isHidden());
 
 /* the public surfaces hold the floor too */
 const floor = async (url, name) => {
   await page.goto(url);
   await page.waitForTimeout(500);
-  const w = await page.evaluate(
-    () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
-  );
-  check(`${name} holds the 390 floor`, w <= 1);
+  check(`${name} holds the 390 floor`, (await overflowNow()) <= 1);
 };
 await floor("http://localhost:5197/#/discover", "discover");
 await floor("http://localhost:5197/#/mark/skyrecall", "the hallmark");
