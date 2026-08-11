@@ -1,8 +1,13 @@
-# The edge. The apex serves the product; every resident lives at its
-# own address under the wildcard. TLS via the tunnel or DNS challenge,
+# The edge. The apex serves the product itself; the api lives at its
+# own subdomain; every resident's address under the wildcard serves
+# the product for now and hands off to server-side resident serving
+# when that stage lands. TLS via the tunnel or the DNS challenge,
 # depending on how the box reaches the world.
+
 osyle.app {
-	reverse_proxy api:8787
+	root * /srv/app
+	try_files {path} /index.html
+	file_server
 }
 
 api.osyle.app {
@@ -10,5 +15,7 @@ api.osyle.app {
 }
 
 *.osyle.app {
-	reverse_proxy api:8787
+	root * /srv/app
+	try_files {path} /index.html
+	file_server
 }

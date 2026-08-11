@@ -716,6 +716,20 @@ the findings desk went on the text diet the review asked for: the
 worth is one line, an estimate said in place, the reasoning waiting
 under the cursor. 154 journey checks pass.
 
+### Increment S. The deployment runbook and a true edge. DELIVERED
+
+The stack's front door now serves the product. The Caddyfile gives
+the apex and the wildcard the built app with the single-page
+fallback, and keeps the api at its own subdomain; compose mounts
+the app build into the edge read-only. docs/DEPLOY.md walks a
+non-engineer from a clean box to the live domain: the three DNS
+records, one install command, two secrets, compose up, the health
+check, connecting the app to the stack, a nightly backup line for
+cron with a restore drill, the update flow that refuses to ship on
+failing tests, and the honest boundaries named plainly, including
+the one asset only a human with Figma access can export. Compose
+YAML validated. No app code changed.
+
 ### Increment I. Stages 12 to 15, in spec order
 
 Ecosystem rail (per §10's logo laws), viral surfaces and audience-aware
