@@ -89,8 +89,18 @@ crontab -e
 30 3 * * * cd /path/to/osyle && bash ops/backup.sh
 ```
 
-Do one restore drill before you trust it: take a backup, move the data
-directory aside, restore, and confirm `/health` and one resident.
+Do one restore drill before you trust it, and monthly after that. It
+is automated:
+
+```bash
+npm run rehearse
+```
+
+That boots the api cold, plants a resident, backs it up with this
+same script, destroys the volume, restores, and proves the bytes
+survived. `npm run drill` puts 200 simulated people through a
+resident and reports latencies; docs/DRILLS.md holds the last
+numbers and the pass bars.
 
 ## 7. Updates
 

@@ -19,8 +19,9 @@ const started = Date.now();
 export const VERSION = "0.1.0";
 
 /* The general door: generous, per calling address, and never applied
-   to /health so a watcher can always see the truth. */
-const GENERAL_MAX = 240;
+   to /health so a watcher can always see the truth. Behind a shared
+   address (a proxy, or the drill) the ceiling can be raised by env. */
+const GENERAL_MAX = Number(process.env.OSYLE_RATE_MAX ?? 240);
 const GENERAL_WINDOW_MS = 60_000;
 
 export async function buildApp(): Promise<FastifyInstance> {

@@ -747,10 +747,29 @@ that keeps its stack in the log and out of the response. Forty-five api checks p
 fourteen of them new; the 154 journey checks pass against the
 hardened api.
 
-### Increment I. Stages 12 to 15, in spec order
+### Increment U. The 200-person drill and the rehearsals. DELIVERED
 
-The 200-person drill, backup and cold-start rehearsals, and the
-Redis-backed limiter when the stack spreads past one process.
+Stage 15, drilled for real. One command boots the built api on a
+real socket and puts two hundred simulated people through a
+resident over real HTTP, twenty at a time, signing in, writing
+rows, round-tripping kv; the run refuses to pass on any error,
+missing row, or a p95 past two hundred fifty milliseconds. On the
+build machine: 1400 calls, zero errors, p50 at 17 milliseconds,
+p95 at 36. A second command rehearses the fire: boot cold, plant a
+resident with real bytes, back up with the nightly script, destroy
+the volume, restore with exactly the tar the runbook prescribes,
+boot cold again, and prove the resident database, the survival
+index, the pre-fire session, and the vault bytes all survived.
+Eight checks, both cold starts under half a second. The numbers
+live in docs/DRILLS.md, dated and labeled with their machine, and
+the general door's ceiling became env-tunable so a single-address
+drill can raise it honestly.
+
+### Increment I. What remains, in spec order
+
+The Redis-backed limiter and the Postgres and MinIO drivers when
+the stack spreads past one process, and the drills rerun on the
+deployment box.
 
 ---
 
