@@ -606,6 +606,17 @@ input {
   color: rgba(245, 244, 255, 0.4);
 }
 
+/* the same app twice: side by side, stacked on phones */
+.futures-grid {
+  grid-template-columns: 1fr 1fr;
+}
+
+@media (max-width: 700px) {
+  .futures-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* ------------------------------------------- the resident panel */
 
 .resident-backdrop {
@@ -2334,6 +2345,10 @@ input {
   }
   .topbar-quiet {
     display: none;
+  }
+  /* the panel door stays reachable on phones; it is the app's life */
+  .topbar-quiet.topbar-keep {
+    display: inline-block;
   }
   .device-pill {
     padding: 0 10px;

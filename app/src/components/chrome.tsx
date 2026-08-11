@@ -160,7 +160,7 @@ export function TopBar({ inResident }: { inResident: boolean }) {
         )}
       </div>
       <span className="topbar-spacer" />
-      <button className="topbar-quiet" onClick={() => togglePanel("resident")}>
+      <button className="topbar-quiet topbar-keep" onClick={() => togglePanel("resident")}>
         Your app
       </button>
       <button className="topbar-quiet" onClick={resetDemo}>

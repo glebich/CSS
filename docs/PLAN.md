@@ -653,6 +653,20 @@ svg travelling as its own text. Proven end to end with a genuine WAV
 in the clean fixture, examined, given the address, and served
 playing at #/r/clean. 136 journey checks pass.
 
+### Increment O. The mobile floor for the whole journey. DELIVERED
+
+Finishing what the mobile note started: the report's two futures
+stack on phones, the wardrobe's desktop frame yields to the screen,
+the wide ask inputs in the Studio and the Audience give way instead
+of overflowing, the owner console's resident rows wrap, and the Your
+app panel door stays reachable at phone width where the other quiet
+top bar doors step aside, because the panel is the app's life. The
+390 floor is now tested across the journey: the real report with its
+stacked futures, place, discover, the hallmark, the owner console,
+and the served resident, each asserted free of horizontal overflow.
+The theater waits in the suite were hardened against the slower
+runs the live API adds. 143 journey checks pass.
+
 ### Increment I. Stages 12 to 15, in spec order
 
 Ecosystem rail (per §10's logo laws), viral surfaces and audience-aware

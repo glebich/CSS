@@ -86,7 +86,7 @@ function ResidentsDesk() {
               Visit
             </a>
           </div>
-          <div style={{ display: "flex", gap: 26, marginTop: 12, fontSize: 13, color: "var(--gray-meta)" }}>
+          <div style={{ display: "flex", gap: 26, marginTop: 12, fontSize: 13, color: "var(--gray-meta)", flexWrap: "wrap" }}>
             <span>Vitality {row.vitality} at move-in</span>
             <span>{row.files.length} files held</span>
             <span>Moved in {row.savedAt.slice(0, 10)}</span>

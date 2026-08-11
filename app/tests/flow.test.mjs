@@ -412,7 +412,7 @@ check(
   "the real theater speaks measurements",
   await page
     .getByText("Measuring your files, line by line.")
-    .waitFor({ timeout: 6000 })
+    .waitFor({ timeout: 15000 })
     .then(() => true)
     .catch(() => false),
 );
@@ -663,7 +663,7 @@ check(
   "the connected repo is measured for real",
   await page
     .getByText("Measuring your files, line by line.")
-    .waitFor({ timeout: 8000 })
+    .waitFor({ timeout: 15000 })
     .then(() => true)
     .catch(() => false),
 );
@@ -679,6 +679,27 @@ check(
 check("the tab wears the project's name", await page.locator(".tab").getByText("sunrise").isVisible());
 check("the browser title carries the project", (await page.title()).includes("sunrise"));
 check("the reset door renames honestly", await page.getByText("Start over").isVisible());
+
+/* the report holds the 390 floor: futures stack, wardrobe fits */
+await page.setViewportSize({ width: 390, height: 844 });
+await page.waitForTimeout(500);
+const reportOverflow = await page.evaluate(
+  () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+);
+check("the report holds the 390 floor", reportOverflow <= 1);
+check(
+  "the two futures stack on phones",
+  await page.evaluate(() => {
+    const grid = document.querySelector(".futures-grid");
+    return grid ? getComputedStyle(grid).gridTemplateColumns.split(" ").length === 1 : false;
+  }),
+);
+check(
+  "the panel door stays reachable on phones",
+  await page.getByText("Your app", { exact: true }).isVisible(),
+);
+await page.setViewportSize({ width: 1440, height: 810 });
+await page.waitForTimeout(400);
 
 /* -----------------------------------------------------------------
    The resident panel: the app's whole life in one drawer, over any
@@ -767,6 +788,20 @@ const placeOverflow = await page.evaluate(
 );
 check("place holds the 390 floor", placeOverflow <= 1);
 check("decor steps back on small screens", await page.locator(".place-decor").first().isHidden());
+
+/* the public surfaces hold the floor too */
+const floor = async (url, name) => {
+  await page.goto(url);
+  await page.waitForTimeout(500);
+  const w = await page.evaluate(
+    () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+  );
+  check(`${name} holds the 390 floor`, w <= 1);
+};
+await floor("http://localhost:5197/#/discover", "discover");
+await floor("http://localhost:5197/#/mark/skyrecall", "the hallmark");
+await floor("http://localhost:5197/#/owner", "the owner console");
+await floor("http://localhost:5197/#/r/skyrecall", "the resident");
 
 check("no console or page errors", errors.length === 0);
 if (errors.length) console.log(errors.join("\n"));

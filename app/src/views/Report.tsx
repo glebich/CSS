@@ -315,7 +315,7 @@ export function Report() {
               );
             })}
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+          <div className="futures-grid" style={{ display: "grid", gap: 16 }}>
             <div>
               <div className="section-label">As it arrived</div>
               <iframe title="Before" className="preview-frame" sandbox="allow-scripts" srcDoc={before} />
@@ -355,7 +355,7 @@ export function Report() {
                 />
               </div>
             </div>
-            <div className="desktop-frame" style={{ width: 520, height: 350 }}>
+            <div className="desktop-frame" style={{ width: "min(520px, 100%)", height: 350 }}>
               <div className="desktop-screen">
                 <iframe
                   title="Desktop"

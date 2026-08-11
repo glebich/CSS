@@ -123,7 +123,7 @@ export function Studio() {
       </p>
 
       <div style={{ display: "flex", gap: 10, marginTop: 22, alignItems: "center", flexWrap: "wrap" }}>
-        <div className="ask-pill" style={{ minWidth: 340, boxShadow: "var(--shadow-pill)" }}>
+        <div className="ask-pill" style={{ minWidth: "min(340px, 100%)", flex: "1 1 240px", maxWidth: 480, boxShadow: "var(--shadow-pill)" }}>
           <input
             placeholder="e.g. show the streak in the logbook"
             value={text}
