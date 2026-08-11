@@ -10,6 +10,20 @@ import { platformDb, id, now } from "./db.js";
 import { putBlob, getBlob } from "./blobs.js";
 import { requireOwnedResident } from "./residents.js";
 
+/* The budgets. Versions never overwrite, so every write spends the
+   budget; the caps are env-tunable so a bigger box can raise them and
+   the tests can exercise them without moving megabytes. */
+const MAX_FILE_BYTES = Number(process.env.OSYLE_VAULT_FILE_BYTES ?? 5 * 1024 * 1024);
+const MAX_STORED_BYTES = Number(process.env.OSYLE_VAULT_BYTES ?? 64 * 1024 * 1024);
+const MAX_PATHS = Number(process.env.OSYLE_VAULT_PATHS ?? 500);
+const MAX_PATH_CHARS = 200;
+
+function human(bytes: number): string {
+  if (bytes >= 1024 * 1024) return `${Math.round(bytes / (1024 * 1024))} MB`;
+  if (bytes >= 1024) return `${Math.round(bytes / 1024)} KB`;
+  return `${bytes} bytes`;
+}
+
 interface FileRow {
   id: string;
   resident_id: string;
@@ -76,12 +90,35 @@ export function registerVault(app: FastifyInstance): void {
     async (req, reply) => {
       const resident = requireOwnedResident(req, req.params.slug);
       const path = req.params["*"];
-      if (!path || path.includes("..")) {
+      if (!path || path.includes("..") || path.length > MAX_PATH_CHARS) {
         return reply.code(400).send({ error: "a clean path, please" });
       }
       const bytes = req.body as Buffer;
       if (!Buffer.isBuffer(bytes) || bytes.length === 0) {
         return reply.code(400).send({ error: "no bytes arrived" });
+      }
+      if (bytes.length > MAX_FILE_BYTES) {
+        return reply
+          .code(413)
+          .send({ error: `one file tops out at ${human(MAX_FILE_BYTES)}` });
+      }
+      const usage = platformDb()
+        .prepare(
+          `SELECT COUNT(DISTINCT path) AS paths, COALESCE(SUM(size), 0) AS bytes
+           FROM vault_files WHERE resident_id = ?`,
+        )
+        .get(resident.id) as { paths: number; bytes: number };
+      if (!latest(resident.id, path) && usage.paths >= MAX_PATHS) {
+        return reply
+          .code(413)
+          .send({ error: `this vault holds up to ${MAX_PATHS} paths and they are all taken` });
+      }
+      if (usage.bytes + bytes.length > MAX_STORED_BYTES) {
+        const remainingBytes = Math.max(0, MAX_STORED_BYTES - usage.bytes);
+        return reply.code(413).send({
+          error: `the vault budget is ${human(MAX_STORED_BYTES)} across every version and ${human(remainingBytes)} remain`,
+          remainingBytes,
+        });
       }
       const row = insertVersion(resident.id, path, bytes);
       return reply.code(201).send({ file: toFile(row) });

@@ -120,6 +120,13 @@ restarts; if tests fail, nothing ships.
 - **Model keys.** Live Studio edits need an Anthropic or Gemini key
   entered in the Studio's key sheet; keys stay in the visitor's
   browser.
+- **Limits and budgets.** The api rations its doors per calling
+  address (magic links, partner imports, and a general ceiling) and
+  every vault has a budget: 5 MB a file, 64 MB across every version,
+  500 paths. Raise them with `OSYLE_VAULT_FILE_BYTES`,
+  `OSYLE_VAULT_BYTES`, and `OSYLE_VAULT_PATHS` in the api's
+  environment. The limiter lives in the api process; a shared Redis
+  window takes over when the stack spreads past one box.
 
 ## The one asset a human must export
 

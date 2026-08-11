@@ -13,6 +13,7 @@
 import type { FastifyInstance } from "fastify";
 import { platformDb, id, token, now } from "./db.js";
 import { residentBySlug } from "./residents.js";
+import { allow, walled } from "./limits.js";
 
 const ALIVE_WINDOW_MS = 14 * 24 * 60 * 60 * 1000;
 const SLUG_RE = /^[a-z][a-z0-9-]{1,40}$/;
@@ -65,6 +66,8 @@ export function registerGrowth(app: FastifyInstance): void {
   app.post<{ Body: { email?: string; name?: string; slug?: string; repoUrl?: string } }>(
     "/partner/import",
     async (req, reply) => {
+      const verdict = allow("partner.import", req.ip, 12, 60 * 60_000);
+      if (!verdict.ok) return walled(reply, verdict);
       const email = (req.body?.email ?? "").trim().toLowerCase();
       const name = (req.body?.name ?? "").trim();
       if (!email.includes("@") || !name) {

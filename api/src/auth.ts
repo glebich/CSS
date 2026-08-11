@@ -6,9 +6,12 @@
  */
 import type { FastifyInstance, FastifyRequest } from "fastify";
 import { platformDb, id, token, now } from "./db.js";
+import { allow, walled } from "./limits.js";
 
 const SESSION_COOKIE = "osyle_session";
 const DEV_MODE = process.env.NODE_ENV !== "production";
+const LINK_TTL_MS = 15 * 60_000;
+const SESSION_TTL_MS = 30 * 24 * 60 * 60_000;
 
 export interface SessionUser {
   id: string;
@@ -19,12 +22,14 @@ export function currentUser(req: FastifyRequest): SessionUser | null {
   const session = req.cookies[SESSION_COOKIE];
   if (!session) return null;
   const db = platformDb();
+  /* ISO timestamps compare lexicographically, so a string floor works. */
+  const floor = new Date(Date.now() - SESSION_TTL_MS).toISOString();
   const row = db
     .prepare(
       `SELECT u.id, u.email FROM sessions s JOIN users u ON u.id = s.user_id
-       WHERE s.token = ?`,
+       WHERE s.token = ? AND s.created_at >= ?`,
     )
-    .get(session) as { id: string; email: string } | undefined;
+    .get(session, floor) as { id: string; email: string } | undefined;
   return row ?? null;
 }
 
@@ -40,6 +45,8 @@ export function requireUser(req: FastifyRequest): SessionUser {
 
 export function registerAuth(app: FastifyInstance): void {
   app.post<{ Body: { email?: string } }>("/auth/link", async (req, reply) => {
+    const verdict = allow("auth.link", req.ip, 5, 10 * 60_000);
+    if (!verdict.ok) return walled(reply, verdict);
     const email = (req.body?.email ?? "").trim().toLowerCase();
     if (!email.includes("@")) {
       return reply.code(400).send({ error: "a real email address, please" });
@@ -58,10 +65,15 @@ export function registerAuth(app: FastifyInstance): void {
   app.get<{ Querystring: { token?: string } }>("/auth/verify", async (req, reply) => {
     const db = platformDb();
     const link = db
-      .prepare("SELECT email, used FROM magic_links WHERE token = ?")
-      .get(req.query.token ?? "") as { email: string; used: number } | undefined;
+      .prepare("SELECT email, used, created_at FROM magic_links WHERE token = ?")
+      .get(req.query.token ?? "") as
+      | { email: string; used: number; created_at: string }
+      | undefined;
     if (!link || link.used) {
       return reply.code(400).send({ error: "that link is spent or unknown" });
+    }
+    if (Date.parse(link.created_at) < Date.now() - LINK_TTL_MS) {
+      return reply.code(400).send({ error: "that link has expired, ask for a fresh one" });
     }
     db.prepare("UPDATE magic_links SET used = 1 WHERE token = ?").run(req.query.token!);
 

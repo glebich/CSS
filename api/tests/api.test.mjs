@@ -10,8 +10,15 @@ import { join } from "node:path";
 
 process.env.OSYLE_DATA = mkdtempSync(join(tmpdir(), "osyle-test-"));
 process.env.NODE_ENV = "test";
+/* Shrink the vault budgets so the caps can be exercised without
+   moving megabytes. Defaults are 5 MB a file, 64 MB a vault, 500 paths. */
+process.env.OSYLE_VAULT_FILE_BYTES = "3500";
+process.env.OSYLE_VAULT_BYTES = "4096";
+process.env.OSYLE_VAULT_PATHS = "3";
 
 const { buildApp } = await import("../dist/app.js");
+const { resetLimitsForTests } = await import("../dist/limits.js");
+const { platformDb } = await import("../dist/db.js");
 
 const app = await buildApp();
 let failures = 0;
@@ -217,6 +224,102 @@ check(
   "a new arrival is not yet alive",
   survival2.json().total === 2 && survival2.json().alive === 1,
 );
+
+/* hardening: expiries first, then the budgets, then the walls */
+
+const staleLink = `stale-${Date.now()}`;
+platformDb()
+  .prepare("INSERT INTO magic_links (token, email, created_at) VALUES (?, ?, ?)")
+  .run(staleLink, "old@example.com", new Date(Date.now() - 16 * 60_000).toISOString());
+const expiredLink = await app.inject({ method: "GET", url: `/auth/verify?token=${staleLink}` });
+check(
+  "an expired magic link refuses",
+  expiredLink.statusCode === 400 && expiredLink.json().error.includes("expired"),
+);
+
+platformDb()
+  .prepare("UPDATE sessions SET created_at = ? WHERE token = ?")
+  .run(new Date(Date.now() - 31 * 24 * 60 * 60_000).toISOString(), cookie2.osyle_session);
+const staleMe = await app.inject({ method: "GET", url: "/auth/me", cookies: cookie2 });
+check("a thirty-one day old session expires", staleMe.json().user === null);
+
+/* the vault budgets, against a fresh resident under the shrunk caps */
+const lab = await app.inject({
+  method: "POST",
+  url: "/residents",
+  cookies,
+  payload: { slug: "budget-lab", name: "Budget Lab" },
+});
+check("the budget lab opens", lab.statusCode === 201);
+
+const put = (path, bytes) =>
+  app.inject({
+    method: "PUT",
+    url: `/residents/budget-lab/files/${path}`,
+    cookies,
+    headers: { "content-type": "application/octet-stream" },
+    payload: bytes,
+  });
+
+const oversized = await put("big.bin", Buffer.alloc(3600, 1));
+check(
+  "a file past the per-file cap refuses with 413",
+  oversized.statusCode === 413 && oversized.json().error.includes("tops out"),
+);
+
+const longPath = await put(`${"a".repeat(201)}.txt`, Buffer.from("x"));
+check("an absurd path refuses", longPath.statusCode === 400);
+
+check("a file inside the caps lands", (await put("a.txt", Buffer.alloc(3000, 1))).statusCode === 201);
+check("a second path lands", (await put("b.txt", Buffer.from("tiny"))).statusCode === 201);
+check("a third path lands", (await put("c.txt", Buffer.from("tiny"))).statusCode === 201);
+const fourthPath = await put("d.txt", Buffer.from("tiny"));
+check(
+  "a fourth path refuses at the path cap",
+  fourthPath.statusCode === 413 && fourthPath.json().error.includes("paths"),
+);
+
+const overBudget = await put("a.txt", Buffer.alloc(2000, 1));
+check(
+  "a version past the vault budget refuses and says what remains",
+  overBudget.statusCode === 413 && typeof overBudget.json().remainingBytes === "number",
+);
+
+/* the walls: the rationed doors, then the general door, health exempt */
+resetLimitsForTests();
+let rationed;
+for (let i = 0; i < 6; i += 1) {
+  rationed = await app.inject({
+    method: "POST",
+    url: "/auth/link",
+    payload: { email: "burst@example.com" },
+  });
+}
+check(
+  "the sixth magic link in a burst is walled with retry-after",
+  rationed.statusCode === 429 && Number(rationed.headers["retry-after"]) >= 1,
+);
+
+resetLimitsForTests();
+let importWall;
+for (let i = 0; i < 13; i += 1) {
+  importWall = await app.inject({
+    method: "POST",
+    url: "/partner/import",
+    payload: { email: `partner${i}@example.com`, name: `Burst ${i}` },
+  });
+}
+check("the thirteenth partner import in an hour is walled", importWall.statusCode === 429);
+
+resetLimitsForTests();
+let flooded;
+for (let i = 0; i < 241; i += 1) {
+  flooded = await app.inject({ method: "GET", url: "/auth/me" });
+}
+check("the general door walls a flood", flooded.statusCode === 429);
+const stillGreen = await app.inject({ method: "GET", url: "/health" });
+check("health never gets walled", stillGreen.statusCode === 200);
+resetLimitsForTests();
 
 await app.close();
 rmSync(process.env.OSYLE_DATA, { recursive: true, force: true });

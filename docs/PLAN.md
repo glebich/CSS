@@ -730,11 +730,27 @@ failing tests, and the honest boundaries named plainly, including
 the one asset only a human with Figma access can export. Compose
 YAML validated. No app code changed.
 
+### Increment T. Real Mode hardening. DELIVERED
+
+The doors breathe. Every call passes a sliding window per calling
+address: the general door allows two hundred forty a minute, magic
+links are rationed to five in ten minutes, the partner door to
+twelve an hour, and a walled call answers 429 with retry-after and
+the seconds spelled out. Health is never walled, so a watcher can
+always see the truth. The Vault gained budgets, env-tunable with
+honest defaults: five megabytes a file, sixty-four megabytes a
+vault across every version, five hundred paths, and a refusal says
+what remains. Magic links expire in fifteen minutes, sessions in
+thirty days. A global error handler answers thrown statuses in
+their own words and turns anything unexpected into an honest 500
+that keeps its stack in the log and out of the response. Forty-five api checks pass,
+fourteen of them new; the 154 journey checks pass against the
+hardened api.
+
 ### Increment I. Stages 12 to 15, in spec order
 
-Ecosystem rail (per §10's logo laws), viral surfaces and audience-aware
-Promote, Real Mode hardening (rate limits, isolation, degradation without
-walls), then the 200-person drill, backup and cold-start rehearsals.
+The 200-person drill, backup and cold-start rehearsals, and the
+Redis-backed limiter when the stack spreads past one process.
 
 ---
 

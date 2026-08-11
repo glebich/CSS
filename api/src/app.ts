@@ -13,9 +13,15 @@ import { registerRdb } from "./rdb.js";
 import { registerGrowth } from "./growth.js";
 import { platformDb } from "./db.js";
 import { blobsHealthy } from "./blobs.js";
+import { allow, walled } from "./limits.js";
 
 const started = Date.now();
 export const VERSION = "0.1.0";
+
+/* The general door: generous, per calling address, and never applied
+   to /health so a watcher can always see the truth. */
+const GENERAL_MAX = 240;
+const GENERAL_WINDOW_MS = 60_000;
 
 export async function buildApp(): Promise<FastifyInstance> {
   const app = Fastify({ logger: process.env.NODE_ENV === "production" });
@@ -26,12 +32,31 @@ export async function buildApp(): Promise<FastifyInstance> {
     credentials: true,
   });
 
-  /* Vault writes arrive as raw bytes. */
+  /* Vault writes arrive as raw bytes; the parser stops anything past
+     the per-file cap plus headroom, and the vault says why below it. */
   app.addContentTypeParser(
     "application/octet-stream",
-    { parseAs: "buffer", bodyLimit: 100 * 1024 * 1024 },
+    { parseAs: "buffer", bodyLimit: 6 * 1024 * 1024 },
     (_req, body, done) => done(null, body),
   );
+
+  app.addHook("onRequest", async (req, reply) => {
+    if (req.url.split("?")[0] === "/health") return;
+    const verdict = allow("general", req.ip, GENERAL_MAX, GENERAL_WINDOW_MS);
+    if (!verdict.ok) return walled(reply, verdict);
+  });
+
+  /* Degradation without walls: a thrown status speaks for itself, an
+     unexpected failure answers honestly and keeps its stack in the log. */
+  app.setErrorHandler((err: Error & { statusCode?: number }, req, reply) => {
+    const status =
+      typeof err.statusCode === "number" && err.statusCode >= 400 ? err.statusCode : 500;
+    if (status >= 500) req.log.error(err);
+    return reply.code(status).send({
+      error:
+        status >= 500 ? "something broke on our side, the details stayed in the log" : err.message,
+    });
+  });
 
   app.get("/health", async (_req, reply) => {
     let db = false;
