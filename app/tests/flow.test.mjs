@@ -112,8 +112,23 @@ const vitality = await page.locator(".instrument").innerText();
 check("vitality reveals at 66", vitality === "66");
 check("tab title carries the state", (await page.title()).includes("SkyRecall 66"));
 
-/* Heal with a receipt */
-await page.getByText("What will Heal touch").click();
+/* the arrival home: the app named, reachable, the number explained */
+check("home says it lives here now", await page.getByText("It lives here now.").isVisible());
+check("the app is reachable from home", await page.getByText("Open your app").isVisible());
+check(
+  "vitality explains itself in place",
+  await page.getByText("Vitality is your app", { exact: false }).isVisible(),
+);
+check(
+  "the bar's icons say their names",
+  await page.locator(".nav-stack-label", { hasText: "Studio" }).isVisible(),
+);
+
+/* Heal: what it will touch is shown first, never behind a link */
+check(
+  "what heal will touch is shown first",
+  await page.getByText("Four issues can heal themselves").isVisible(),
+);
 check("heal receipt lists four repairs", (await page.locator(".receipt-row").count()) === 4);
 await page.getByText("Heal four issues").click();
 await page.waitForTimeout(2600);

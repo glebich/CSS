@@ -614,6 +614,56 @@ input {
   color: rgba(245, 244, 255, 0.4);
 }
 
+/* ------------------------- the bar's icons, each saying its name */
+
+.nav-stack {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  flex: none;
+}
+
+.nav-stack-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--card-solid);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink-strong);
+  position: relative;
+  transition: transform var(--t-fast), box-shadow var(--t-fast);
+}
+
+.nav-stack:hover .nav-stack-icon {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-pill);
+}
+
+.nav-stack.is-active .nav-stack-icon {
+  box-shadow: inset 0 0 0 1.5px var(--ink-strong);
+}
+
+.nav-stack-icon .badge {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--pulse);
+}
+
+.nav-stack-label {
+  font-size: 9.5px;
+  font-weight: 510;
+  letter-spacing: 0.03em;
+  color: var(--gray-small);
+  white-space: nowrap;
+}
+
 /* the same app twice: side by side, stacked on phones */
 .futures-grid {
   grid-template-columns: 1fr 1fr;

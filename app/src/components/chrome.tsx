@@ -272,33 +272,39 @@ export function BottomBar() {
           </button>
         ))}
         <AskInput />
+        {/* every icon says its name; a bar nobody has to decode */}
         <button
-          className={`util-circle${panel === "mood" ? " is-active" : ""}`}
+          className={`nav-stack${panel === "mood" ? " is-active" : ""}`}
           onClick={() => togglePanel("mood")}
-          title="Mood"
           aria-label="Mood"
         >
-          <Icon name="mood" size={20} />
+          <span className="nav-stack-icon">
+            <Icon name="mood" size={19} />
+          </span>
+          <span className="nav-stack-label">Mood</span>
         </button>
         <button
-          className={`util-circle${panel === "personas" ? " is-active" : ""}`}
+          className={`nav-stack${panel === "personas" ? " is-active" : ""}`}
           onClick={() => togglePanel("personas")}
-          title="Personas"
           aria-label="Personas"
         >
-          <Icon name="persona" size={20} />
+          <span className="nav-stack-icon">
+            <Icon name="persona" size={19} />
+          </span>
+          <span className="nav-stack-label">People</span>
         </button>
         {LIFE_NAV.map((item) => (
           <button
             key={item.view}
-            className={`circle${active(item.view)}`}
-            style={{ width: 44, height: 44 }}
+            className={`nav-stack${active(item.view)}`}
             onClick={() => go(item.view)}
-            title={item.label}
             aria-label={item.label}
           >
-            <Icon name={item.icon} size={19} />
-            {item.view === "inbox" && unread > 0 && <span className="badge" />}
+            <span className="nav-stack-icon">
+              <Icon name={item.icon} size={19} />
+              {item.view === "inbox" && unread > 0 && <span className="badge" />}
+            </span>
+            <span className="nav-stack-label">{item.label}</span>
           </button>
         ))}
       </div>

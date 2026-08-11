@@ -667,6 +667,23 @@ and the served resident, each asserted free of horizontal overflow.
 The theater waits in the suite were hardened against the slower
 runs the live API adds. 143 journey checks pass.
 
+### Increment P. The home surface explains itself. DELIVERED
+
+On the review notes that the 66 arrived without context, the heal
+list hid behind a link, and the bar spoke in unlabeled icons. Home
+is now the arrival: It lives here now leads the screen, and the
+app is reachable right there, named, with its address chip, Open
+your app, and Copy the link; a real project without an address gets
+the door to the report's ending instead. Vitality follows with a
+permanent plain sentence, health 0 to 100 across ten lenses, tap
+for the why, replacing the dismissible tip. The heal step inverts:
+the four issues are shown first as an open card with their lens
+chips and the honest sentence about annotation, the one dark button
+beneath them, no hidden link. And every icon in the bottom bar
+carries its name in small type, Mood, People, Address, Monitor,
+Inbox, SDK, Studio, Audience, Promote, so nobody decodes glyphs.
+148 journey checks pass.
+
 ### Increment I. Stages 12 to 15, in spec order
 
 Ecosystem rail (per §10's logo laws), viral surfaces and audience-aware

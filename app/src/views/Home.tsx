@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { currentState, useStore } from "../store";
-import { Page, Sparkle, Tip } from "../components/chrome";
+import { Page, Sparkle } from "../components/chrome";
 import { artDirector, issues, pulseLineAfterHeal, pulseLineAtRest } from "../data/seed";
 
 function keyStillBroken(healed: Set<string>): boolean {
@@ -47,19 +47,20 @@ export function Home() {
     dismissReturn,
     transformAccepted,
     inbox,
-    seenTips,
     project,
     realDecisions,
+    realSlug,
   } = useStore();
   const [reveal] = useState(justLaunched);
   useEffect(() => {
     if (justLaunched) clearLaunchArrival();
   }, [justLaunched, clearLaunchArrival]);
-  const [receiptOpen, setReceiptOpen] = useState(false);
   const shown = useRevealCount(project ? project.vitality : vitality, reveal);
   const healedSomething = healed.size > 1; // the guilt banner starts healed in the seed
   const unread = inbox.filter((e) => !e.read).length;
   const healables = issues.filter((i) => healableOpen.includes(i.id));
+  /* the address this home serves: the example's, or the real one */
+  const homeSlug = project ? realSlug : "skyrecall";
 
   /* A real project speaks with its own numbers, never the example's. */
   const realFindings = project ? project.lenses.flatMap((l) => l.findings) : [];
@@ -99,23 +100,80 @@ export function Home() {
           flexDirection: "column",
           alignItems: "center",
           gap: 8,
-          paddingTop: returned ? 0 : 40,
+          paddingTop: returned ? 0 : 18,
         }}
       >
-        <span className="instrument-label">Vitality</span>
+        {/* the arrival: this is the home, and the app is reachable */}
+        <h1 className="statement statement-page" style={{ textAlign: "center" }}>
+          It lives <span className="quiet">here now.</span>
+        </h1>
+        <div
+          className="card card-solid"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 12,
+            padding: "12px 18px",
+            marginTop: 10,
+            flexWrap: "wrap",
+            justifyContent: "center",
+          }}
+        >
+          <span className="pulse-dot" />
+          <span style={{ fontWeight: 550, fontSize: 15 }}>
+            {project ? project.inventory.name : "SkyRecall"}
+          </span>
+          <span className="chip">{homeSlug ? `${homeSlug}.osyle.app` : "no address yet"}</span>
+          {homeSlug ? (
+            <>
+              <a
+                className="pill pill-sm"
+                href={`#/r/${homeSlug}`}
+                target="_blank"
+                rel="noreferrer"
+                style={{ textDecoration: "none" }}
+              >
+                Open your app
+              </a>
+              <button
+                className="pill pill-sm"
+                onClick={() =>
+                  navigator.clipboard?.writeText(`https://${homeSlug}.osyle.app`).catch(() => undefined)
+                }
+              >
+                Copy the link
+              </button>
+            </>
+          ) : (
+            <button className="pill pill-sm" onClick={() => go("report")}>
+              Give it the address, at the end of the report
+            </button>
+          )}
+        </div>
+
+        <span className="instrument-label" style={{ marginTop: 26 }}>
+          Vitality
+        </span>
         <button
           className="instrument"
+          style={{ fontSize: "clamp(96px, 13vw, 170px)" }}
           onClick={() => go(project ? "report" : "exam")}
           title={project ? "See the report" : "See the ten lenses"}
         >
           {shown}
         </button>
-        {!project && (
-          <Tip id="vitality">
-            The weighted health of your app across ten lenses. The number is
-            the truth; tap it for the why.
-          </Tip>
-        )}
+        <p
+          style={{
+            fontSize: 13,
+            color: "var(--gray-small)",
+            maxWidth: 460,
+            textAlign: "center",
+            lineHeight: 1.55,
+          }}
+        >
+          Vitality is your app&apos;s health, 0 to 100, weighed across ten
+          lenses at the last examination. Tap the number for the why.
+        </p>
 
         <div className="pulse-line" style={{ marginTop: 10 }}>
           <span className={`pulse-dot${healedSomething ? " swell" : ""}`} />
@@ -191,39 +249,42 @@ export function Home() {
               </>
             )
           ) : healableOpen.length > 0 || healing ? (
-            <>
-              <button className="pill pill-dark" onClick={heal} disabled={healing}>
+            /* what Heal will touch is shown first, never behind a link */
+            <div
+              className="card card-solid card-pad"
+              style={{ maxWidth: 480, textAlign: "left", marginBottom: 90 }}
+            >
+              <div style={{ fontSize: 16.5, fontWeight: 550 }}>
+                {numberWord(healableOpen.length)} issue
+                {healableOpen.length === 1 ? "" : "s"} can heal{" "}
+                {healableOpen.length === 1 ? "itself" : "themselves"}
+              </div>
+              <p style={{ fontSize: 13, color: "var(--gray-meta)", marginTop: 6 }}>
+                Heal applies safe repairs itself. Everything is annotated,
+                nothing is deleted, and the reveal shows each change.
+              </p>
+              <div className="receipt" style={{ maxWidth: "none" }}>
+                {healables.map((i) => (
+                  <div key={i.id} className="receipt-row">
+                    <span className="pulse-dot" style={{ animation: "none", width: 6, height: 6 }} />
+                    {i.title}
+                    <span className="topbar-spacer" />
+                    <span className="chip">{i.lens}</span>
+                  </div>
+                ))}
+              </div>
+              <button
+                className="pill pill-dark"
+                style={{ marginTop: 16 }}
+                onClick={heal}
+                disabled={healing}
+              >
                 {healing
                   ? "Healing"
                   : `Heal ${numberWordLower(healableOpen.length)} issue${healableOpen.length === 1 ? "" : "s"}`}
                 <Sparkle size={13} />
               </button>
-              {seenTips.has("vitality") && (
-                <Tip id="heal">
-                  Heal applies safe repairs itself. Everything is annotated,
-                  nothing is deleted.
-                </Tip>
-              )}
-              {!healing && (
-                <button
-                  className="topbar-quiet"
-                  style={{ padding: 0 }}
-                  onClick={() => setReceiptOpen(!receiptOpen)}
-                >
-                  {receiptOpen ? "Hide the list" : "What will Heal touch"}
-                </button>
-              )}
-              {receiptOpen && !healing && (
-                <div className="receipt fade-in" style={{ marginBottom: 90 }}>
-                  {healables.map((i) => (
-                    <div key={i.id} className="receipt-row">
-                      <span className="pulse-dot" style={{ animation: "none", width: 6, height: 6 }} />
-                      {i.title}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </>
+            </div>
           ) : !transformAccepted ? (
             <button className="pill pill-dark" onClick={() => go("transform")}>
               See what changed
@@ -253,6 +314,11 @@ export function Home() {
       </div>
     </Page>
   );
+}
+
+function numberWord(n: number): string {
+  const w = numberWordLower(n);
+  return w.charAt(0).toUpperCase() + w.slice(1);
 }
 
 function numberWordLower(n: number): string {
