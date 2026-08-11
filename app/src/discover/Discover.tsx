@@ -28,14 +28,17 @@ function residents(): Row[] {
   const registry = loadJson<
     Record<string, { name: string; vitality: number; savedAt: string; files: unknown[] }>
   >("osyle.residents", {});
+  const visibility = loadJson<Record<string, string>>("osyle.visibility", {});
   const healed = loadJson<string[]>("osyle.demo.healed", []);
-  const rows: Row[] = Object.entries(registry).map(([slug, r]) => ({
-    slug,
-    name: r.name,
-    vitality: r.vitality,
-    line: `Moved in ${r.savedAt.slice(0, 10)}, ${r.files.length} files held`,
-    example: false,
-  }));
+  const rows: Row[] = Object.entries(registry)
+    .filter(([slug]) => visibility[slug] !== "unlisted")
+    .map(([slug, r]) => ({
+      slug,
+      name: r.name,
+      vitality: r.vitality,
+      line: `Moved in ${r.savedAt.slice(0, 10)}, ${r.files.length} files held`,
+      example: false,
+    }));
   rows.push({
     slug: resident.slug,
     name: resident.name,

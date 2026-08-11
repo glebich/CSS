@@ -222,8 +222,8 @@ interface Store {
   device: Device;
   setDevice: (d: Device) => void;
   /* floating panels */
-  panel: "none" | "mood" | "personas" | "run";
-  togglePanel: (p: "mood" | "personas" | "run") => void;
+  panel: "none" | "mood" | "personas" | "run" | "resident";
+  togglePanel: (p: "mood" | "personas" | "run" | "resident") => void;
   /* the findings desk: one decision per finding, then back to rest */
   decisions: Record<string, "accepted" | "aside">;
   decide: (issueId: string, decision: "accepted" | "aside") => void;
@@ -269,7 +269,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   );
   const [personaId, setPersonaIdRaw] = useState(() => loadJson(PERSONA_KEY, "p-maria"));
   const [device, setDevice] = useState<Device>("mobile");
-  const [panel, setPanel] = useState<"none" | "mood" | "personas" | "run">("none");
+  const [panel, setPanel] = useState<"none" | "mood" | "personas" | "run" | "resident">("none");
   const [decisions, setDecisions] = useState<Record<string, "accepted" | "aside">>(
     () => loadJson(DECISIONS_KEY, {}),
   );
@@ -788,7 +788,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     if (personas.some((p) => p.id === id)) setPersonaIdRaw(id);
   }, []);
 
-  const togglePanel = useCallback((p: "mood" | "personas" | "run") => {
+  const togglePanel = useCallback((p: "mood" | "personas" | "run" | "resident") => {
     setPanel((prev) => (prev === p ? "none" : p));
   }, []);
 

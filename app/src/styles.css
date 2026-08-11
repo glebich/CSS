@@ -606,6 +606,76 @@ input {
   color: rgba(245, 244, 255, 0.4);
 }
 
+/* ------------------------------------------- the resident panel */
+
+.resident-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 44;
+  background: rgba(20, 18, 16, 0.12);
+}
+
+.resident-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(400px, 94vw);
+  z-index: 45;
+  overflow-y: auto;
+  padding: 26px 26px 40px;
+  border-radius: 24px 0 0 24px;
+  animation: panel-in 0.25s ease-out both;
+}
+
+@keyframes panel-in {
+  0% {
+    transform: translateX(24px);
+    opacity: 0;
+  }
+  100% {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+/* ------------------------------------- the place's mobile floor */
+
+@media (max-width: 1100px) {
+  .place-decor.extra {
+    display: none;
+  }
+}
+
+@media (max-width: 760px) {
+  .place-decor {
+    display: none;
+  }
+  .place-doors {
+    /* the inline centering transform loses to the small-screen floor */
+    left: 16px !important;
+    right: 16px !important;
+    transform: none !important;
+    width: auto;
+  }
+  .place-doors > div {
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+  }
+  .place-doors .ask-pill {
+    min-width: 0;
+    flex: 1 1 170px;
+  }
+  .place-doors .pill {
+    white-space: normal;
+    height: auto;
+    min-height: 48px;
+    padding: 10px 18px;
+    text-align: center;
+  }
+}
+
 /* the rail: partner marks, single ink, reduced opacity, uniform */
 .brand-works {
   margin-top: 46px;

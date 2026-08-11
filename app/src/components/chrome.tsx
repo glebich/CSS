@@ -131,7 +131,8 @@ export function DeviceSwitcher() {
 }
 
 export function TopBar({ inResident }: { inResident: boolean }) {
-  const { go, resetDemo, tabs, activeTab, switchTab, addTab, closeTab, project } = useStore();
+  const { go, resetDemo, tabs, activeTab, switchTab, addTab, closeTab, project, togglePanel } =
+    useStore();
   return (
     <header className="topbar">
       <button onClick={() => go(inResident ? "home" : "landing")} aria-label="Osyle">
@@ -159,6 +160,9 @@ export function TopBar({ inResident }: { inResident: boolean }) {
         )}
       </div>
       <span className="topbar-spacer" />
+      <button className="topbar-quiet" onClick={() => togglePanel("resident")}>
+        Your app
+      </button>
       <button className="topbar-quiet" onClick={resetDemo}>
         {project ? "Start over" : "Reset demo"}
       </button>

@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { StoreProvider, useStore } from "./store";
 import { BottomBar, Icon, TopBar } from "./components/chrome";
 import { MoodPanel, PersonasPanel, RunOverlay } from "./components/panels";
+import { ResidentPanel } from "./components/ResidentPanel";
 import { Landing } from "./views/Landing";
 import { Place } from "./views/Place";
 import { Assets } from "./views/Assets";
@@ -101,6 +102,7 @@ function Shell() {
         {inResident && <BottomBar />}
         {inResident && panel === "mood" && <MoodPanel />}
         {inResident && panel === "personas" && <PersonasPanel />}
+        {panel === "resident" && <ResidentPanel />}
         {inResident && !project && panel !== "run" && (
           <button className="run-pill" onClick={() => togglePanel("run")}>
             <Icon name="play" size={15} />

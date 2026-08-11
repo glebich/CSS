@@ -671,8 +671,63 @@ check("the tab wears the project's name", await page.locator(".tab").getByText("
 check("the browser title carries the project", (await page.title()).includes("sunrise"));
 check("the reset door renames honestly", await page.getByText("Start over").isVisible());
 
+/* -----------------------------------------------------------------
+   The resident panel: the app's whole life in one drawer, over any
+   screen. Files, the last update, the connection with a real PR
+   count, settings, visibility, the domain. */
+await page.route("**/api.github.com/repos/osyle/sunrise/pulls**", (route) =>
+  route.fulfill({
+    status: 200,
+    contentType: "application/json",
+    body: JSON.stringify([{ number: 1 }]),
+  }),
+);
+await page.getByText("Your app", { exact: true }).click();
+await page.waitForTimeout(500);
+check("the panel opens over the work", await page.locator(".resident-panel").isVisible());
+check(
+  "the files are listed where you are",
+  await page.locator(".resident-panel").getByText("styles.css", { exact: false }).first().isVisible(),
+);
+check(
+  "the last update is dated",
+  await page.locator(".resident-panel").getByText("Last updated", { exact: false }).isVisible(),
+);
+check(
+  "the connection knows its repo",
+  await page.locator(".resident-panel").getByText("osyle/sunrise").isVisible(),
+);
+check(
+  "open pull requests are counted for real",
+  await page.locator(".resident-panel").getByText("1 open pull request", { exact: true }).isVisible(),
+);
+await page.locator(".resident-panel").getByLabel("Close the panel").click();
+await page.waitForTimeout(300);
+
+/* settings open once the app has its address */
+await page.getByText("Give it the address").click();
+await page.waitForTimeout(500);
+await page.getByText("Your app", { exact: true }).click();
+await page.waitForTimeout(400);
+await page.locator(".resident-panel").getByText("Unlisted", { exact: true }).click();
+await page.locator(".resident-panel").getByPlaceholder("yourdomain.com").fill("sunrise.app");
+await page.locator(".resident-panel").getByText("Save the domain").click();
+await page.waitForTimeout(200);
+check(
+  "the domain preference is kept honestly",
+  await page.locator(".resident-panel").getByText("Saved. Point your DNS", { exact: false }).isVisible(),
+);
+await page.goto("http://localhost:5197/#/discover");
+await page.waitForTimeout(400);
+check("unlisted stays off discover", (await page.getByText("sunrise.osyle.app").count()) === 0);
+check("public residents remain seen", await page.getByText("clean.osyle.app").isVisible());
+await page.goto("http://localhost:5197/");
+await page.waitForTimeout(500);
+await page.getByText("Drop your app", { exact: false }).last().click();
+await page.waitForTimeout(300);
+
 /* back to the example for the remaining checks */
-await page.getByText("Start over").click();
+await page.getByText("Reset demo").click();
 await page.waitForTimeout(500);
 await page.getByText("Drop your app", { exact: false }).last().click();
 await page.getByText("See the example").click();
@@ -690,6 +745,19 @@ const overflow = await page.evaluate(
 );
 check("no horizontal overflow at 390", overflow <= 1);
 check("the numeral is visible at 390", await page.locator(".instrument").isVisible());
+
+/* the place's mobile floor: decor steps back, the doors stack */
+await page.setViewportSize({ width: 1440, height: 810 });
+await page.waitForTimeout(300);
+await page.getByText("Reset demo").click();
+await page.getByText("Drop your app", { exact: false }).last().click();
+await page.setViewportSize({ width: 390, height: 844 });
+await page.waitForTimeout(400);
+const placeOverflow = await page.evaluate(
+  () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+);
+check("place holds the 390 floor", placeOverflow <= 1);
+check("decor steps back on small screens", await page.locator(".place-decor").first().isHidden());
 
 check("no console or page errors", errors.length === 0);
 if (errors.length) console.log(errors.join("\n"));

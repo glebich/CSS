@@ -619,6 +619,24 @@ network's category showcases and transformation posts are named as
 arriving with the density to fill them, on the surface itself. 124
 journey checks pass.
 
+### Increment M. The resident panel and the mobile floor. DELIVERED
+
+On the review note that the app's own life was scattered: a side
+panel now opens over any working screen from the quiet Your app door
+in the top bar, the first-tier features of a repository host said in
+human sentences and read from real state. The files it holds with
+sizes and a copy-the-share-link door; the last update dated from the
+Decision Ledger; the connection with the repository named, a real
+open-pull-request count fetched from GitHub, and checks named as
+arriving with the GitHub app stage; settings with a visibility
+toggle Discover actually respects and a custom domain saved with the
+honest DNS sentence; and security in plain words, everything local,
+keys never leaving, sessions arriving with Real Mode. The Place
+screen gains its mobile floor: half the decorative pills step back
+at tablet widths and all of them on phones, and the doors stack full
+width with no horizontal overflow at 390, tested. 135 journey checks
+pass.
+
 ### Increment I. Stages 12 to 15, in spec order
 
 Ecosystem rail (per §10's logo laws), viral surfaces and audience-aware

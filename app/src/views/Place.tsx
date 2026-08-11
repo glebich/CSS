@@ -114,7 +114,7 @@ export function Place() {
       {PILLS.map((p, i) => (
         <span
           key={`${p.label}-${i}`}
-          className={`type-pill${p.variant === "selected" ? " is-selected" : ""}${p.variant === "outline" ? " is-outline" : ""}`}
+          className={`type-pill place-decor${i % 2 === 1 ? " extra" : ""}${p.variant === "selected" ? " is-selected" : ""}${p.variant === "outline" ? " is-outline" : ""}`}
           style={{ position: "absolute", ...p.style }}
         >
           {p.label}
@@ -151,6 +151,7 @@ export function Place() {
         </h1>
       </div>
       <div
+        className="place-doors"
         style={{
           position: "absolute",
           bottom: 22,
