@@ -527,6 +527,38 @@ export function mapStudio(text: string): StudioEdit | null {
 }
 
 /**
+ * The ask router: words in the prompt bar go somewhere real,
+ * deterministically, with the interpretation said aloud. An ask that
+ * reads as an edit lands in the Studio with the ask already placed.
+ */
+export function routeAsk(text: string): { view: string; caption: string; studioAsk?: string } {
+  const t = text.toLowerCase();
+  if (/(streak|logbook|glare|bigger|larger|smaller|weekly|voice|copy|rename|edit|change|button|color)/.test(t)) {
+    return { view: "studio", caption: "Interpreted as: a Studio edit", studioAsk: text };
+  }
+  if (/(heal|repair)/.test(t)) return { view: "home", caption: "Interpreted as: heal" };
+  if (/(who|user|people|inside|drop off|dropoff)/.test(t)) {
+    return { view: "sdk", caption: "Interpreted as: the people inside" };
+  }
+  if (/(stall|monitor|session|uptime|live)/.test(t)) {
+    return { view: "monitor", caption: "Interpreted as: the monitor" };
+  }
+  if (/(fix|finding|worth|issue|wrong)/.test(t)) {
+    return { view: "findings", caption: "Interpreted as: the findings desk" };
+  }
+  if (/(audience|persona|archetype|for whom|built for)/.test(t)) {
+    return { view: "audience", caption: "Interpreted as: the audience" };
+  }
+  if (/(address|link|share|domain|url)/.test(t)) {
+    return { view: "address", caption: "Interpreted as: the address" };
+  }
+  if (/(future|preview|style|look|feel|transform)/.test(t)) {
+    return { view: "transform", caption: "Interpreted as: both futures" };
+  }
+  return { view: "exam", caption: "Interpreted as: the examination" };
+}
+
+/**
  * The Voice Director, lite: a copy pass in a chosen voice, shown as
  * the same honest diff every Studio change wears. Scripted in the
  * demo, deterministic, three voices.

@@ -194,7 +194,7 @@ const LIFE_NAV: Array<{ view: View; label: string; icon: IconName }> = [
  * rotates through real asks, and focus opens tappable suggestions.
  */
 function AskInput() {
-  const { go } = useStore();
+  const { go, ask } = useStore();
   const [focused, setFocused] = useState(false);
   const [value, setValue] = useState("");
   const [idx, setIdx] = useState(0);
@@ -238,8 +238,11 @@ function AskInput() {
           onBlur={() => setFocused(false)}
           onKeyDown={(e) => {
             if (e.key === "Enter") {
+              /* typed words act: routed deterministically, recorded */
+              if (value.trim()) ask(value.trim());
+              else go("findings");
               setValue("");
-              go("findings");
+              e.currentTarget.blur();
             }
           }}
         />

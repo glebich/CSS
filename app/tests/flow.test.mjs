@@ -124,6 +124,25 @@ check(
   await page.locator(".nav-stack-label", { hasText: "Studio" }).isVisible(),
 );
 
+/* the ask acts: typed words route the room and land in history */
+await page.getByPlaceholder(/./).last().fill("who is using it");
+await page.keyboard.press("Enter");
+await page.waitForTimeout(500);
+check("asking about users lands with the people", await page.getByText("The people inside").isVisible());
+await page.getByPlaceholder(/./).last().fill("make the call text larger for glare");
+await page.keyboard.press("Enter");
+await page.waitForTimeout(500);
+check(
+  "an edit-shaped ask lands in the studio, placed",
+  await page.getByText("The drill call steps up one size", { exact: false }).isVisible(),
+);
+check(
+  "the ask is remembered in history",
+  await page.locator(".workspace-history-row", { hasText: "You asked" }).first().isVisible(),
+);
+await page.getByLabel("Osyle", { exact: true }).click();
+await page.waitForTimeout(400);
+
 /* the workspace: the live app on the bench beside every screen */
 check("the workspace keeps the app in view", await page.locator(".workspace-preview").isVisible());
 check(

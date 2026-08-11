@@ -15,6 +15,7 @@ import {
   mapFeeling,
   personas,
   resident,
+  routeAsk,
   seedArchetype,
   styleCatalog,
   type Archetype,
@@ -212,6 +213,10 @@ interface Store {
   /* the Studio: scripted edits applied by consent, remembered */
   appliedEdits: string[];
   applyEdit: (id: string) => void;
+  /* the ask bar acts: words route the room, recorded in the ledger */
+  ask: (text: string) => void;
+  pendingAsk: string | null;
+  clearPendingAsk: () => void;
   audience: AudienceState;
   describeAudience: (text: string) => void;
   adoptArchetype: (a: Archetype, rationale: string) => void;
@@ -297,6 +302,20 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         return next;
       });
       record("studio.accepted", { edit: id });
+    },
+    [record],
+  );
+
+  /* The ask bar: words in, a room and a recorded judgment out. */
+  const [pendingAsk, setPendingAsk] = useState<string | null>(null);
+  const clearPendingAsk = useCallback(() => setPendingAsk(null), []);
+  const ask = useCallback(
+    (text: string) => {
+      const routed = routeAsk(text);
+      if (routed.studioAsk) setPendingAsk(routed.studioAsk);
+      record("ask.asked", { text, view: routed.view });
+      setPanel("none");
+      setView(routed.view as View);
     },
     [record],
   );
@@ -980,6 +999,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     setPersonaId,
     appliedEdits,
     applyEdit,
+    ask,
+    pendingAsk,
+    clearPendingAsk,
     audience,
     describeAudience,
     adoptArchetype,

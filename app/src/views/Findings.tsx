@@ -22,11 +22,11 @@ function FindingCard({ issue }: { issue: Issue }) {
         <span className="chip">{lensName(issue.lens)}</span>
       </div>
       <p style={{ color: "var(--gray-meta)", marginTop: 8, maxWidth: 660 }}>{issue.detail}</p>
-      <p style={{ marginTop: 10, fontSize: 13.5, maxWidth: 660 }}>
+      {/* the worth in one line; the reasoning waits under the cursor */}
+      <p style={{ marginTop: 10, fontSize: 13.5 }} title={issue.valueWhy}>
         <strong style={{ fontWeight: 510 }}>
-          Worth about ${issue.valueMonthly} a month.
-        </strong>{" "}
-        <span style={{ color: "var(--gray-meta)" }}>{issue.valueWhy}</span>
+          Worth about ${issue.valueMonthly} a month, an estimate.
+        </strong>
       </p>
 
       <div style={{ display: "flex", gap: 10, marginTop: 16, alignItems: "center" }}>

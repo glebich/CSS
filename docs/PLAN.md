@@ -702,6 +702,20 @@ the drop-off sentence with its door to the Monitor. The rail steps
 aside below 1160 where the phone screens keep their floor. 151
 journey checks pass.
 
+### Increment R. The ask acts. DELIVERED
+
+The prompt bar stops being a suggestion dispenser and becomes the
+chat that drives the room. Typed words route deterministically:
+an edit-shaped ask lands in the Studio with the ask already placed
+and its diff found, a question about users lands with the people
+inside, heal goes home, stall goes to the monitor, worth goes to
+the findings desk, and the unrecognized rest lands honestly on the
+examination. Every ask is recorded in the Decision Ledger and
+appears in the workspace History as You asked, with its time. And
+the findings desk went on the text diet the review asked for: the
+worth is one line, an estimate said in place, the reasoning waiting
+under the cursor. 154 journey checks pass.
+
 ### Increment I. Stages 12 to 15, in spec order
 
 Ecosystem rail (per §10's logo laws), viral surfaces and audience-aware

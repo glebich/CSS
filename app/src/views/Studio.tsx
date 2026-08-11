@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useStore } from "../store";
 import { Page, Sparkle } from "../components/chrome";
 import { mapStudio, studioEdits, voicePasses, type StudioEdit } from "../data/seed";
@@ -100,9 +100,17 @@ function EditCard({ edit }: { edit: StudioEdit }) {
 }
 
 export function Studio() {
-  const { appliedEdits } = useStore();
+  const { appliedEdits, pendingAsk, clearPendingAsk } = useStore();
   const [text, setText] = useState("");
   const [asked, setAsked] = useState<string | null>(null);
+
+  /* an ask typed anywhere lands here already placed */
+  useEffect(() => {
+    if (pendingAsk) {
+      setAsked(pendingAsk);
+      clearPendingAsk();
+    }
+  }, [pendingAsk, clearPendingAsk]);
   const [voice, setVoice] = useState<string | null>(null);
   const [anthropicKey, setAnthropicKey] = useState(() => loadKey("anthropic"));
   const [geminiKey, setGeminiKey] = useState(() => loadKey("gemini"));
