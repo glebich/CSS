@@ -7,22 +7,24 @@ import { FlowSteps, Icon, Sparkle } from "../components/chrome";
  * parsed and measured by the engine; the example resident stands by,
  * clearly labeled, for anyone with nothing at hand.
  */
+/* The cloud says only what the intake genuinely takes today. Nothing
+   listed here is aspiration; each label is a working door. */
 const PILLS: Array<{
   label: string;
   variant?: "selected" | "outline";
   style: React.CSSProperties;
 }> = [
-  { label: "Audio", variant: "outline", style: { left: "10%", top: "26%" } },
-  { label: "Brandbook", variant: "selected", style: { left: "2%", top: "44%" } },
-  { label: "Video", style: { left: "12%", top: "62%" } },
-  { label: "Prototype", style: { left: "31%", top: "26%" } },
-  { label: "Links", style: { left: "26%", top: "48%" } },
-  { label: "Wireframe", style: { left: "27%", top: "62%" } },
-  { label: "Figma Design", variant: "selected", style: { right: "27%", top: "26%" } },
-  { label: "Brief", style: { right: "29%", top: "48%" } },
-  { label: "Audio", style: { right: "13%", top: "48%" } },
-  { label: "Anything", variant: "outline", style: { right: "24%", top: "63%" } },
-  { label: "Figma Design", variant: "selected", style: { right: "3%", top: "63%" } },
+  { label: "Zip archive", variant: "outline", style: { left: "10%", top: "26%" } },
+  { label: "App folder", variant: "selected", style: { left: "2%", top: "44%" } },
+  { label: "Images", style: { left: "12%", top: "62%" } },
+  { label: "HTML", style: { left: "31%", top: "26%" } },
+  { label: "Styles", style: { left: "26%", top: "48%" } },
+  { label: "JavaScript", style: { left: "27%", top: "62%" } },
+  { label: "GitHub repo", variant: "selected", style: { right: "27%", top: "26%" } },
+  { label: "Audio", style: { right: "29%", top: "48%" } },
+  { label: "Readme", style: { right: "13%", top: "48%" } },
+  { label: "Anything readable", variant: "outline", style: { right: "24%", top: "63%" } },
+  { label: "React, Vue, Svelte", variant: "selected", style: { right: "3%", top: "63%" } },
 ];
 
 /** Walk a dropped directory tree; browsers only reveal it entry by entry. */

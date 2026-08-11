@@ -585,6 +585,15 @@ await page.getByText("Give it the address").click();
 await page.waitForTimeout(500);
 check("a folder drop is named by its folder", await page.getByText("clean.osyle.app").first().isVisible());
 
+/* dropped audio is carried whole and genuinely served at the address */
+await page.goto("http://localhost:5197/#/r/clean");
+await page.waitForTimeout(700);
+const audioSrc = await page.frameLocator("iframe").locator("audio").getAttribute("src");
+check(
+  "dropped audio plays at the address",
+  typeof audioSrc === "string" && audioSrc.startsWith("data:audio/wav;base64,"),
+);
+
 /* the residents desk lists every moved-in app with its address */
 await page.goto("http://localhost:5197/#/owner");
 await page.waitForTimeout(500);

@@ -18,6 +18,7 @@ type StoredResident = {
   styleId: string;
   savedAt: string;
   files: Array<{ path: string; text: string }>;
+  media?: Array<{ path: string; dataUri: string; bytes: number }>;
 };
 
 /** A dropped app, served from its address: the files it arrived with. */
@@ -57,6 +58,9 @@ function RealResident({ slug }: { slug: string }) {
   const files = new Map<string, ProjectFile>(
     stored.files.map((f) => [f.path, { path: f.path, text: f.text, bytes: f.text.length }]),
   );
+  for (const m of stored.media ?? []) {
+    files.set(m.path, { path: m.path, text: null, bytes: m.bytes, dataUri: m.dataUri });
+  }
   const doc = buildSrcDoc(files);
 
   return (

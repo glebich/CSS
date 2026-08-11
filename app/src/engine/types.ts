@@ -11,6 +11,8 @@ export interface ProjectFile {
   /** text content for text files, null for binary */
   text: string | null;
   bytes: number;
+  /** small media carried whole, so the served page plays and shows it */
+  dataUri?: string;
 }
 
 export interface Evidence {

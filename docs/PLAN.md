@@ -637,6 +637,22 @@ at tablet widths and all of them on phones, and the doors stack full
 width with no horizontal overflow at 390, tested. 135 journey checks
 pass.
 
+### Increment N. Honest materials: true pills, audio and images carried. DELIVERED
+
+On the review question, is this text correct: it was not. The Place
+cloud promised material types the intake could not take and repeated
+two of them. The pills now say only what genuinely works, App
+folder, Zip archive, GitHub repo, HTML, Styles, JavaScript, Images,
+Audio, Readme, React Vue Svelte, Anything readable, each one a
+working door, no duplicates. And Audio became true instead of being
+deleted: dropped audio and images up to a stated cap, 1.5 MB for
+sound and 400 KB for images, are carried whole as data URIs, inlined
+into the served document so the resident actually plays and shows
+them, persisted through the registry within a storage budget, with
+svg travelling as its own text. Proven end to end with a genuine WAV
+in the clean fixture, examined, given the address, and served
+playing at #/r/clean. 136 journey checks pass.
+
 ### Increment I. Stages 12 to 15, in spec order
 
 Ecosystem rail (per §10's logo laws), viral surfaces and audience-aware

@@ -37,6 +37,33 @@ export const VITALITY_WEIGHTS: Array<{ key: string; weight: number }> = [
 /** A dropped file, optionally carrying the path a folder walk found it at. */
 export type DroppedFile = File | { file: File; path: string };
 
+/* Media that can be carried whole: type by extension, size capped and
+   said aloud where the cap applies. Audio gets more room than images. */
+const MEDIA_TYPES: Array<{ test: RegExp; mime: string; maxBytes: number }> = [
+  { test: /\.png$/i, mime: "image/png", maxBytes: 400 * 1024 },
+  { test: /\.jpe?g$/i, mime: "image/jpeg", maxBytes: 400 * 1024 },
+  { test: /\.gif$/i, mime: "image/gif", maxBytes: 400 * 1024 },
+  { test: /\.webp$/i, mime: "image/webp", maxBytes: 400 * 1024 },
+  { test: /\.wav$/i, mime: "audio/wav", maxBytes: 1500 * 1024 },
+  { test: /\.mp3$/i, mime: "audio/mpeg", maxBytes: 1500 * 1024 },
+  { test: /\.ogg$/i, mime: "audio/ogg", maxBytes: 1500 * 1024 },
+  { test: /\.m4a$/i, mime: "audio/mp4", maxBytes: 1500 * 1024 },
+];
+
+function mediaUri(path: string, bytes: Uint8Array): string | undefined {
+  const kind = MEDIA_TYPES.find((m) => m.test.test(path));
+  if (!kind || bytes.length > kind.maxBytes) return undefined;
+  try {
+    let binary = "";
+    for (let i = 0; i < bytes.length; i += 0x8000) {
+      binary += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+    }
+    return `data:${kind.mime};base64,${btoa(binary)}`;
+  } catch {
+    return undefined;
+  }
+}
+
 export async function filesFromInput(fileList: DroppedFile[]): Promise<Map<string, ProjectFile>> {
   const out = new Map<string, ProjectFile>();
   let textBudget = MAX_TEXT_BYTES;
@@ -48,7 +75,7 @@ export async function filesFromInput(fileList: DroppedFile[]): Promise<Map<strin
       text = strFromU8(bytes.slice(0, Math.min(bytes.length, textBudget)));
       textBudget -= bytes.length;
     }
-    out.set(path, { path, text, bytes: bytes.length });
+    out.set(path, { path, text, bytes: bytes.length, dataUri: mediaUri(path, bytes) });
   }
 
   for (const dropped of fileList) {
@@ -186,10 +213,31 @@ export function buildSrcDoc(
       return js?.text ? `<script>${js.text.replace(/<\/script/gi, "<\\/script")}</script>` : "";
     },
   );
+  /* media the intake carried whole plays and shows in the served page;
+     svg travels as its own text; anything missing gets a quiet stand-in */
+  const carried = (src: string): string | null => {
+    const f = find(src);
+    if (f?.dataUri) return f.dataUri;
+    if (f?.text && /\.svg$/i.test(f.path)) {
+      return `data:image/svg+xml;utf8,${encodeURIComponent(f.text)}`;
+    }
+    return null;
+  };
   doc = doc.replace(/(<img[^>]*\bsrc=)["']([^"']+)["']/gi, (m, pre: string, src: string) => {
-    if (/^(data:|https?:)/i.test(src) || find(src)) return m;
+    if (/^(data:|https?:)/i.test(src)) return m;
+    const uri = carried(src);
+    if (uri) return `${pre}"${uri}"`;
+    if (find(src)) return m;
     return `${pre}"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='80'%3E%3Crect width='120' height='80' fill='%23e5e2de'/%3E%3C/svg%3E"`;
   });
+  doc = doc.replace(
+    /(<(?:audio|video|source)[^>]*\bsrc=)["']([^"']+)["']/gi,
+    (m, pre: string, src: string) => {
+      if (/^(data:|https?:)/i.test(src)) return m;
+      const uri = carried(src);
+      return uri ? `${pre}"${uri}"` : m;
+    },
+  );
   if (extraCss) {
     doc = doc.includes("</head>")
       ? doc.replace("</head>", `<style>${extraCss}</style></head>`)

@@ -521,12 +521,23 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       .filter((f) => f.text !== null)
       .slice(0, 40)
       .map((f) => ({ path: f.path, text: (f.text as string).slice(0, 200_000) }));
+    /* carried media persists too, capped so storage survives it */
+    let mediaBudget = 3_000_000;
+    const media = [...project.files.values()]
+      .filter((f) => f.dataUri)
+      .slice(0, 8)
+      .filter((f) => {
+        mediaBudget -= (f.dataUri as string).length;
+        return mediaBudget > 0;
+      })
+      .map((f) => ({ path: f.path, dataUri: f.dataUri as string, bytes: f.bytes }));
     registry[slug] = {
       name: project.inventory.name,
       vitality: project.vitality,
       styleId,
       savedAt: new Date().toISOString(),
       files: textFiles,
+      media,
     };
     saveJson("osyle.residents", registry);
     setRealSlug(slug);
