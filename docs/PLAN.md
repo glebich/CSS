@@ -684,6 +684,24 @@ carries its name in small type, Mood, People, Address, Monitor,
 Inbox, SDK, Studio, Audience, Promote, so nobody decodes glyphs.
 148 journey checks pass.
 
+### Increment Q. The workspace: the app on the bench. DELIVERED
+
+On the review direction that the product should feel like a
+builder's room, chat, history, and the thing being built always in
+view, not pages of text. Every resident view now carries the
+workspace rail: the app rendered live in a phone frame on the
+right, reacting to style, mood, persona, and comfort as they move,
+with the address door beneath it and History, the last five
+Decision Ledger entries spoken as human lines with their times.
+The Mood and Personas panels lost their cramped thumbnails, the
+clipped preview bug with them, and became pure controls; the panel
+copy points at the bench. The SDK page now leads with The people
+inside: your own live rows from this machine first, the three
+example pilots labeled Example with what they did and when, and
+the drop-off sentence with its door to the Monitor. The rail steps
+aside below 1160 where the phone screens keep their floor. 151
+journey checks pass.
+
 ### Increment I. Stages 12 to 15, in spec order
 
 Ecosystem rail (per §10's logo laws), viral surfaces and audience-aware

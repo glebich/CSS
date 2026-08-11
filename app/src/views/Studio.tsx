@@ -118,8 +118,7 @@ export function Studio() {
         Say the change. <span className="quiet">See the diff.</span>
       </h1>
       <p style={{ color: "var(--gray-meta)", marginTop: 6, maxWidth: 640 }}>
-        Every edit shows its diff before it touches anything, carries its
-        why, and stays inside the identity. Nothing applies without you.
+        Nothing applies without you.
       </p>
 
       <div style={{ display: "flex", gap: 10, marginTop: 22, alignItems: "center", flexWrap: "wrap" }}>

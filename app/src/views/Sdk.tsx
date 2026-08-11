@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { sdk } from "../store";
+import { sdk, useStore } from "../store";
 import { Page, Sparkle } from "../components/chrome";
 
 const SAMPLE = `import { createClient } from "@osyle/sdk";
@@ -21,6 +21,7 @@ db.kv.set("streak", db.kv.get("streak", 0) + 1);`;
 /** The SDK surface: rows, auth-lite, key-value. Real software, real users. */
 export function Sdk() {
   const [, bump] = useState(0);
+  const { go } = useStore();
 
   const drills = sdk.rows("drills");
   const user = sdk.auth.user();
@@ -33,11 +34,60 @@ export function Sdk() {
     bump((n) => n + 1);
   }
 
+  /* the people inside: real local rows first, the example labeled */
+  const drillRows = drills.list();
+  const lastDrill = drillRows[drillRows.length - 1];
+  const examplePilots = [
+    { name: "Maria Chen", doing: "9 drills, a 6 day streak", last: "today, 07:40", state: "returning weekly" },
+    { name: "Tom Alvarez", doing: "4 drills, weather brief opened twice", last: "Saturday", state: "weekend rhythm" },
+    { name: "Priya Nair", doing: "2 drills, stopped at the briefing", last: "August 5", state: "stalled at the weather card" },
+  ];
+
   return (
     <Page>
       <h1 className="statement statement-page">
         Real software, <span className="quiet">real users.</span>
       </h1>
+
+      {/* who is inside, what they do, and where they stall */}
+      <div className="section-label" style={{ marginTop: 22 }}>
+        The people inside
+      </div>
+      <div className="card card-solid" style={{ padding: "6px 24px", maxWidth: 720 }}>
+        <div className="inbox-item">
+          <span className="pulse-dot" />
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 14, fontWeight: 550 }}>
+              {user ? String(user.email) : "You, unsigned"}
+            </div>
+            <div style={{ fontSize: 12.5, color: "var(--gray-meta)", marginTop: 2 }}>
+              {drillRows.length} drill{drillRows.length === 1 ? "" : "s"} on this machine, streak {streak}
+              {lastDrill ? `, last ${String(lastDrill.createdAt).slice(0, 10)}` : ""}
+            </div>
+          </div>
+          <span className="chip">Yours, live</span>
+        </div>
+        {examplePilots.map((p) => (
+          <div key={p.name} className="inbox-item">
+            <span className="pulse-dot" style={{ animation: "none" }} />
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 14, fontWeight: 550 }}>{p.name}</div>
+              <div style={{ fontSize: 12.5, color: "var(--gray-meta)", marginTop: 2 }}>
+                {p.doing}. Last seen {p.last}. {p.state}.
+              </div>
+            </div>
+            <span className="chip">Example</span>
+          </div>
+        ))}
+      </div>
+      <div style={{ display: "flex", gap: 10, alignItems: "center", marginTop: 12, flexWrap: "wrap" }}>
+        <span style={{ fontSize: 13, color: "var(--gray-meta)" }}>
+          Four of nine sessions stalled at the weather briefing.
+        </span>
+        <button className="pill pill-sm" onClick={() => go("monitor")}>
+          See where they drop off
+        </button>
+      </div>
       <p style={{ color: "var(--gray-meta)", marginTop: 6, maxWidth: 640 }}>
         Every resident carries its own isolated end-user database through a tiny
         SDK. Rows, auth-lite, and key-value. In Demo Mode it runs against local

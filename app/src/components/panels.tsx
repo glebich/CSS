@@ -2,7 +2,7 @@ import { useRef } from "react";
 import { useStore, type Mood } from "../store";
 import { personas } from "../data/seed";
 import { Icon } from "./chrome";
-import { MiniApp, previewDevice } from "./MiniApp";
+import { MiniApp } from "./MiniApp";
 
 function useDragValue(onValue: (frac: number) => void) {
   const ref = useRef<HTMLDivElement>(null);
@@ -72,7 +72,7 @@ function MoodRow({
  * and the live render follows the hand.
  */
 export function MoodPanel() {
-  const { mood, setMood, togglePanel, styleId, personaId, device, comfort } = useStore();
+  const { mood, setMood, togglePanel } = useStore();
   const rows: Array<{ key: keyof Mood; name: string; min: string; max: string }> = [
     { key: "energy", name: "Energy", min: "Calm", max: "Energetic" },
     { key: "style", name: "Style", min: "Minimal", max: "Bold" },
@@ -96,11 +96,9 @@ export function MoodPanel() {
           onChange={(v) => setMood({ [row.key]: v })}
         />
       ))}
-      <div className="panel-thumb">
-        <MiniApp variant="live" styleId={styleId} mood={mood} personaId={personaId} device={previewDevice(device)} comfort={comfort} />
-      </div>
+
       <p style={{ fontSize: 11.5, color: "var(--gray-tertiary)", marginTop: 10, lineHeight: 1.5 }}>
-        The render follows the dials. Nothing to type.
+        The render on the right follows the dials. Nothing to type.
       </p>
     </aside>
   );
@@ -111,7 +109,7 @@ export function MoodPanel() {
  * with the age dial breathing a live reach estimate.
  */
 export function PersonasPanel() {
-  const { personaId, setPersonaId, togglePanel, styleId, mood, device, comfort } = useStore();
+  const { personaId, setPersonaId, togglePanel } = useStore();
   const active = personas.find((p) => p.id === personaId) ?? personas[0];
   const drag = useDragValue(() => undefined);
   return (
@@ -151,9 +149,7 @@ export function PersonasPanel() {
           {active.reach}, an estimate
         </span>
       </div>
-      <div className="panel-thumb">
-        <MiniApp variant="live" styleId={styleId} mood={mood} personaId={personaId} device={previewDevice(device)} comfort={comfort} />
-      </div>
+
       <p style={{ fontSize: 11.5, color: "var(--gray-tertiary)", marginTop: 10, lineHeight: 1.5 }}>
         The primary persona changes the render, the Twin, and what counts as
         a qualified view.

@@ -3,6 +3,7 @@ import { StoreProvider, useStore } from "./store";
 import { BottomBar, Icon, TopBar } from "./components/chrome";
 import { MoodPanel, PersonasPanel, RunOverlay } from "./components/panels";
 import { ResidentPanel } from "./components/ResidentPanel";
+import { WorkspacePreview } from "./components/Workspace";
 import { Landing } from "./views/Landing";
 import { Place } from "./views/Place";
 import { Assets } from "./views/Assets";
@@ -98,7 +99,17 @@ function Shell() {
     <div className="shell">
       <TopBar inResident={inResident} />
       <div style={{ position: "relative", flex: 1, minHeight: 0, display: "flex", flexDirection: "column" }}>
-        <Screen />
+        {inResident && !project ? (
+          /* the workspace: the live app on the bench beside every screen */
+          <div className="workspace">
+            <div className="workspace-main">
+              <Screen />
+            </div>
+            <WorkspacePreview />
+          </div>
+        ) : (
+          <Screen />
+        )}
         {inResident && <BottomBar />}
         {inResident && panel === "mood" && <MoodPanel />}
         {inResident && panel === "personas" && <PersonasPanel />}

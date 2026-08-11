@@ -124,6 +124,17 @@ check(
   await page.locator(".nav-stack-label", { hasText: "Studio" }).isVisible(),
 );
 
+/* the workspace: the live app on the bench beside every screen */
+check("the workspace keeps the app in view", await page.locator(".workspace-preview").isVisible());
+check(
+  "the bench render is the whole app",
+  await page.locator(".workspace-preview").getByText("Radio calls, ten minutes").isVisible(),
+);
+check(
+  "history speaks beside the work",
+  await page.locator(".workspace-preview").getByText("History").isVisible(),
+);
+
 /* Heal: what it will touch is shown first, never behind a link */
 check(
   "what heal will touch is shown first",
