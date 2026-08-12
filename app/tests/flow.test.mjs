@@ -531,14 +531,21 @@ check(
 await page.getByText("Night Shift").click();
 await page.waitForTimeout(400);
 check("style chips switch the future live", await page.getByText("Wearing Night Shift").isVisible());
-await page.getByText("Read the prompt").click();
-await page.waitForTimeout(300);
+/* the prompt stands in the open; no click needed to find it */
 const promptText = await page.locator("pre").last().innerText();
 check(
   "the repair prompt carries the evidence",
   promptText.includes("styles.css") && promptText.includes("Grounding:"),
 );
-check("the prompt is portable by one tap", await page.getByText("Copy the repair prompt").isVisible());
+check(
+  "the copy lives inside the prompt",
+  await page.locator(".prompt-copy").isVisible(),
+);
+await page.getByText("Hide the prompt").click();
+await page.waitForTimeout(200);
+check("the prompt can still step aside", !(await page.locator(".prompt-copy").isVisible()));
+await page.getByText("Read the prompt").click();
+await page.waitForTimeout(200);
 
 /* the report card: the brand surface as a real PNG */
 const cardDownload = page.waitForEvent("download", { timeout: 8000 }).catch(() => null);
@@ -629,12 +636,10 @@ check(
 );
 check(
   "the improvement prompt replaces the empty plan",
-  await page.getByText("Copy the improvement prompt").isVisible(),
+  await page.locator(".prompt-copy").isVisible(),
 );
 const reportText = await page.locator("body").innerText();
 check("zero repairs is never spoken", !reportText.includes("0 repairs"));
-await page.getByText("Read the prompt").click();
-await page.waitForTimeout(300);
 const improveText = await page.locator("pre").last().innerText();
 check(
   "the improvement prompt carries the deeper pass",

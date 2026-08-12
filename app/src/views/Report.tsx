@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useStore } from "../store";
-import { FlowSteps, Page, Sparkle } from "../components/chrome";
+import { FlowSteps, Icon, Page, Sparkle } from "../components/chrome";
 import { bumpGrowth, drawReportCard } from "../engine/reportcard";
 import { motionFor, styleCatalog } from "../data/seed";
 import { buildSrcDoc, transformCss } from "../engine/analyze";
@@ -124,7 +124,8 @@ function FindingCard({ finding }: { finding: RealFinding }) {
 export function Report() {
   const { project, realDecisions, styleId, setStyleId, comfort, giveAddress, realSlug } = useStore();
   const [copied, setCopied] = useState(false);
-  const [promptOpen, setPromptOpen] = useState(false);
+  /* the prompt stands in the open; hiding it is the choice, not finding it */
+  const [promptOpen, setPromptOpen] = useState(true);
   const [cardDrawn, setCardDrawn] = useState(false);
 
   async function downloadReportCard() {
@@ -221,8 +222,15 @@ export function Report() {
           {project.lenses.map((l) => (
             <div key={l.key} className="lens-cell">
               <span className="lens-cell-name">{l.name}</span>
-              <span className={`lens-cell-score${l.notApplicable ? " is-blind" : ""}`}>
-                {l.notApplicable ? "could not see" : l.score}
+              <span
+                className={`lens-cell-score${l.notApplicable ? " is-blind" : ""}`}
+                title={
+                  l.notApplicable
+                    ? `The static scan found no ${l.name.toLowerCase()} material in these files; the deeper examination reads it in the browser.`
+                    : undefined
+                }
+              >
+                {l.notApplicable ? "awaits the deeper scan" : l.score}
               </span>
             </div>
           ))}
@@ -401,19 +409,6 @@ export function Report() {
           <button className="pill" onClick={() => setPromptOpen(!promptOpen)}>
             {promptOpen ? "Hide the prompt" : "Read the prompt"}
           </button>
-          <button
-            className="pill"
-            onClick={() => {
-              navigator.clipboard?.writeText(repairPrompt).catch(() => undefined);
-              setCopied(true);
-            }}
-          >
-            {copied
-              ? "Copied"
-              : findings.length === 0
-                ? "Copy the improvement prompt"
-                : "Copy the repair prompt"}
-          </button>
           <button className="pill" onClick={() => void downloadReportCard()}>
             {cardDrawn ? "The card is yours" : "Download the report card"}
           </button>
@@ -423,22 +418,35 @@ export function Report() {
           </button>
         </div>
         {promptOpen && (
-          <pre
-            className="mono fade-in"
-            style={{
-              textAlign: "left",
-              marginTop: 16,
-              padding: 18,
-              background: "var(--paper)",
-              borderRadius: 14,
-              whiteSpace: "pre-wrap",
-              maxHeight: 320,
-              overflowY: "auto",
-              color: "var(--ink-soft)",
-            }}
-          >
-            {repairPrompt}
-          </pre>
+          <div className="fade-in" style={{ position: "relative", marginTop: 16 }}>
+            {/* the copy lives inside the prompt it copies */}
+            <button
+              className="prompt-copy"
+              aria-label={copied ? "Copied" : "Copy the prompt"}
+              title={copied ? "Copied" : "Copy the prompt"}
+              onClick={() => {
+                navigator.clipboard?.writeText(repairPrompt).catch(() => undefined);
+                setCopied(true);
+              }}
+            >
+              <Icon name={copied ? "check" : "copy"} size={15} />
+            </button>
+            <pre
+              className="mono"
+              style={{
+                textAlign: "left",
+                padding: "18px 56px 18px 18px",
+                background: "var(--paper)",
+                borderRadius: 14,
+                whiteSpace: "pre-wrap",
+                maxHeight: 320,
+                overflowY: "auto",
+                color: "var(--ink-soft)",
+              }}
+            >
+              {repairPrompt}
+            </pre>
+          </div>
         )}
       </div>
     </Page>

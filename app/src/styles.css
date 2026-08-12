@@ -487,6 +487,27 @@ input {
   box-shadow: var(--shadow-pill);
 }
 
+/* the round copy that lives inside the prompt it copies */
+.prompt-copy {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--card-solid);
+  color: var(--ink-body);
+  box-shadow: var(--shadow-pill);
+  z-index: 2;
+}
+
+.prompt-copy:hover {
+  color: var(--ink-strong);
+}
+
 /* ------------------------------------------------------------- the pulse */
 
 @keyframes breathe {
