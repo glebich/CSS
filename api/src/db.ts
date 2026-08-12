@@ -45,7 +45,8 @@ export function platformDb(): DatabaseSync {
       name TEXT NOT NULL,
       user_id TEXT NOT NULL,
       created_at TEXT NOT NULL,
-      last_active_at TEXT
+      last_active_at TEXT,
+      custom_domain TEXT
     );
     CREATE TABLE IF NOT EXISTS vault_files (
       id TEXT PRIMARY KEY,
@@ -83,6 +84,16 @@ export function platformDb(): DatabaseSync {
   } catch {
     /* the column already exists */
   }
+  /* likewise for the custom domain; one domain belongs to one resident */
+  try {
+    db.exec("ALTER TABLE residents ADD COLUMN custom_domain TEXT");
+  } catch {
+    /* the column already exists */
+  }
+  db.exec(
+    `CREATE UNIQUE INDEX IF NOT EXISTS residents_by_domain
+       ON residents (custom_domain) WHERE custom_domain IS NOT NULL`,
+  );
   return db;
 }
 

@@ -7,7 +7,7 @@ import Fastify, { type FastifyInstance } from "fastify";
 import cookie from "@fastify/cookie";
 import cors from "@fastify/cors";
 import { registerAuth } from "./auth.js";
-import { registerResidents } from "./residents.js";
+import { registerResidents, residentSlugByDomain } from "./residents.js";
 import { registerVault } from "./vault.js";
 import { registerRdb } from "./rdb.js";
 import { registerGrowth } from "./growth.js";
@@ -28,7 +28,25 @@ const GENERAL_MAX = Number(process.env.OSYLE_RATE_MAX ?? 240);
 const GENERAL_WINDOW_MS = 60_000;
 
 export async function buildApp(): Promise<FastifyInstance> {
-  const app = Fastify({ logger: process.env.NODE_ENV === "production" });
+  const app = Fastify({
+    logger: process.env.NODE_ENV === "production",
+    /* the serving door answers by name: a request whose Host header is
+       a resident's custom domain is the resident's site, whole. Bare
+       hosts (localhost, container names) and unknown domains pass
+       through untouched, so the api's own doors never move. */
+    rewriteUrl(req) {
+      const url = req.url ?? "/";
+      try {
+        const host = (req.headers.host ?? "").split(":")[0].toLowerCase();
+        if (!host.includes(".")) return url;
+        const slug = residentSlugByDomain(host);
+        if (!slug) return url;
+        return `/serve/${slug}${url.startsWith("/") ? url : `/${url}`}`;
+      } catch {
+        return url;
+      }
+    },
+  });
 
   await app.register(cookie);
   await app.register(cors, {

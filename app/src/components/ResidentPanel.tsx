@@ -156,7 +156,7 @@ export function ResidentPanel() {
     loadJson("osyle.domains", {}),
   );
   const [domainDraft, setDomainDraft] = useState(slug ? (domains[slug] ?? "") : "");
-  const [domainSaved, setDomainSaved] = useState(false);
+  const [domainLine, setDomainLine] = useState<string | null>(null);
   const unlisted = slug ? visibility[slug] === "unlisted" : false;
 
   const files = project ? [...project.files.values()] : null;
@@ -333,7 +333,7 @@ export function ResidentPanel() {
                   value={domainDraft}
                   onChange={(e) => {
                     setDomainDraft(e.target.value);
-                    setDomainSaved(false);
+                    setDomainLine(null);
                   }}
                 />
               </div>
@@ -341,19 +341,49 @@ export function ResidentPanel() {
                 className="pill pill-sm"
                 disabled={!domainDraft.trim()}
                 onClick={() => {
-                  const next = { ...domains, [slug]: domainDraft.trim() };
+                  const value = domainDraft.trim().toLowerCase();
+                  const next = { ...domains, [slug]: value };
                   setDomains(next);
                   saveJson("osyle.domains", next);
-                  setDomainSaved(true);
+                  /* claimed on the stack: the domain becomes real there,
+                     and the stack starts answering by that name */
+                  if (project && stack.on && stack.up && realSlug === slug) {
+                    fetch(`${stack.base}/residents/${slug}/domain`, {
+                      method: "PUT",
+                      headers: { "content-type": "application/json" },
+                      credentials: "include",
+                      body: JSON.stringify({ domain: value }),
+                    })
+                      .then(async (res) => {
+                        const body = (await res.json().catch(() => null)) as {
+                          error?: string;
+                        } | null;
+                        setDomainLine(
+                          res.ok
+                            ? `The stack holds it. Point ${value} at the stack and it serves this app.`
+                            : res.status === 404 || res.status === 401
+                              ? "Saved here. Claim the app on the stack and the domain turns real there."
+                              : (body?.error ?? "The stack refused the domain."),
+                        );
+                      })
+                      .catch(() =>
+                        setDomainLine(
+                          "The stack is not answering; the preference stays on this machine.",
+                        ),
+                      );
+                  } else {
+                    setDomainLine(
+                      "Saved. Point your DNS at hosted Osyle when it ships; the osyle.app address answers either way.",
+                    );
+                  }
                 }}
               >
                 Save the domain
               </button>
             </div>
-            {domainSaved && (
+            {domainLine && (
               <p className="fade-in" style={{ fontSize: 12, color: "var(--gray-small)" }}>
-                Saved. Point your DNS at hosted Osyle when it ships; the
-                osyle.app address answers either way.
+                {domainLine}
               </p>
             )}
           </div>

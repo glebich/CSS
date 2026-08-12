@@ -16,6 +16,8 @@ export interface Resident {
   name: string;
   userId: string;
   createdAt: string;
+  /** the hostname the serving door answers by, when the owner set one */
+  customDomain?: string | null;
 }
 
 export interface VaultFile {

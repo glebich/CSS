@@ -144,10 +144,14 @@ restarts; if tests fail, nothing ships.
   provisioned and idle; they take over when their drivers land in Real
   Mode hardening. The swap points are `api/src/db.ts` and
   `api/src/blobs.ts`, and nothing else changes.
-- **Resident addresses.** `{slug}.osyle.app` serves the product today;
-  serving each resident's own files at its hostname root is the
-  server-side serving stage. The Vault already holds the files,
-  versioned.
+- **Resident addresses.** `{slug}.osyle.app` serves the product today,
+  and the api serves each resident's newest files at
+  `/serve/{slug}/`. A claimed resident can also wear its own domain:
+  `PUT /residents/{slug}/domain` stores the hostname (one wearer per
+  name, the platform's roofs refused), and any request arriving with
+  that Host header is answered as the resident's site, whole. Point
+  the domain's DNS at the box running the api and the app serves by
+  its own name.
 - **Magic-link mail.** Claim links are minted and stored, but no mail
   provider is wired; in this era the claim completes in the same
   browser session, which is how the product uses it.

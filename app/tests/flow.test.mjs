@@ -1148,18 +1148,42 @@ check(
 await page.locator(".resident-panel").getByLabel("Close the panel").click();
 await page.waitForTimeout(300);
 
-/* settings open once the app has its address */
+/* settings open once the app has its address; the claim makes the
+   resident real on the stack so the domain can follow */
 await page.getByText("Give it the address").click();
 await page.waitForTimeout(500);
+await page.getByPlaceholder("you@yourdomain.com").fill("resident@example.com");
+await page.getByText("Claim it on the stack").click();
+await page.waitForTimeout(2200);
 await page.getByText("Your app", { exact: true }).click();
 await page.waitForTimeout(400);
 await page.locator(".resident-panel").getByText("Unlisted", { exact: true }).click();
 await page.locator(".resident-panel").getByPlaceholder("yourdomain.com").fill("sunrise.app");
 await page.locator(".resident-panel").getByText("Save the domain").click();
-await page.waitForTimeout(200);
+await page.waitForTimeout(600);
 check(
-  "the domain preference is kept honestly",
-  await page.locator(".resident-panel").getByText("Saved. Point your DNS", { exact: false }).isVisible(),
+  "the domain is saved for real on the stack",
+  await page.locator(".resident-panel").getByText("The stack holds it", { exact: false }).isVisible(),
+);
+/* and the stack now answers by that name: the same request that a
+   DNS-pointed browser would make, Host header and all */
+const byName = await new Promise((resolve) => {
+  import("node:http").then(({ request }) => {
+    const r = request(
+      { host: "localhost", port: 8787, path: "/", headers: { Host: "sunrise.app" } },
+      (res) => {
+        let body = "";
+        res.on("data", (c) => (body += c));
+        res.on("end", () => resolve({ status: res.statusCode, body }));
+      },
+    );
+    r.on("error", () => resolve({ status: 0, body: "" }));
+    r.end();
+  });
+});
+check(
+  "the stack serves the app by its own name",
+  byName.status === 200 && byName.body.includes("<"),
 );
 await page.goto("http://localhost:5197/#/discover");
 await page.waitForTimeout(400);

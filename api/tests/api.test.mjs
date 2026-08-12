@@ -402,6 +402,96 @@ const servedDots = await app.inject({
 });
 check("upward dots are refused", servedDots.statusCode === 400);
 
+/* the custom domain: owned like the resident, validated like DNS,
+   one wearer per name, and the serving door answers by Host header */
+const domainSet = await app.inject({
+  method: "PUT",
+  url: "/residents/skyrecall/domain",
+  cookies,
+  payload: { domain: "Sky-Recall.Example.COM" },
+});
+check(
+  "the owner dresses the resident in a domain",
+  domainSet.statusCode === 200 &&
+    JSON.parse(domainSet.body).domain === "sky-recall.example.com",
+);
+const domainBad = await app.inject({
+  method: "PUT",
+  url: "/residents/skyrecall/domain",
+  cookies,
+  payload: { domain: "not a domain" },
+});
+check("a malformed domain is refused", domainBad.statusCode === 400);
+const domainRoof = await app.inject({
+  method: "PUT",
+  url: "/residents/skyrecall/domain",
+  cookies,
+  payload: { domain: "sky.osyle.app" },
+});
+check("the platform's roof cannot be worn", domainRoof.statusCode === 400);
+/* cookie2's session was aged to death above, so the neighbor who
+   tries to take the name signs in fresh; the link allowance is spent
+   by the earlier auth tests, so it resets first */
+resetLimitsForTests();
+const link3 = await app.inject({
+  method: "POST",
+  url: "/auth/link",
+  payload: { email: "neighbor@example.com" },
+});
+const verify3 = await app.inject({ method: "GET", url: link3.json().devLink });
+const cookie3 = { osyle_session: verify3.cookies.find((c) => c.name === "osyle_session").value };
+await app.inject({
+  method: "POST",
+  url: "/residents",
+  cookies: cookie3,
+  payload: { slug: "second-home", name: "Second Home" },
+});
+const domainTaken = await app.inject({
+  method: "PUT",
+  url: "/residents/second-home/domain",
+  cookies: cookie3,
+  payload: { domain: "sky-recall.example.com" },
+});
+check("a worn domain refuses a second wearer", domainTaken.statusCode === 409);
+const domainStranger = await app.inject({
+  method: "PUT",
+  url: "/residents/skyrecall/domain",
+  cookies: cookie3,
+  payload: { domain: "thief.example.com" },
+});
+check("a stranger cannot dress another's resident", domainStranger.statusCode === 404);
+const servedByName = await app.inject({
+  method: "GET",
+  url: "/",
+  headers: { host: "sky-recall.example.com" },
+});
+check(
+  "the stack answers by name",
+  servedByName.statusCode === 200 && servedByName.body.includes("<h1>one</h1>"),
+);
+const healthOtherHost = await app.inject({
+  method: "GET",
+  url: "/health",
+  headers: { host: "unknown.example.com" },
+});
+check("an unknown name changes nothing", healthOtherHost.statusCode === 200);
+const domainOff = await app.inject({
+  method: "PUT",
+  url: "/residents/skyrecall/domain",
+  cookies,
+  payload: { domain: "" },
+});
+check(
+  "the domain comes off cleanly",
+  domainOff.statusCode === 200 && JSON.parse(domainOff.body).domain === null,
+);
+const servedGone = await app.inject({
+  method: "GET",
+  url: "/",
+  headers: { host: "sky-recall.example.com" },
+});
+check("a shed name stops answering", servedGone.statusCode === 404);
+
 /* the repo door refuses malformed names before any network is asked;
    the fetch itself needs GitHub and is proven by the app suite */
 const repoBadOwner = await app.inject({ method: "GET", url: "/fetch/github/bad.owner/app" });
