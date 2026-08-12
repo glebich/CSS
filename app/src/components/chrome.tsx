@@ -279,9 +279,11 @@ export function BottomBar() {
           </button>
         ))}
         <AskInput />
-        {/* every icon says its name; a bar nobody has to decode */}
+        {/* every icon says its name; a bar nobody has to decode.
+            Mood and People open sheets, so they wear the dial look
+            and stand apart from the rooms. */}
         <button
-          className={`nav-stack${panel === "mood" ? " is-active" : ""}`}
+          className={`nav-stack nav-stack-sheet${panel === "mood" ? " is-active" : ""}`}
           onClick={() => togglePanel("mood")}
           aria-label="Mood"
         >
@@ -291,7 +293,7 @@ export function BottomBar() {
           <span className="nav-stack-label">Mood</span>
         </button>
         <button
-          className={`nav-stack${panel === "personas" ? " is-active" : ""}`}
+          className={`nav-stack nav-stack-sheet${panel === "personas" ? " is-active" : ""}`}
           onClick={() => togglePanel("personas")}
           aria-label="Personas"
         >
@@ -300,6 +302,7 @@ export function BottomBar() {
           </span>
           <span className="nav-stack-label">People</span>
         </button>
+        <span className="bar-divide" aria-hidden />
         {LIFE_NAV.map((item) => (
           <button
             key={item.view}

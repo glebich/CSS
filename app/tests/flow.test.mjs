@@ -60,7 +60,26 @@ check(
   await page.getByText("Safe. Designed. Usable. Tested. Evolving. Shared.").isVisible(),
 );
 check("the rail wears eight marks", (await page.locator(".works-mark").count()) === 8);
-check("the landing doors to discover", await page.getByText("See who lives here").isVisible());
+check(
+  "the landing doors to discover",
+  await page.getByText("See who lives here").first().isVisible(),
+);
+check(
+  "the landing says what Osyle is",
+  await page.getByText("Turn a generated app into software people can trust.").isVisible(),
+);
+check(
+  "the landing numbers say where they came from",
+  await page.getByText("p95 across 1400 calls", { exact: false }).isVisible(),
+);
+check(
+  "the landing names the laws it keeps",
+  await page.getByText("Unbuilt stages name themselves").isVisible(),
+);
+check(
+  "the hero render is the live app, said plainly",
+  await page.getByText("A live render, not a screenshot", { exact: false }).isVisible(),
+);
 check(
   "every mark says what its integration does",
   (await page.locator(".works-mark", { hasText: "GitHub" }).getAttribute("title"))?.includes(
@@ -159,6 +178,11 @@ check(
   const rail = await page.locator(".workspace-preview").boundingBox();
   check("the bar never overlaps the bench", !!bar && !!rail && bar.x + bar.width <= rail.x);
 }
+check(
+  "mood and people wear the sheet look, split from the rooms",
+  (await page.locator(".nav-stack-sheet").count()) === 2 &&
+    (await page.locator(".bar-divide").count()) === 1,
+);
 /* between the floor and the bench: the rail steps aside, the bar stays */
 await page.setViewportSize({ width: 1300, height: 810 });
 check(
