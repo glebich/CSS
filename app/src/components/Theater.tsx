@@ -180,7 +180,7 @@ function ExampleTheater() {
             finding{issues === 1 ? "" : "s"} so far, {currentPhase.toLowerCase()} phase
           </span>
         </div>
-        <span className="chip" style={{ position: "absolute", left: 16, bottom: 12 }}>
+        <span className="chip" style={{ position: "absolute", left: 26, bottom: 32 }}>
           Example
         </span>
         <button className="topbar-quiet theater-skip" onClick={finishReading}>

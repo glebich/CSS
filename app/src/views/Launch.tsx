@@ -224,10 +224,12 @@ export function Launch() {
         )}
       </div>
 
-      <div style={{ display: "flex", justifyContent: "center", marginTop: 36 }}>
+      {/* the one action floats above everything, reachable without a
+          scroll, named for what it does: enhancement, not invention */}
+      <div className="launch-cta">
         <button className="pill pill-dark" onClick={goHomeFromLaunch}>
           <Sparkle size={13} />
-          Create the concept
+          Enhance the app
           <Sparkle size={13} />
         </button>
       </div>

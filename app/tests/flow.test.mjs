@@ -141,9 +141,8 @@ check(
 await page.getByText("Drop your app", { exact: false }).last().click();
 check("place shows the flow steps", await page.locator(".flow-steps").isVisible());
 check(
-  "one map from the first step: the rail stands, dimmed",
-  (await page.locator(".sidebar.is-preview").isVisible()) &&
-    (await page.locator(".side-row.is-waiting").count()) > 6,
+  "the onboarding keeps a clear desk, no rail",
+  (await page.locator(".sidebar").count()) === 0,
 );
 check(
   "loose files have one door, wearing the clip",
@@ -225,7 +224,7 @@ check(
 );
 await page.locator(".platform-chip", { hasText: "iOS" }).click();
 
-await page.getByText("Create the concept").click();
+await page.getByText("Enhance the app").click();
 await page.waitForTimeout(900);
 
 /* The reveal and the surface */
@@ -1116,7 +1115,7 @@ await page.getByText("See the example").click();
 await page.getByText("Skip", { exact: true }).click();
 await page.getByText("Explore a style", { exact: false }).last().click();
 await page.getByText("Continue with", { exact: false }).click();
-await page.getByText("Create the concept").click();
+await page.getByText("Enhance the app").click();
 await page.waitForTimeout(600);
 
 /* the responsive floor: at 390 everything is composed */

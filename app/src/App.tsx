@@ -101,9 +101,9 @@ function Shell() {
     <div className="shell">
       <TopBar inResident={inResident} />
       <div style={{ display: "flex", flex: 1, minHeight: 0 }}>
-        {/* one map from the first step: during setup the rail stands
-            with its rooms dimmed, so the geography never changes */}
-        <SideBar preview={inFlow} />
+        {/* the onboarding keeps a clear desk; the rail arrives with
+            the resident, once there are rooms worth walking */}
+        {inResident && <SideBar />}
         <div
           style={{ position: "relative", flex: 1, minWidth: 0, display: "flex", flexDirection: "column" }}
         >

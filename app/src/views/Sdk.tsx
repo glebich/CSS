@@ -146,7 +146,17 @@ export function Sdk() {
         storage; the shape is the contract.
       </p>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr", gap: 14, marginTop: 30 }}>
+      {/* the snippet says why it earns its place before it speaks code */}
+      <div className="section-label" style={{ marginTop: 30 }}>
+        What your app can do because it lives here
+      </div>
+      <p style={{ fontSize: 13, color: "var(--gray-meta)", maxWidth: 640 }}>
+        Three lines give your app memory, sign-in, and small facts that
+        survive a refresh, with no backend to build. The numbers on the
+        right are this page running those exact lines, live.
+      </p>
+
+      <div style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr", gap: 14, marginTop: 14 }}>
         <pre
           className="mono card card-solid"
           style={{ padding: 22, whiteSpace: "pre-wrap", color: "var(--ink-soft)", lineHeight: 1.7 }}

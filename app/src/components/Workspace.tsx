@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { readLedger, useStore } from "../store";
 import { MiniApp, previewDevice } from "./MiniApp";
-import { Icon } from "./chrome";
 
 /**
  * The workspace rail: the app you are shaping, always visible and
@@ -39,7 +38,7 @@ function humanKind(kind: string): string {
 }
 
 export function WorkspacePreview() {
-  const { styleId, mood, personaId, device, comfort, ledgerCount } = useStore();
+  const { styleId, mood, personaId, device, comfort, ledgerCount, go } = useStore();
   /* ledgerCount keys the reread so new decisions appear as they land */
   void ledgerCount;
   const history = readLedger().slice(-5).reverse();
@@ -54,17 +53,29 @@ export function WorkspacePreview() {
         ? "phone-frame workspace-phone"
         : "desktop-frame workspace-desktop";
 
+  /* the fold control keeps its seat; only the arrow turns around */
+  const foldArrow = (
+    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden>
+      {folded ? (
+        <path d="M7.5 2.5 4 6l3.5 3.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+      ) : (
+        <path d="M4.5 2.5 8 6l-3.5 3.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+      )}
+    </svg>
+  );
+
   if (folded) {
     return (
-      <button
-        className="workspace-fold-tab"
-        onClick={() => setFolded(false)}
-        aria-label="Show the live preview"
-        title="Show the live preview"
-      >
-        <Icon name="eye" size={15} />
-        <span>Preview</span>
-      </button>
+      <div className="workspace-preview workspace-preview-folded">
+        <button
+          className="circle workspace-fold"
+          onClick={() => setFolded(false)}
+          aria-label="Show the live preview"
+          title="Show the live preview"
+        >
+          {foldArrow}
+        </button>
+      </div>
     );
   }
 
@@ -81,9 +92,7 @@ export function WorkspacePreview() {
           aria-label="Hide the live preview"
           title="Hide the live preview"
         >
-          <svg width="10" height="10" viewBox="0 0 8 8" fill="none" aria-hidden>
-            <path d="M1 1l6 6M7 1L1 7" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
-          </svg>
+          {foldArrow}
         </button>
       </div>
       <div className={frame}>
@@ -98,15 +107,21 @@ export function WorkspacePreview() {
           />
         </div>
       </div>
-      <a
-        className="pill"
-        href="#/r/skyrecall"
-        target="_blank"
-        rel="noreferrer"
-        style={{ textDecoration: "none", alignSelf: "center" }}
-      >
-        Open at the address
-      </a>
+      <div style={{ display: "flex", gap: 8, alignSelf: "center", flexWrap: "wrap", justifyContent: "center" }}>
+        {/* the theme door rides the bench: the chosen style, one tap away */}
+        <button className="pill pill-sm" onClick={() => go("style")}>
+          Change the style
+        </button>
+        <a
+          className="pill pill-sm"
+          href="#/r/skyrecall"
+          target="_blank"
+          rel="noreferrer"
+          style={{ textDecoration: "none" }}
+        >
+          Open at the address
+        </a>
+      </div>
 
       {history.length > 0 && (
         <div style={{ width: "100%" }}>
