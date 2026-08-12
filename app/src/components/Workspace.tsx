@@ -26,6 +26,7 @@ const KIND_LINES: Record<string, string> = {
   "repo.connected": "Repository connected",
   "stack.claimed": "Claimed on the stack",
   "ask.asked": "You asked",
+  "name.changed": "Renamed",
 };
 
 function humanKind(kind: string): string {

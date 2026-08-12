@@ -13,6 +13,14 @@ import { tmpdir } from "node:os";
 import { strToU8, zipSync } from "fflate";
 
 const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
+/* a crashed earlier run can leave its servers holding the ports and
+   their old data; sweep them so this run speaks to its own stack */
+try {
+  execSync("pkill -f 'node dist/server.js' || true", { stdio: "ignore" });
+} catch {
+  /* nothing was running */
+}
+await new Promise((r) => setTimeout(r, 400));
 const server = await createServer({ root, server: { port: 5197 } });
 await server.listen();
 
@@ -179,9 +187,9 @@ check(
   check("the bar never overlaps the bench", !!bar && !!rail && bar.x + bar.width <= rail.x);
 }
 check(
-  "mood and people wear the sheet look, split from the rooms",
-  (await page.locator(".nav-stack-sheet").count()) === 2 &&
-    (await page.locator(".bar-divide").count()) === 1,
+  "run, mood, and people wear the sheet look, split from the rooms",
+  (await page.locator(".nav-stack-sheet").count()) === 3 &&
+    (await page.locator(".bar-divide").count()) === 2,
 );
 /* between the floor and the bench: the rail steps aside, the bar stays */
 await page.setViewportSize({ width: 1300, height: 810 });
@@ -199,7 +207,22 @@ check(
 );
 check("heal receipt lists four repairs", (await page.locator(".receipt-row").count()) === 4);
 await page.getByText("Heal four issues").click();
-await page.waitForTimeout(2600);
+/* the work speaks while it happens: a glass notice and the bar chip */
+await page.waitForTimeout(400);
+check(
+  "healing files a working notice",
+  await page.locator(".notice", { hasText: "Healing four issues" }).isVisible(),
+);
+check("the notice shows true progress", await page.locator(".notice-track").isVisible());
+check("the top bar admits work is in flight", await page.getByText("1 working").isVisible());
+{
+  const blur = await page
+    .locator(".notice")
+    .first()
+    .evaluate((el) => getComputedStyle(el).backdropFilter || getComputedStyle(el).webkitBackdropFilter);
+  check("the notice stands on blurred glass", String(blur).includes("blur"));
+}
+await page.waitForTimeout(2200);
 check("heal raises vitality to 69", (await page.locator(".instrument").innerText()) === "69");
 
 /* No dead ends: home offers the next door after healing */
@@ -305,6 +328,10 @@ check("the scripted edit says so", await page.getByText("Scripted example").isVi
 await page.getByText("Apply the change").click();
 await page.waitForTimeout(300);
 check("applying celebrates in one line", await page.getByText("Your app got better today.").isVisible());
+check(
+  "the applied edit files its notice",
+  await page.locator(".notice", { hasText: "Applying the edit" }).isVisible(),
+);
 await page
   .getByPlaceholder("e.g. show the streak in the logbook")
   .fill("make everything purple");
@@ -606,7 +633,7 @@ check("the invite copies in one tap", await page.getByText("Invite copied").isVi
 check("the stack's door is open", await page.getByText("The stack is answering").isVisible());
 await page.getByPlaceholder("you@yourdomain.com").fill("resident@example.com");
 await page.getByText("Claim it on the stack").click();
-await page.waitForTimeout(900);
+await page.waitForTimeout(1800);
 check(
   "the claim comes back with the address",
   await page
@@ -743,7 +770,10 @@ await page.getByText("Connect the repo").click();
 await page.waitForTimeout(800);
 check(
   "an unreachable repo is answered honestly",
-  await page.getByText("Private repositories connect with Real Mode", { exact: false }).isVisible(),
+  await page
+    .getByText("Private repositories connect with Real Mode", { exact: false })
+    .first()
+    .isVisible(),
 );
 await page.getByPlaceholder("github.com/you/your-app").fill("github.com/osyle/sunrise");
 await page.getByText("Connect the repo").click();
@@ -767,6 +797,20 @@ check(
 check("the tab wears the project's name", await page.locator(".tab").getByText("sunrise").isVisible());
 check("the browser title carries the project", (await page.title()).includes("sunrise"));
 check("the reset door renames honestly", await page.getByText("Start over").isVisible());
+
+/* the name edits in place, Figma style: click, type, Enter */
+await page.locator(".tab").getByText("sunrise").click();
+await page.locator(".tab-rename").fill("Sunrise Pro");
+await page.locator(".tab-rename").press("Enter");
+await page.waitForTimeout(200);
+check(
+  "the name edits where it is worn",
+  await page.locator(".tab").getByText("Sunrise Pro").isVisible(),
+);
+await page.locator(".tab").getByText("Sunrise Pro").click();
+await page.locator(".tab-rename").fill("sunrise");
+await page.locator(".tab-rename").press("Enter");
+await page.waitForTimeout(200);
 
 /* the report holds the 390 floor: futures stack, wardrobe fits */
 const overflowNow = () =>

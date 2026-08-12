@@ -18,14 +18,6 @@ function Chevron({ up = false }: { up?: boolean }) {
   );
 }
 
-function X({ size = 8 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 8 8" fill="none" aria-hidden>
-      <path d="M1 1l6 6M7 1L1 7" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
-    </svg>
-  );
-}
-
 export type IconName =
   | "home"
   | "monitor"
@@ -134,36 +126,86 @@ export function DeviceSwitcher() {
   );
 }
 
+/** The name, editable where it is worn: click, type, Enter. */
+function TitleChip({ name }: { name: string }) {
+  const { renameResident } = useStore();
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(name);
+  if (editing) {
+    return (
+      <span className="tab is-active">
+        <input
+          className="tab-rename"
+          value={draft}
+          autoFocus
+          aria-label="Rename the app"
+          onChange={(e) => setDraft(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              renameResident(draft);
+              setEditing(false);
+            }
+            if (e.key === "Escape") setEditing(false);
+          }}
+          onBlur={() => {
+            renameResident(draft);
+            setEditing(false);
+          }}
+        />
+      </span>
+    );
+  }
+  return (
+    <span className="tab is-active">
+      <button
+        title="Click to rename"
+        onClick={() => {
+          setDraft(name);
+          setEditing(true);
+        }}
+      >
+        {name}
+      </button>
+    </span>
+  );
+}
+
+/** The small truth in the top bar: how much work is in flight, anywhere. */
+function WorkChip() {
+  const { jobs } = useStore();
+  const working = jobs.filter((j) => j.state === "working").length;
+  if (working === 0) return null;
+  return (
+    <span className="work-chip" title="Work in flight; the stack on the right has the detail">
+      <span className="pulse-dot" />
+      {working} working
+    </span>
+  );
+}
+
 export function TopBar({ inResident }: { inResident: boolean }) {
-  const { go, resetDemo, tabs, activeTab, switchTab, addTab, closeTab, project, togglePanel } =
-    useStore();
+  const { go, resetDemo, tabs, project, togglePanel } = useStore();
   return (
     <header className="topbar">
       <button onClick={() => go(inResident ? "home" : "landing")} aria-label="Osyle">
         <Wordmark />
       </button>
+      {/* one app, named honestly; browser-tab pretense removed because
+          the room holds one resident at a time. Plus starts a new drop.
+          A click on the name edits it in place, Figma style. */}
       <div className="tabs" style={{ marginLeft: 10 }}>
-        {tabs.map((tab) => {
-          /* a real project owns its tab; the example never speaks for it */
-          const label = tab.isDemo && project ? project.inventory.name : tab.name;
-          return (
-            <span key={tab.id} className={`tab${tab.id === activeTab ? " is-active" : ""}`}>
-              <button onClick={() => switchTab(tab.id)}>{label}</button>
-              {tabs.length > 1 && (
-                <button className="tab-x" onClick={() => closeTab(tab.id)} aria-label={`Close ${label}`}>
-                  <X />
-                </button>
-              )}
-            </span>
-          );
-        })}
-        {tabs.length < 10 && (
-          <button className="tab-add" onClick={addTab} aria-label="New tab">
-            <Icon name="plus" size={14} />
-          </button>
-        )}
+        <TitleChip name={project ? project.inventory.name : (tabs[0]?.name ?? "SkyRecall")} />
+        <button
+          className="tab-add"
+          onClick={() => go("place")}
+          aria-label="Drop another app"
+          title="Drop another app; it takes this room"
+        >
+          <Icon name="plus" size={14} />
+        </button>
       </div>
       <span className="topbar-spacer" />
+      <WorkChip />
       <button className="topbar-quiet topbar-keep" onClick={() => togglePanel("resident")}>
         Your app
       </button>
@@ -269,6 +311,18 @@ export function BottomBar() {
   return (
     <nav className="bottombar">
       <div className="bar-shell">
+        {/* run opens a sheet over the room, so it wears the dial look */}
+        <button
+          className={`nav-stack nav-stack-sheet${panel === "run" ? " is-active" : ""}`}
+          onClick={() => togglePanel("run")}
+          aria-label="Run"
+        >
+          <span className="nav-stack-icon">
+            <Icon name="play" size={19} />
+          </span>
+          <span className="nav-stack-label">Run</span>
+        </button>
+        <span className="bar-divide" aria-hidden />
         {NAV.map((item) => (
           <button
             key={item.view}

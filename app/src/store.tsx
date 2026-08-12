@@ -4,6 +4,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -157,6 +158,17 @@ export function currentState(issueId: string, healed: Set<string>) {
   return issue.history[issue.history.length - 1];
 }
 
+/** A unit of work the interface admits to doing, live in the stack. */
+export interface Job {
+  id: string;
+  title: string;
+  detail: string | null;
+  /** 0..1 when the steps are countable, null when they are not */
+  progress: number | null;
+  state: "working" | "done" | "failed";
+  startedAt: number;
+}
+
 interface Store {
   view: View;
   go: (v: View) => void;
@@ -245,6 +257,13 @@ interface Store {
   transformAccepted: boolean;
   acceptTransform: () => void;
   resetDemo: () => void;
+  /** rename the resident in place, Figma style, and the rooms follow */
+  renameResident: (name: string) => void;
+  /* the work speaks: every working door files a job in the stack */
+  jobs: Job[];
+  beginJob: (title: string, detail?: string) => string;
+  updateJob: (id: string, patch: { progress?: number; detail?: string }) => void;
+  endJob: (id: string, line?: string, failed?: boolean) => void;
 }
 
 const Ctx = createContext<Store | null>(null);
@@ -289,6 +308,44 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     setLedgerCount((n) => n + 1);
   }, []);
 
+  /* The work speaks. A job is real work in flight; instant work files
+     and finishes in the same breath, long work reports its true steps.
+     Done and failed cards leave the stack on their own after a beat. */
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const jobSeq = useRef(0);
+  const beginJob = useCallback((title: string, detail?: string) => {
+    jobSeq.current += 1;
+    const id = `job-${jobSeq.current}`;
+    setJobs((prev) => [
+      ...prev,
+      { id, title, detail: detail ?? null, progress: null, state: "working", startedAt: Date.now() },
+    ]);
+    return id;
+  }, []);
+  const updateJob = useCallback(
+    (id: string, patch: { progress?: number; detail?: string }) => {
+      setJobs((prev) => prev.map((j) => (j.id === id ? { ...j, ...patch } : j)));
+    },
+    [],
+  );
+  const endJob = useCallback((id: string, line?: string, failed?: boolean) => {
+    setJobs((prev) =>
+      prev.map((j) =>
+        j.id === id
+          ? {
+              ...j,
+              state: failed ? "failed" : "done",
+              detail: line ?? j.detail,
+              progress: failed ? j.progress : 1,
+            }
+          : j,
+      ),
+    );
+    window.setTimeout(() => {
+      setJobs((prev) => prev.filter((j) => j.id !== id));
+    }, 5200);
+  }, []);
+
   /* The Studio: which scripted edits the user chose to apply. */
   const [appliedEdits, setAppliedEdits] = useState<string[]>(() =>
     loadJson<string[]>(STUDIO_KEY, []),
@@ -302,8 +359,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         return next;
       });
       record("studio.accepted", { edit: id });
+      const job = beginJob("Applying the edit", "The diff you approved is landing.");
+      endJob(job, "Edit applied. The render carries it.");
     },
-    [record],
+    [record, beginJob, endJob],
   );
 
   /* The ask bar: words in, a room and a recorded judgment out. */
@@ -349,8 +408,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         return { archetypes: next.slice(-3), primaryId: a.id };
       });
       record("audience.adopted", { archetype: a.id, rationale });
+      const job = beginJob(`Adopting ${a.name}`, "The render and the benchmarks follow.");
+      endJob(job, `${a.name} adopted. The resident renders for them now.`);
     },
-    [record],
+    [record, beginJob, endJob],
   );
 
   const setPrimaryArchetype = useCallback(
@@ -561,9 +622,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     saveJson("osyle.residents", registry);
     setRealSlug(slug);
     record("address.given", { slug, files: textFiles.length });
+    const job = beginJob("Giving it the address", `${textFiles.length} files moving in.`);
+    endJob(job, `It lives at ${slug}.osyle.app now.`);
     setPanel("none");
     setView("address");
-  }, [project, styleId, record]);
+  }, [project, styleId, record, beginJob, endJob]);
 
   const analyzeFiles = useCallback(async (dropped: DroppedFile[]) => {
     const first = dropped[0] instanceof File ? dropped[0] : dropped[0]?.file;
@@ -627,16 +690,21 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       if (!ref) return "Name it like github.com/you/your-app.";
       /* stay on the place until the repo actually answers, so an
          honest refusal lands where the person still is */
+      const job = beginJob(`Reaching ${ref.owner}/${ref.repo}`, "Asking GitHub for the app.");
       try {
         const file = await fetchRepoZip(ref);
         record("repo.connected", { repo: `${ref.owner}/${ref.repo}` });
+        updateJob(job, { detail: "The app answered. Examining it." });
         await analyzeFiles([file]);
+        endJob(job, "Examined. The report is yours.");
         return null;
       } catch (err) {
-        return err instanceof Error ? err.message : "The connection failed. Try again.";
+        const line = err instanceof Error ? err.message : "The connection failed. Try again.";
+        endJob(job, line, true);
+        return line;
       }
     },
-    [analyzeFiles, record],
+    [analyzeFiles, record, beginJob, updateJob, endJob],
   );
 
   /**
@@ -683,13 +751,17 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     async (email: string): Promise<string | null> => {
       if (!project || !realSlug) return "Give it the address first.";
       if (!email.includes("@")) return "A real email address claims it.";
+      const job = beginJob("Claiming on the stack", "Registering the resident.");
       try {
         const res = await fetch(`${stackBase}/partner/import`, {
           method: "POST",
           headers: { "content-type": "application/json" },
           body: JSON.stringify({ email, name: project.inventory.name, slug: realSlug }),
         });
-        if (!res.ok) return `The stack answered ${res.status}. The local address still serves.`;
+        if (!res.ok) {
+          endJob(job, `The stack answered ${res.status}.`, true);
+          return `The stack answered ${res.status}. The local address still serves.`;
+        }
         const body = (await res.json()) as {
           resident: { slug: string; address: string };
           claimLink: string;
@@ -706,7 +778,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
             const textFiles = [...project.files.values()]
               .filter((f) => f.text !== null)
               .slice(0, 40);
-            for (const f of textFiles) {
+            for (const [i, f] of textFiles.entries()) {
+              updateJob(job, {
+                detail: `Moving the files into the Vault, ${i + 1} of ${textFiles.length}.`,
+                progress: (i + 1) / textFiles.length,
+              });
               const put = await fetch(
                 `${stackBase}/residents/${body.resident.slug}/files/${f.path}`,
                 {
@@ -724,12 +800,39 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         }
         setStackClaim({ address: body.resident.address, note: body.note, uploaded });
         record("stack.claimed", { slug: realSlug, address: body.resident.address, uploaded });
+        endJob(job, `Claimed. ${uploaded} files versioned at ${body.resident.address}.`);
         return null;
       } catch {
+        endJob(job, "The stack did not answer.", true);
         return "The stack did not answer. The local address still serves.";
       }
     },
-    [project, realSlug, stackBase, record],
+    [project, realSlug, stackBase, record, beginJob, updateJob, endJob],
+  );
+
+  /* The name is editable where it is worn. The project, the tab, and
+     the residency registry all follow; the address keeps its slug so
+     shared links never break. */
+  const renameResident = useCallback(
+    (name: string) => {
+      const clean = name.trim().slice(0, 40);
+      if (!clean) return;
+      setTabs((prev) => prev.map((t, i) => (i === 0 ? { ...t, name: clean } : t)));
+      if (project) {
+        setProject((prev) =>
+          prev ? { ...prev, inventory: { ...prev.inventory, name: clean } } : prev,
+        );
+        if (realSlug) {
+          const registry = loadJson<Record<string, { name?: string }>>("osyle.residents", {});
+          if (registry[realSlug]) {
+            registry[realSlug] = { ...registry[realSlug], name: clean };
+            saveJson("osyle.residents", registry);
+          }
+        }
+      }
+      record("name.changed", { name: clean });
+    },
+    [project, realSlug, record],
   );
 
   const decideReal = useCallback((findingId: string, decision: "accepted" | "aside") => {
@@ -857,10 +960,17 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     setHealing(true);
     const queue = [...healableOpen];
     record("heal.tapped", { issues: queue });
+    const job = beginJob(
+      queue.length === 1 ? "Healing one issue" : `Healing ${numberWord(queue.length)} issues`,
+      "Each repair lands with its receipt.",
+    );
+    updateJob(job, { progress: 0 });
     queue.forEach((issueId, idx) => {
       window.setTimeout(() => {
         setHealed((prev) => new Set([...prev, issueId]));
+        updateJob(job, { progress: (idx + 1) / queue.length });
         if (idx === queue.length - 1) {
+          endJob(job, queue.length === 1 ? "One issue healed." : `${numberWord(queue.length)} issues healed.`);
           setHealing(false);
           const now = new Date();
           const when = now.toLocaleDateString("en-US", {
@@ -879,7 +989,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         }
       }, 500 * (idx + 1));
     });
-  }, [healing, healableOpen, record]);
+  }, [healing, healableOpen, record, beginJob, updateJob, endJob]);
 
   /* Notes the founder composed by hand in the Owner console arrive
      here like any other director note: unread, signed, first. */
@@ -1027,6 +1137,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     transformAccepted,
     acceptTransform,
     resetDemo,
+    renameResident,
+    jobs,
+    beginJob,
+    updateJob,
+    endJob,
   };
 
   return <Ctx.Provider value={store}>{children}</Ctx.Provider>;

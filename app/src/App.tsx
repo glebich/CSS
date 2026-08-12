@@ -1,9 +1,10 @@
 import { useEffect } from "react";
 import { StoreProvider, useStore } from "./store";
-import { BottomBar, Icon, TopBar } from "./components/chrome";
+import { BottomBar, TopBar } from "./components/chrome";
 import { MoodPanel, PersonasPanel, RunOverlay } from "./components/panels";
 import { ResidentPanel } from "./components/ResidentPanel";
 import { WorkspacePreview } from "./components/Workspace";
+import { NoticeStack } from "./components/Notices";
 import { Landing } from "./views/Landing";
 import { Place } from "./views/Place";
 import { Assets } from "./views/Assets";
@@ -90,7 +91,7 @@ function useLiveTitle() {
 }
 
 function Shell() {
-  const { view, panel, togglePanel, project } = useStore();
+  const { view, panel, project } = useStore();
   useLiveTitle();
   if (view === "landing") return <Landing />;
   const inFlow = FLOW_VIEWS.has(view);
@@ -111,15 +112,10 @@ function Shell() {
           <Screen />
         )}
         {inResident && <BottomBar />}
+        <NoticeStack />
         {inResident && panel === "mood" && <MoodPanel />}
         {inResident && panel === "personas" && <PersonasPanel />}
         {panel === "resident" && <ResidentPanel />}
-        {inResident && !project && panel !== "run" && (
-          <button className="run-pill" onClick={() => togglePanel("run")}>
-            <Icon name="play" size={15} />
-            RUN
-          </button>
-        )}
         {panel === "run" && <RunOverlay />}
       </div>
     </div>

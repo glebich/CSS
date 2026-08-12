@@ -791,6 +791,23 @@ bench would crowd the bar. Three new journey checks hold the line:
 the bar and the rail never intersect at 1440, the rail hides at
 1300, and the bar keeps the room.
 
+### Increment Y. The work speaks. DELIVERED
+
+Every working door now files a job in a notice stack: glass cards
+on blurred white, top right, stacking as they arrive, each with its
+true progress when the steps are countable, a check when done, a
+quiet ring when failed, gone on their own after a beat. Healing
+reports each repair as it lands, the stack claim counts its files
+into the Vault, the repo reach narrates its phases, and instant
+work admits it was instant. The top bar carries a small working
+chip on every screen while anything is in flight. Around the same
+pass: the browser-tab pretense left the top bar since the room
+holds one resident at a time, and the name that remains edits in
+place, Figma style, with the registry following; Run became a play
+door living in the bar with the other sheet dials; the drop page
+says Drop your app in three words. The suite grew to cover all of
+it.
+
 ### Increment I. What remains, in spec order
 
 The Redis-backed limiter and the Postgres and MinIO drivers when

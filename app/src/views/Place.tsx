@@ -143,11 +143,11 @@ export function Place() {
             </>
           ) : (
             <>
-              Place
+              Drop
               <br />
-              something
+              your
               <br />
-              <span className="quiet">here</span>
+              <span className="quiet">app</span>
             </>
           )}
         </h1>
