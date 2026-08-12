@@ -54,15 +54,27 @@ export function StyleExplore() {
   const { styleId, setStyleId, go, applyFeeling, feelingCaption } = useStore();
   const [category, setCategory] = useState<string | null>(null);
   const [query, setQuery] = useState("");
-  const [feeling, setFeeling] = useState("");
+  const [sort, setSort] = useState<"curated" | "name" | "designer">("curated");
   const [tasteId, setTasteId] = useState<string | null>(null);
   const taste = tasteId ? (tasteSources.find((t) => t.id === tasteId) ?? null) : null;
 
-  const shown = styleCatalog.filter(
-    (s) =>
-      (!category || s.category === category) &&
-      (!query || s.name.toLowerCase().includes(query.toLowerCase())),
-  );
+  const q = query.trim().toLowerCase();
+  const shown = styleCatalog
+    .filter(
+      (s) =>
+        (!category || s.category === category) &&
+        (!q ||
+          s.name.toLowerCase().includes(q) ||
+          s.by.toLowerCase().includes(q) ||
+          s.category.toLowerCase().includes(q)),
+    )
+    .sort((a, b) =>
+      sort === "name"
+        ? a.name.localeCompare(b.name)
+        : sort === "designer"
+          ? a.by.localeCompare(b.by)
+          : 0,
+    );
   const chosen = styleCatalog.find((s) => s.id === styleId);
 
   return (
@@ -82,75 +94,64 @@ export function StyleExplore() {
             </span>
           </span>
         )}
+        {/* one field does everything: typing filters the gallery live,
+            Enter asks the feeling road in plain words */}
         <input
-          placeholder="What type of design are you interested in?"
+          placeholder="e.g. make it grandma friendly"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && query.trim()) {
+              applyFeeling(query.trim());
+              setQuery("");
+            }
+          }}
         />
-        <span className="explore-side">
-          <span>Top designers</span>
-          <span className="off">My own</span>
-        </span>
-        <span className="explore-dark-seg" aria-hidden>
-          <span style={{ width: 7, height: 7, borderRadius: "50%", background: "currentColor" }} />
-          <span style={{ width: 7, height: 7, borderRadius: "50%", background: "currentColor", opacity: 0.5 }} />
-          <span style={{ width: 7, height: 7, borderRadius: "50%", background: "currentColor", opacity: 0.5 }} />
-        </span>
+        {feelingCaption && (
+          <span className="chip fade-in" key={feelingCaption}>
+            {feelingCaption}
+          </span>
+        )}
       </div>
 
-      <div className="cat-band">
-        {styleCategories.map((c) => (
-          <button
-            key={c}
-            className={`cat${category === c ? " is-active" : ""}`}
-            onClick={() => setCategory(category === c ? null : c)}
-          >
-            {c}
-          </button>
-        ))}
-      </div>
-
-      <div style={{ textAlign: "center", padding: "12px 0 24px" }}>
+      <div style={{ textAlign: "center", padding: "12px 0 18px" }}>
         <h1 className="statement" style={{ fontSize: "clamp(56px, 6.5vw, 96px)" }}>
           Explore a style
         </h1>
         <p className="statement-sub">Curated by the world&apos;s top designers</p>
       </div>
 
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: 10,
-          flexWrap: "wrap",
-          padding: "0 16px 30px",
-        }}
-      >
-        <span style={{ fontSize: 13.5, color: "var(--gray-small)" }}>Or say the feeling</span>
-        {["Calm", "Minimal", "Bold"].map((chip) => (
-          <button key={chip} className="pill pill-sm" onClick={() => applyFeeling(chip)}>
-            {chip}
-          </button>
-        ))}
-        <div className="ask-pill" style={{ minWidth: 260, height: 44 }}>
-          <input
-            placeholder="e.g. make it grandma friendly"
-            value={feeling}
-            onChange={(e) => setFeeling(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && feeling.trim()) {
-                applyFeeling(feeling.trim());
-                setFeeling("");
-              }
-            }}
-          />
+      {/* one calm row: sort on the left, categories in the middle, the
+          three feelings on the right, nothing else */}
+      <div className="explore-filters">
+        <select
+          className="sort-pill"
+          value={sort}
+          aria-label="Sort the styles"
+          onChange={(e) => setSort(e.target.value as "curated" | "name" | "designer")}
+        >
+          <option value="curated">Curated</option>
+          <option value="name">A to Z</option>
+          <option value="designer">By designer</option>
+        </select>
+        <div className="cat-band" style={{ padding: 0 }}>
+          {styleCategories.map((c) => (
+            <button
+              key={c}
+              className={`cat${category === c ? " is-active" : ""}`}
+              onClick={() => setCategory(category === c ? null : c)}
+            >
+              {c}
+            </button>
+          ))}
         </div>
-        {feelingCaption && (
-          <span className="chip fade-in" key={feelingCaption}>
-            {feelingCaption}
-          </span>
-        )}
+        <div style={{ display: "flex", gap: 8 }}>
+          {["Calm", "Minimal", "Bold"].map((chip) => (
+            <button key={chip} className="pill pill-sm" onClick={() => applyFeeling(chip)}>
+              {chip}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="style-grid">
