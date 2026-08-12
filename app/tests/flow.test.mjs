@@ -295,8 +295,7 @@ check(
   await page.getByText("The instrument returner").isVisible(),
 );
 await page
-  .locator("div", { hasText: /^The instrument returner/ })
-  .last()
+  .locator(".deeper-row", { hasText: "The instrument returner" })
   .getByText("Adopt", { exact: true })
   .click();
 await page.waitForTimeout(400);

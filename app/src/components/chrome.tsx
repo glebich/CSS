@@ -37,7 +37,11 @@ export type IconName =
   | "edit"
   | "clip"
   | "copy"
-  | "check";
+  | "check"
+  | "exam"
+  | "list"
+  | "eye"
+  | "gauge";
 
 /** 24px stroke icons drawn to match the Osyle_N icon sheet: 1.6 stroke, round caps. */
 export function Icon({ name, size = 22 }: { name: IconName; size?: number }) {
@@ -63,6 +67,12 @@ export function Icon({ name, size = 22 }: { name: IconName; size?: number }) {
     ),
     copy: <path d="M9 9h11v12H9Z M5 15V3h11" />,
     check: <path d="m5 13 4.5 4.5L19 8" />,
+    exam: <path d="M11 17.5a6.5 6.5 0 1 0 0-13 6.5 6.5 0 0 0 0 13Zm4.6-1.9L20 20" />,
+    list: <path d="M5 6.5h14M5 12h14M5 17.5h8" />,
+    gauge: <path d="M12 21a9 9 0 1 1 0-18 9 9 0 0 1 0 18Zm0-9 3.6-3.6" />,
+    eye: (
+      <path d="M2.8 12C5.3 7.7 8.6 5.5 12 5.5S18.7 7.7 21.2 12c-2.5 4.3-5.8 6.5-9.2 6.5S5.3 16.3 2.8 12Zm9.2 2.6a2.6 2.6 0 1 0 0-5.2 2.6 2.6 0 0 0 0 5.2Z" />
+    ),
   };
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
@@ -218,11 +228,11 @@ export function TopBar({ inResident }: { inResident: boolean }) {
   );
 }
 
-const NAV: Array<{ view: View; label: string }> = [
-  { view: "home", label: "Home" },
-  { view: "exam", label: "Examination" },
-  { view: "findings", label: "Findings" },
-  { view: "transform", label: "Preview" },
+const NAV: Array<{ view: View; label: string; icon: IconName }> = [
+  { view: "home", label: "Home", icon: "gauge" },
+  { view: "exam", label: "Examination", icon: "exam" },
+  { view: "findings", label: "Findings", icon: "list" },
+  { view: "transform", label: "Preview", icon: "eye" },
 ];
 
 const LIFE_NAV: Array<{ view: View; label: string; icon: IconName }> = [
@@ -326,10 +336,14 @@ export function BottomBar() {
         {NAV.map((item) => (
           <button
             key={item.view}
-            className={`bar-pill${active(item.view)}`}
+            className={`nav-stack${active(item.view)}`}
             onClick={() => go(item.view)}
+            aria-label={item.label}
           >
-            {item.label}
+            <span className="nav-stack-icon">
+              <Icon name={item.icon} size={19} />
+            </span>
+            <span className="nav-stack-label">{item.label}</span>
           </button>
         ))}
         <AskInput />

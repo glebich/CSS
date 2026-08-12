@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { currentState, useStore } from "../store";
-import { Page, Sparkle } from "../components/chrome";
+import { Icon, Page, Sparkle } from "../components/chrome";
 import { artDirector, issues, pulseLineAfterHeal, pulseLineAtRest } from "../data/seed";
 
 function keyStillBroken(healed: Set<string>): boolean {
@@ -50,6 +50,7 @@ export function Home() {
     project,
     realDecisions,
     realSlug,
+    togglePanel,
   } = useStore();
   const [reveal] = useState(justLaunched);
   useEffect(() => {
@@ -123,7 +124,15 @@ export function Home() {
           <span style={{ fontWeight: 550, fontSize: 15 }}>
             {project ? project.inventory.name : "SkyRecall"}
           </span>
-          <span className="chip">{homeSlug ? `${homeSlug}.osyle.app` : "no address yet"}</span>
+          {/* the address is a door: the domain changes in the panel it opens */}
+          <button
+            className="chip chip-door"
+            title="Change the domain in the panel this opens"
+            onClick={() => togglePanel("resident")}
+          >
+            {homeSlug ? `${homeSlug}.osyle.app` : "no address yet"}
+            <Icon name="edit" size={11} />
+          </button>
           {homeSlug ? (
             <>
               <a

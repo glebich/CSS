@@ -255,6 +255,7 @@ export function Audience() {
                     return (
                       <div
                         key={d.archetype.id}
+                        className="deeper-row"
                         style={{
                           display: "flex",
                           gap: 12,

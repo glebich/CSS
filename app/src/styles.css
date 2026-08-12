@@ -415,15 +415,26 @@ input {
 .bar-shell {
   pointer-events: auto;
   display: flex;
-  align-items: center;
-  gap: 5px;
-  padding: 10px;
-  border-radius: 140px;
+  /* one grammar, one line: every item aligns on the icon row and the
+     labels hang beneath it together */
+  align-items: flex-start;
+  gap: 7px;
+  padding: 12px 14px 8px;
+  border-radius: 34px;
   backdrop-filter: blur(10px);
   background: rgba(243, 241, 239, 0.55);
   /* never wider than the room it stands in; the ask yields first */
   max-width: 100%;
   min-width: 0;
+}
+
+.bar-shell .ask-pill {
+  height: 44px;
+}
+
+.bar-shell .bar-divide {
+  align-self: flex-start;
+  margin-top: 7px;
 }
 
 .bar-pill {
@@ -744,20 +755,11 @@ input {
   box-shadow: inset 0 0 0 1.5px var(--ink-strong);
 }
 
-/* Mood and People open sheets over the room, not other rooms: they
-   read as dials, tinted and dash-ringed, split from the nav by a
-   hairline so the two grammars never blur. */
+/* Run, Mood, and People open sheets over the room, not other rooms:
+   the same stack geometry as everything else, told apart by a quiet
+   tint and a hairline, nothing busier. */
 .nav-stack-sheet .nav-stack-icon {
-  background: rgba(12, 12, 14, 0.055);
-  box-shadow: inset 0 0 0 1px transparent;
-}
-
-.nav-stack-sheet .nav-stack-icon::after {
-  content: "";
-  position: absolute;
-  inset: -3px;
-  border-radius: 50%;
-  border: 1px dashed rgba(12, 12, 14, 0.28);
+  background: rgba(12, 12, 14, 0.06);
 }
 
 .nav-stack-sheet.is-active .nav-stack-icon {
@@ -3097,4 +3099,16 @@ input {
   font-size: 14.5px;
   line-height: 1.65;
   color: rgba(245, 244, 255, 0.72);
+}
+
+/* a chip that is also a door */
+.chip-door {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.chip-door:hover {
+  color: var(--ink-strong);
 }
