@@ -798,10 +798,24 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           return `The stack answered ${res.status}. The local address still serves.`;
         }
         const body = (await res.json()) as {
-          resident: { slug: string; address: string };
+          resident: { slug: string; address: string; apiKey?: string };
           claimLink: string;
           note: string;
         };
+        /* the resident's key comes home with the claim; the panel
+           hands it to the owner for the SDK's http transport */
+        if (body.resident.apiKey) {
+          try {
+            const keys = JSON.parse(localStorage.getItem("osyle.keys") ?? "{}") as Record<
+              string,
+              string
+            >;
+            keys[body.resident.slug] = body.resident.apiKey;
+            localStorage.setItem("osyle.keys", JSON.stringify(keys));
+          } catch {
+            /* the key stays on the stack; the owner can rotate it */
+          }
+        }
         /* the claim link is the session; verify it now and the Vault
            opens, so the files move in versioned from day one */
         let uploaded = 0;

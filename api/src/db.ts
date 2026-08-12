@@ -101,6 +101,18 @@ export function platformDb(): DatabaseSync {
   } catch {
     /* the column already exists */
   }
+  /* and the resident's own key; older rows are dealt one on sight */
+  try {
+    db.exec("ALTER TABLE residents ADD COLUMN api_key TEXT");
+  } catch {
+    /* the column already exists */
+  }
+  const keyless = db
+    .prepare("SELECT id FROM residents WHERE api_key IS NULL")
+    .all() as unknown as Array<{ id: string }>;
+  for (const r of keyless) {
+    db.prepare("UPDATE residents SET api_key = ? WHERE id = ?").run(token(), r.id);
+  }
   db.exec(
     `CREATE UNIQUE INDEX IF NOT EXISTS residents_by_domain
        ON residents (custom_domain) WHERE custom_domain IS NOT NULL`,

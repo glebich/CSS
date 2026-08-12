@@ -4,7 +4,7 @@
  */
 import type { FastifyInstance, FastifyRequest } from "fastify";
 import type { Resident } from "@osyle/shared";
-import { platformDb, id, now } from "./db.js";
+import { platformDb, id, now, token } from "./db.js";
 import { requireUser } from "./auth.js";
 
 const SLUG_RE = /^[a-z][a-z0-9-]{1,40}$/;
@@ -22,8 +22,11 @@ interface ResidentRow {
   user_id: string;
   created_at: string;
   custom_domain?: string | null;
+  api_key?: string | null;
 }
 
+/* apiKey rides along; every door that serializes a Resident is owner
+   gated, so the key only ever reaches the hands that hold the app */
 function toResident(r: ResidentRow): Resident {
   return {
     id: r.id,
@@ -32,6 +35,7 @@ function toResident(r: ResidentRow): Resident {
     userId: r.user_id,
     createdAt: r.created_at,
     customDomain: r.custom_domain ?? null,
+    apiKey: r.api_key ?? undefined,
   };
 }
 
@@ -88,12 +92,20 @@ export function registerResidents(app: FastifyInstance): void {
       name,
       user_id: user.id,
       created_at: now(),
+      api_key: token(),
     };
     platformDb()
       .prepare(
-        "INSERT INTO residents (id, slug, name, user_id, created_at) VALUES (?, ?, ?, ?, ?)",
+        "INSERT INTO residents (id, slug, name, user_id, created_at, api_key) VALUES (?, ?, ?, ?, ?, ?)",
       )
-      .run(resident.id, resident.slug, resident.name, resident.user_id, resident.created_at);
+      .run(
+        resident.id,
+        resident.slug,
+        resident.name,
+        resident.user_id,
+        resident.created_at,
+        resident.api_key ?? null,
+      );
     return reply.code(201).send({ resident: toResident(resident) });
   });
 
@@ -106,6 +118,15 @@ export function registerResidents(app: FastifyInstance): void {
     const resident = requireOwnedResident(req, req.params.slug);
     platformDb().prepare("DELETE FROM residents WHERE id = ?").run(resident.id);
     return reply.send({ ok: true });
+  });
+
+  /* the key turns: a rotation mints a fresh key and the old one stops
+     opening anything, in one motion */
+  app.post<{ Params: { slug: string } }>("/residents/:slug/key", async (req, reply) => {
+    const resident = requireOwnedResident(req, req.params.slug);
+    const fresh = token();
+    platformDb().prepare("UPDATE residents SET api_key = ? WHERE id = ?").run(fresh, resident.id);
+    return reply.send({ apiKey: fresh });
   });
 
   /* the custom domain: one hostname, owned like the resident itself.

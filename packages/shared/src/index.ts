@@ -18,6 +18,8 @@ export interface Resident {
   createdAt: string;
   /** the hostname the serving door answers by, when the owner set one */
   customDomain?: string | null;
+  /** the resident's own key; rdb doors open for it, owners hold it */
+  apiKey?: string;
 }
 
 export interface VaultFile {

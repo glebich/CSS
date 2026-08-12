@@ -1196,6 +1196,12 @@ check(
     .getByText("The front door answers", { exact: false })
     .isVisible(),
 );
+
+/* the resident's key came home with the claim, in the owner's hands */
+check(
+  "the resident's key is in the owner's hands",
+  await page.locator(".resident-panel").getByText("Copy the SDK key").isVisible(),
+);
 await page.goto("http://localhost:5197/#/discover");
 await page.waitForTimeout(400);
 check("unlisted stays off discover", (await page.getByText("sunrise.osyle.app").count()) === 0);

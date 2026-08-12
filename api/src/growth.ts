@@ -91,9 +91,10 @@ export function registerGrowth(app: FastifyInstance): void {
           now(),
         );
       }
+      const apiKey = token();
       db.prepare(
-        "INSERT INTO residents (id, slug, name, user_id, created_at) VALUES (?, ?, ?, ?, ?)",
-      ).run(id(), slug, name, user.id, now());
+        "INSERT INTO residents (id, slug, name, user_id, created_at, api_key) VALUES (?, ?, ?, ?, ?, ?)",
+      ).run(id(), slug, name, user.id, now(), apiKey);
 
       const claim = token();
       db.prepare("INSERT INTO magic_links (token, email, created_at) VALUES (?, ?, ?)").run(
@@ -103,7 +104,7 @@ export function registerGrowth(app: FastifyInstance): void {
       );
 
       return reply.code(201).send({
-        resident: { slug, name, address: `${slug}.osyle.app` },
+        resident: { slug, name, address: `${slug}.osyle.app`, apiKey },
         claimLink: `/auth/verify?token=${claim}`,
         reportPath: `/r/${slug}/report`,
         note: req.body?.repoUrl

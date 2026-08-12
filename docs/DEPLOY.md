@@ -169,6 +169,13 @@ restarts; if tests fail, nothing ships.
 - **Model keys.** Live Studio edits need an Anthropic or Gemini key
   entered in the Studio's key sheet; keys stay in the visitor's
   browser.
+- **The resident's key.** Every resident carries its own key from
+  birth, and the rdb doors open only for it, sent as `x-osyle-key` on
+  every call (the SDK's http transport takes it as the `key` option).
+  The owner reads it in the panel after the claim and can rotate it
+  with `POST /residents/{slug}/key`; the old key stops opening
+  anything the moment the new one exists. Older data dirs are dealt
+  keys on first open.
 - **Limits and budgets.** The api rations its doors per calling
   address (magic links, partner imports, and a general ceiling) and
   every vault has a budget: 5 MB a file, 64 MB across every version,

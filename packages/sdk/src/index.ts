@@ -63,6 +63,9 @@ export interface ClientOptions {
   transport?: "local" | "http";
   /** required for the http transport, e.g. https://api.osyle.app */
   baseUrl?: string;
+  /** the resident's own key; the http transport carries it on every
+      call, and the rdb doors open only for it */
+  key?: string;
   fetchImpl?: typeof fetch;
 }
 
@@ -134,11 +137,19 @@ function makeLocal(resident: string): OsyleClient {
 
 /* ------------------------------------------------------- http transport */
 
-function makeHttp(resident: string, baseUrl: string, fetchImpl: typeof fetch): OsyleClientAsync {
+function makeHttp(
+  resident: string,
+  baseUrl: string,
+  fetchImpl: typeof fetch,
+  key?: string,
+): OsyleClientAsync {
   const base = `${baseUrl.replace(/\/$/, "")}/rdb/${resident}`;
   async function call<T>(path: string, init?: RequestInit): Promise<T> {
     const res = await fetchImpl(`${base}${path}`, {
-      headers: { "content-type": "application/json" },
+      headers: {
+        "content-type": "application/json",
+        ...(key ? { "x-osyle-key": key } : {}),
+      },
       ...init,
     });
     if (!res.ok) throw new Error(`osyle sdk: ${res.status} on ${path}`);
@@ -188,7 +199,7 @@ export function createClient(
 ): OsyleClient | OsyleClientAsync {
   if (options.transport === "http") {
     if (!options.baseUrl) throw new Error("osyle sdk: http transport needs a baseUrl");
-    return makeHttp(resident, options.baseUrl, options.fetchImpl ?? fetch);
+    return makeHttp(resident, options.baseUrl, options.fetchImpl ?? fetch, options.key);
   }
   return makeLocal(resident);
 }

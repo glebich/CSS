@@ -62,6 +62,8 @@ const created = await app.inject({
   payload: { slug: "skyrecall", name: "SkyRecall" },
 });
 check("resident is created", created.statusCode === 201);
+const skyKey = created.json().resident.apiKey;
+check("the resident is born holding its key", typeof skyKey === "string" && skyKey.length > 10);
 
 const dup = await app.inject({
   method: "POST",
@@ -146,10 +148,25 @@ const traversal = await app.inject({
 });
 check("path traversal refuses", traversal.statusCode >= 400);
 
-/* the resident database, straight and through the SDK's http transport */
+/* the resident database, straight and through the SDK's http transport;
+   every door opens only for the resident's own key */
+const keyless = await app.inject({
+  method: "POST",
+  url: "/rdb/skyrecall/rows/drills",
+  payload: { kind: "radio-calls", score: 0.82 },
+});
+check("a keyless caller is locked out", keyless.statusCode === 401);
+const wrongKey = await app.inject({
+  method: "POST",
+  url: "/rdb/skyrecall/rows/drills",
+  headers: { "x-osyle-key": "not-the-key" },
+  payload: { kind: "radio-calls", score: 0.82 },
+});
+check("a wrong key is locked out", wrongKey.statusCode === 401);
 const inserted = await app.inject({
   method: "POST",
   url: "/rdb/skyrecall/rows/drills",
+  headers: { "x-osyle-key": skyKey },
   payload: { kind: "radio-calls", score: 0.82 },
 });
 check("a row inserts", inserted.statusCode === 201 && inserted.json().kind === "radio-calls");
@@ -161,6 +178,7 @@ const { createClient } = await import("../../packages/sdk/dist/index.js");
 const sdk = createClient("skyrecall", {
   transport: "http",
   baseUrl: "http://osyle.test",
+  key: skyKey,
   fetchImpl: async (url, init) => {
     const u = new URL(url);
     const res = await app.inject({
@@ -184,6 +202,26 @@ check("sdk http auth-lite signs in", pilot.email === "maria@example.com");
 await sdk.kv.set("streak", 4);
 check("sdk http kv round-trips", (await sdk.kv.get("streak", 0)) === 4);
 check("sdk http kv falls back", (await sdk.kv.get("missing", 7)) === 7);
+
+/* the key turns: the old one dies as the new one is born */
+const rotated = await app.inject({ method: "POST", url: "/residents/skyrecall/key", cookies });
+const freshKey = rotated.json().apiKey;
+check(
+  "the owner rotates the key",
+  rotated.statusCode === 200 && typeof freshKey === "string" && freshKey !== skyKey,
+);
+const oldKeyNow = await app.inject({
+  method: "GET",
+  url: "/rdb/skyrecall/rows/drills",
+  headers: { "x-osyle-key": skyKey },
+});
+check("the old key stops opening", oldKeyNow.statusCode === 401);
+const newKeyNow = await app.inject({
+  method: "GET",
+  url: "/rdb/skyrecall/rows/drills",
+  headers: { "x-osyle-key": freshKey },
+});
+check("the new key opens", newKeyNow.statusCode === 200);
 
 /* isolation: a second user cannot see the first user's resident */
 const link2 = await app.inject({
@@ -216,6 +254,10 @@ const door = await app.inject({
 check(
   "partner door mints a resident",
   door.statusCode === 201 && door.json().resident.address === "coffee-companion.osyle.app",
+);
+check(
+  "the partner door hands over the resident's key",
+  typeof door.json().resident.apiKey === "string" && door.json().resident.apiKey.length > 10,
 );
 const claim = await app.inject({ method: "GET", url: door.json().claimLink });
 check("partner claim link signs the builder in", claim.json().ok === true);

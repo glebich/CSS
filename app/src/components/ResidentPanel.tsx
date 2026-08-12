@@ -158,6 +158,10 @@ export function ResidentPanel() {
   const [domainDraft, setDomainDraft] = useState(slug ? (domains[slug] ?? "") : "");
   const [domainLine, setDomainLine] = useState<string | null>(null);
 
+  /* the resident's key, kept from the claim, handed over on request */
+  const sdkKey = slug ? (loadJson<Record<string, string>>("osyle.keys", {})[slug] ?? null) : null;
+  const [keyCopied, setKeyCopied] = useState(false);
+
   /* the stack's round: the caretaker's last look, read when the panel
      opens, refreshed on demand */
   interface RoundPulse {
@@ -429,6 +433,28 @@ export function ResidentPanel() {
               <p className="fade-in" style={{ fontSize: 12, color: "var(--gray-small)" }}>
                 {domainLine}
               </p>
+            )}
+            {sdkKey && (
+              <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+                <span className="mono" style={{ fontSize: 11.5, color: "var(--gray-small)" }}>
+                  SDK key {sdkKey.slice(0, 6)}&hellip;
+                </span>
+                <button
+                  className="pill pill-sm"
+                  onClick={() => {
+                    void navigator.clipboard?.writeText(sdkKey).then(() => {
+                      setKeyCopied(true);
+                      window.setTimeout(() => setKeyCopied(false), 2000);
+                    });
+                  }}
+                >
+                  {keyCopied ? "Copied" : "Copy the SDK key"}
+                </button>
+                <span style={{ fontSize: 11.5, color: "var(--gray-small)", flexBasis: "100%" }}>
+                  The rdb doors open only for it; the SDK&apos;s http transport
+                  carries it as x-osyle-key.
+                </span>
+              </div>
             )}
           </div>
         ) : (

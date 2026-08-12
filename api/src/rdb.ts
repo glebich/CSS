@@ -7,7 +7,7 @@
 import { DatabaseSync } from "node:sqlite";
 import { mkdirSync } from "node:fs";
 import { join } from "node:path";
-import type { FastifyInstance } from "fastify";
+import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import type { Row, SdkUser } from "@osyle/shared";
 import { DATA_DIR, id, now, platformDb } from "./db.js";
 import { residentBySlug } from "./residents.js";
@@ -49,25 +49,36 @@ export function resetRdbForTests(): void {
 const TABLE_RE = /^[a-z][a-z0-9_-]{0,40}$/;
 
 export function registerRdb(app: FastifyInstance): void {
-  /* Every rdb route checks the resident exists; rows are end-user data,
-     reached by the resident's own shipped software, not by the owner's
-     platform session. A per-resident key joins in Real Mode hardening. */
-  function guard(slug: string): boolean {
-    const found = residentBySlug(slug) !== null;
-    if (found) {
-      /* the Survival Index counts a resident alive when its own users
-         touch it; every rdb call is that touch */
-      platformDb()
-        .prepare("UPDATE residents SET last_active_at = ? WHERE slug = ?")
-        .run(now(), slug);
+  /* Every rdb door checks two things: the resident exists, and the
+     caller carries its key. Rows are end-user data, reached by the
+     resident's own shipped software; the key is what makes one
+     resident's database unreachable from another's pages. A missing
+     resident and a wrong key answer differently on purpose: the first
+     is not there, the second is locked. */
+  function guard(req: FastifyRequest, reply: FastifyReply, slug: string): boolean {
+    const resident = residentBySlug(slug);
+    if (!resident) {
+      void reply.code(404).send({ error: "unknown" });
+      return false;
     }
-    return found;
+    const key = req.headers["x-osyle-key"];
+    if (typeof key !== "string" || key.length === 0 || key !== resident.apiKey) {
+      void reply.code(401).send({ error: "this resident's database opens with its key" });
+      return false;
+    }
+    /* the Survival Index counts a resident alive when its own users
+       touch it; every rdb call is that touch */
+    platformDb()
+      .prepare("UPDATE residents SET last_active_at = ? WHERE slug = ?")
+      .run(now(), slug);
+    return true;
   }
 
   app.get<{ Params: { slug: string; table: string } }>(
     "/rdb/:slug/rows/:table",
     async (req, reply) => {
-      if (!guard(req.params.slug) || !TABLE_RE.test(req.params.table)) {
+      if (!guard(req, reply, req.params.slug)) return reply;
+      if (!TABLE_RE.test(req.params.table)) {
         return reply.code(404).send({ error: "unknown" });
       }
       const rows = rdb(req.params.slug)
@@ -82,7 +93,8 @@ export function registerRdb(app: FastifyInstance): void {
   app.post<{ Params: { slug: string; table: string }; Body: Record<string, unknown> }>(
     "/rdb/:slug/rows/:table",
     async (req, reply) => {
-      if (!guard(req.params.slug) || !TABLE_RE.test(req.params.table)) {
+      if (!guard(req, reply, req.params.slug)) return reply;
+      if (!TABLE_RE.test(req.params.table)) {
         return reply.code(404).send({ error: "unknown" });
       }
       const row: Row = { id: id(), createdAt: now(), ...(req.body ?? {}) };
@@ -97,7 +109,7 @@ export function registerRdb(app: FastifyInstance): void {
   app.get<{ Params: { slug: string; table: string } }>(
     "/rdb/:slug/rows/:table/count",
     async (req, reply) => {
-      if (!guard(req.params.slug)) return reply.code(404).send({ error: "unknown" });
+      if (!guard(req, reply, req.params.slug)) return reply;
       const got = rdb(req.params.slug)
         .prepare("SELECT COUNT(*) AS n FROM rows WHERE tbl = ?")
         .get(req.params.table) as { n: number };
@@ -108,7 +120,7 @@ export function registerRdb(app: FastifyInstance): void {
   app.delete<{ Params: { slug: string; table: string; id: string } }>(
     "/rdb/:slug/rows/:table/:id",
     async (req, reply) => {
-      if (!guard(req.params.slug)) return reply.code(404).send({ error: "unknown" });
+      if (!guard(req, reply, req.params.slug)) return reply;
       rdb(req.params.slug)
         .prepare("DELETE FROM rows WHERE tbl = ? AND id = ?")
         .run(req.params.table, req.params.id);
@@ -119,7 +131,7 @@ export function registerRdb(app: FastifyInstance): void {
   app.post<{ Params: { slug: string }; Body: { email?: string } }>(
     "/rdb/:slug/auth/signin",
     async (req, reply) => {
-      if (!guard(req.params.slug)) return reply.code(404).send({ error: "unknown" });
+      if (!guard(req, reply, req.params.slug)) return reply;
       const email = (req.body?.email ?? "").trim().toLowerCase();
       if (!email.includes("@")) return reply.code(400).send({ error: "a real email, please" });
       const user: SdkUser = { id: id(), email, signedInAt: now() };
@@ -131,7 +143,7 @@ export function registerRdb(app: FastifyInstance): void {
   );
 
   app.get<{ Params: { slug: string } }>("/rdb/:slug/auth/user", async (req, reply) => {
-    if (!guard(req.params.slug)) return reply.code(404).send({ error: "unknown" });
+    if (!guard(req, reply, req.params.slug)) return reply;
     const row = rdb(req.params.slug)
       .prepare("SELECT id, email, signed_in_at FROM sdk_users ORDER BY signed_in_at DESC LIMIT 1")
       .get() as { id: string; email: string; signed_in_at: string } | undefined;
@@ -139,13 +151,13 @@ export function registerRdb(app: FastifyInstance): void {
   });
 
   app.post<{ Params: { slug: string } }>("/rdb/:slug/auth/signout", async (req, reply) => {
-    if (!guard(req.params.slug)) return reply.code(404).send({ error: "unknown" });
+    if (!guard(req, reply, req.params.slug)) return reply;
     rdb(req.params.slug).prepare("DELETE FROM sdk_users").run();
     return reply.send({ ok: true });
   });
 
   app.get<{ Params: { slug: string; key: string } }>("/rdb/:slug/kv/:key", async (req, reply) => {
-    if (!guard(req.params.slug)) return reply.code(404).send({ error: "unknown" });
+    if (!guard(req, reply, req.params.slug)) return reply;
     const row = rdb(req.params.slug)
       .prepare("SELECT v FROM kv WHERE k = ?")
       .get(req.params.key) as { v: string } | undefined;
@@ -155,7 +167,7 @@ export function registerRdb(app: FastifyInstance): void {
   app.put<{ Params: { slug: string; key: string }; Body: { value?: unknown } }>(
     "/rdb/:slug/kv/:key",
     async (req, reply) => {
-      if (!guard(req.params.slug)) return reply.code(404).send({ error: "unknown" });
+      if (!guard(req, reply, req.params.slug)) return reply;
       rdb(req.params.slug)
         .prepare(
           "INSERT INTO kv (k, v) VALUES (?, ?) ON CONFLICT (k) DO UPDATE SET v = excluded.v",
