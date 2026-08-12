@@ -360,12 +360,14 @@ export function Assets() {
                 Add or edit the files
               </button>
             )}
+            {/* one walk for every drop: the style floor is next, the
+                report waits behind the launch like it does for the example */}
             <button
               className="pill pill-dark fade-in"
-              onClick={() => go(project ? "report" : "style")}
+              onClick={() => go("style")}
             >
               {project
-                ? `Vitality ${project.vitality}. See the report`
+                ? `Vitality ${project.vitality}. Explore a style`
                 : "Everything understood. Explore a style"}
               <Sparkle size={13} />
             </button>

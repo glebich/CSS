@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { readLedger, sdk, useStore } from "../store";
-import { FlowSteps, Page, Sparkle } from "../components/chrome";
+import { Page, Sparkle } from "../components/chrome";
 import { quotas, resident } from "../data/seed";
 import type { AnalyzedProject } from "../engine/types";
 import { buildStoreKit } from "../engine/storekit";
@@ -76,7 +76,7 @@ export function Address() {
     const fileCount = [...project.files.values()].filter((f) => f.text !== null).length;
     return (
       <Page>
-        <FlowSteps current="address" />
+        {/* the walk is over by the ceremony; no breadcrumb competes */}
         <div style={{ textAlign: "left", padding: "10px 0 8px" }}>
           <h1 className="statement statement-page">
             It lives <span className="quiet">here now.</span>

@@ -75,6 +75,38 @@ function check(name, ok) {
   console.log(`${ok ? "ok" : "FAIL"}  ${name}`);
 }
 
+
+/* reach the Place from wherever the app wakes up, without wiping any
+   state: the landing's own CTA when it shows, or the top bar's plus */
+async function goToPlace() {
+  await page.goto("http://localhost:5197/");
+  await page.waitForTimeout(500);
+  const cta = page.getByText("Drop your app", { exact: false }).last();
+  if (await cta.isVisible().catch(() => false)) {
+    await cta.click();
+  } else {
+    await page.getByLabel("Drop another app").click();
+  }
+  await page.waitForTimeout(300);
+}
+
+/* one walk for every drop: after the materials, a real app takes the
+   same road as the example, style, launch, enhance, then the report
+   through the home's own door */
+async function walkToReport() {
+  await page.getByText("Explore a style", { exact: false }).last().click({ timeout: 25000 });
+  await page.getByText("Continue with", { exact: false }).click();
+  await page.getByText("Enhance the app").click();
+  await page.waitForTimeout(1000);
+  const decide = page.getByText("in the report", { exact: false }).first();
+  if (await decide.isVisible().catch(() => false)) {
+    await decide.click();
+  } else {
+    await page.getByText("Open the report").click();
+  }
+  await page.waitForTimeout(600);
+}
+
 /* The setup journey: landing -> place -> materials -> style -> launch */
 await page.goto("http://localhost:5197/");
 check(
@@ -694,8 +726,7 @@ check(
     .then(() => true)
     .catch(() => false),
 );
-await page.getByText("See the report", { exact: false }).click({ timeout: 25000 });
-await page.waitForTimeout(600);
+await walkToReport();
 
 /* one Report, the whole truth, no other chrome competing with it */
 check("the chrome steps aside for the report", (await page.locator(".sidebar").count()) === 0);
@@ -783,8 +814,8 @@ await page.waitForTimeout(500);
 check("the ceremony opens", await page.getByText("It lives here now.").isVisible());
 check("the address is spoken", await page.getByText("app-3-files.osyle.app").first().isVisible());
 check(
-  "the address flow step is current",
-  await page.locator(".flow-step.is-current", { hasText: "The address" }).isVisible(),
+  "the ceremony stands alone, no breadcrumb competing",
+  (await page.locator(".flow-steps").count()) === 0,
 );
 const kitDownload = page.waitForEvent("download", { timeout: 8000 }).catch(() => null);
 await page.getByText("Download the store kit").click();
@@ -860,14 +891,11 @@ check(
    A clean project is never a dead end: the folder picker takes a
    whole directory, the report offers the improvement prompt, and
    the app can still move in. Zero repairs is never spoken. */
-await page.goto("http://localhost:5197/");
-await page.waitForTimeout(500);
-await page.getByText("Drop your app", { exact: false }).last().click();
+await goToPlace();
 await page
   .locator("input[webkitdirectory]")
   .setInputFiles(new URL("./clean", import.meta.url).pathname);
-await page.getByText("See the report", { exact: false }).click({ timeout: 25000 });
-await page.waitForTimeout(600);
+await walkToReport();
 check(
   "a clean app is never a dead end",
   await page.getByText("Nothing measurable to repair. There is still a next step.").isVisible(),
@@ -922,10 +950,7 @@ check(
   (await page.getByText("app-3-files.osyle.app").isVisible()) &&
     (await page.getByText("clean.osyle.app").isVisible()),
 );
-await page.goto("http://localhost:5197/");
-await page.waitForTimeout(500);
-await page.getByText("Drop your app", { exact: false }).last().click();
-await page.waitForTimeout(300);
+await goToPlace();
 
 /* -----------------------------------------------------------------
    The repo door: a person names their repository and the whole real
@@ -973,8 +998,7 @@ check(
     .then(() => true)
     .catch(() => false),
 );
-await page.getByText("See the report", { exact: false }).click({ timeout: 25000 });
-await page.waitForTimeout(600);
+await walkToReport();
 check("the repo's report opens on the number", await page.locator(".instrument").isVisible());
 check(
   "the repo's flaws are caught from its zip",
@@ -1117,10 +1141,7 @@ await page.goto("http://localhost:5197/#/discover");
 await page.waitForTimeout(400);
 check("unlisted stays off discover", (await page.getByText("sunrise.osyle.app").count()) === 0);
 check("public residents remain seen", await page.getByText("clean.osyle.app").isVisible());
-await page.goto("http://localhost:5197/");
-await page.waitForTimeout(500);
-await page.getByText("Drop your app", { exact: false }).last().click();
-await page.waitForTimeout(300);
+await goToPlace();
 
 /* back to the example for the remaining checks */
 await page.getByText("Reset demo").click();

@@ -544,21 +544,16 @@ const FLOW_STEPS: Array<{ view: View; label: string }> = [
   { view: "launch", label: "Launch" },
 ];
 
-const FLOW_STEPS_REAL: Array<{ view: View; label: string }> = [
-  { view: "place", label: "Place" },
-  { view: "assets", label: "Materials" },
-  { view: "report", label: "The report" },
-  { view: "address", label: "The address" },
-];
-
 /**
  * The journey breadcrumb: four quiet steps across the setup flow, so it
  * is always visible where you are and what remains. Steps already passed
  * are doors back; steps ahead wait their turn.
  */
 export function FlowSteps({ current, top }: { current: View; top?: number }) {
-  const { go, project, progress } = useStore();
-  const steps = project || progress.length > 0 ? FLOW_STEPS_REAL : FLOW_STEPS;
+  const { go } = useStore();
+  /* one walk for every drop: the example and a real app take the
+     same four steps, so the map never depends on what arrived */
+  const steps = FLOW_STEPS;
   const idx = steps.findIndex((s) => s.view === current);
   return (
     <div className="flow-steps" style={top !== undefined ? { top } : undefined}>
