@@ -265,6 +265,16 @@ export function Findings() {
   const valueWaiting = undecided.reduce((sum, i) => sum + i.valueMonthly, 0);
   const allDecided = undecided.length === 0;
 
+  /* the money, in three honest piles: recovered by healing, waiting on
+     a decision, and blocked on the one thing only the owner can do */
+  const acceptedList = open.filter((i) => decisions[i.id] === "accepted");
+  const valueRecovered = acceptedList
+    .filter((i) => currentState(i.id, healed) === "healed")
+    .reduce((sum, i) => sum + i.valueMonthly, 0);
+  const valueOnYourKey = acceptedList
+    .filter((i) => currentState(i.id, healed) !== "healed")
+    .reduce((sum, i) => sum + i.valueMonthly, 0);
+
   return (
     <Page>
       <div style={{ display: "flex", alignItems: "baseline", gap: 20 }}>
@@ -284,6 +294,27 @@ export function Findings() {
         {allDecided
           ? "Everything the examination found has an answer. The rest is watching, and that is not your job."
           : `About $${valueWaiting} a month is waiting in ${undecided.length} undecided finding${undecided.length === 1 ? "" : "s"}, an estimate. Accept what you trust, set aside what you do not.`}
+      </p>
+
+      {/* the ledger: what deciding is worth, next to what sitting still
+          costs, so the value is a number and not a mood */}
+      <div className="value-ledger">
+        <div className="value-cell">
+          <span className="value-num">${valueRecovered}</span>
+          <span className="value-cap">a month recovered, healed and working, an estimate</span>
+        </div>
+        <div className="value-cell">
+          <span className="value-num">${valueWaiting}</span>
+          <span className="value-cap">a month still leaking while findings wait undecided</span>
+        </div>
+        <div className="value-cell">
+          <span className="value-num">${valueOnYourKey}</span>
+          <span className="value-cap">a month blocked on your key, one paste away</span>
+        </div>
+      </div>
+      <p style={{ fontSize: 12, color: "var(--gray-small)", marginTop: 8 }}>
+        Every number is an estimate from this app&apos;s own sessions; the why
+        waits under each finding&apos;s cursor. Healing costs nothing here.
       </p>
 
       {undecided.length > 0 && (

@@ -4935,6 +4935,59 @@ input {
   padding-bottom: 24px;
 }
 
+/* the findings ledger: the money in three piles, read at a glance */
+.value-ledger {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 22px;
+  max-width: 760px;
+}
+
+.value-cell {
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid var(--hairline);
+  border-radius: 18px;
+  padding: 16px 18px;
+  display: grid;
+  gap: 4px;
+  align-content: start;
+}
+
+.value-num {
+  font-size: 28px;
+  font-weight: 510;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-strong);
+}
+
+.value-cap {
+  font-size: 12px;
+  color: var(--gray-small);
+  line-height: 1.45;
+}
+
+@media (max-width: 640px) {
+  .value-ledger {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* big screens get room instead of margins: the canvas and the home
+   grid widen together past 1500px, so the desk fills the desk */
+@media (min-width: 1500px) {
+  .canvas-inner {
+    max-width: 1320px;
+  }
+  .home-wrap {
+    max-width: 1200px;
+  }
+  .home-grid {
+    grid-template-columns: minmax(380px, 460px) 1fr;
+  }
+}
+
 /* the marks sit mono and level; color arrives on approach */
 .land-mark-img {
   height: 40px;

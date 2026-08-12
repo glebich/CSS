@@ -220,13 +220,10 @@ await page.getByPlaceholder("e.g. make it grandma friendly").press("Enter");
 check("grandma maps to the comfort caption", await page.getByText("Bigger, calmer, slower").isVisible());
 check("grandma maps to Warm Counsel", await page.getByText("Continue with Warm Counsel").isVisible());
 
-/* Taste Transfer: principles extracted, pixels never taken */
-await page.getByText("A Swiss editorial magazine").click();
-await page.waitForTimeout(300);
-check("taste transfer extracts principles", await page.getByText("Density:", { exact: false }).isVisible());
+/* the gallery stands alone; the taste study left the page by request */
 check(
-  "pixels are never taken",
-  await page.getByText("never its pixels", { exact: false }).first().isVisible(),
+  "the taste study is gone from the gallery",
+  (await page.getByText("Taste Transfer").count()) === 0,
 );
 
 await page.locator(".style-tile").first().click();
@@ -400,6 +397,11 @@ check(
   await page.getByText("About $310 a month is waiting in 1 undecided finding", { exact: false }).isVisible(),
 );
 check("strengths are said plainly", await page.getByText("No manipulation anywhere").isVisible());
+check(
+  "the ledger shows the money in three piles",
+  (await page.locator(".value-cell").count()) === 3 &&
+    (await page.getByText("a month recovered, healed and working", { exact: false }).isVisible()),
+);
 await page.getByText("Accept, I will fix the key").click();
 await page.waitForTimeout(300);
 check("accepted key waits on the user", await page.getByText("waiting on your key").isVisible());
