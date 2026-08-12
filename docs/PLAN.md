@@ -765,6 +765,14 @@ live in docs/DRILLS.md, dated and labeled with their machine, and
 the general door's ceiling became env-tunable so a single-address
 drill can raise it honestly.
 
+### Increment V. The quality gate. DELIVERED
+
+Every push and pull request now runs the whole truth on GitHub's
+machines: the api suite against the built foundation, the full
+browser journey through the product on a freshly installed
+Chromium, and both stage 15 drills, the 200 people and the fire.
+A red run is the truth about the branch; nothing merges on hope.
+
 ### Increment I. What remains, in spec order
 
 The Redis-backed limiter and the Postgres and MinIO drivers when

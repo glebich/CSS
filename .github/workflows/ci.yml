@@ -1,0 +1,38 @@
+# The quality gate. Every push and every pull request runs both
+# suites: the api's checks against the built foundation, and the full
+# browser journey through the product. A red run here is the truth
+# about the branch; nothing merges on hope.
+name: The suites
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  suites:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install
+        run: npm ci --workspaces --include-workspace-root
+      - name: The api suite
+        run: npm test --workspace api
+      - name: A Chromium for the journey
+        run: |
+          npx --yes playwright@1.62.1 install --with-deps chromium
+          echo "CHROMIUM_PATH=$(find ~/.cache/ms-playwright -type f -name chrome -path '*chrome-linux*' | head -1)" >> "$GITHUB_ENV"
+      - name: The journey suite
+        run: npm test --workspace app
+      - name: The drills
+        run: |
+          node ops/drill.mjs
+          node ops/rehearsal.mjs
