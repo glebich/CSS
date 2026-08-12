@@ -192,14 +192,6 @@ export function Landing() {
           <span className="land-hero-note">
             Free. The examination asks for no account.
           </span>
-          <div className="land-cred">
-            <span className="works-label">Design led by 25 years building products for</span>
-            {["Apple", "Google", "OpenAI", "Samsung"].map((n) => (
-              <span key={n} className="works-mark" title="Named for the design career behind the taste system, nothing implied beyond it">
-                {n}
-              </span>
-            ))}
-          </div>
         </div>
         <figure className="land-hero-render">
           <div className="phone-frame land-phone">
@@ -234,6 +226,25 @@ export function Landing() {
           </figcaption>
         </figure>
       </header>
+
+      {/* the credential band runs the full width of the hero above it */}
+      <section className="land-marks">
+        <p className="land-marks-lede">
+          <strong>Design led by 25 years building products</strong> for the
+          companies whose work set the bar.
+        </p>
+        <div className="land-marks-row">
+          {["Apple", "Google", "OpenAI", "Samsung"].map((n) => (
+            <span
+              key={n}
+              className="land-mark"
+              title="Named for the design career behind the taste system, nothing implied beyond it"
+            >
+              {n}
+            </span>
+          ))}
+        </div>
+      </section>
 
       <section className="land-stats">
         <p className="land-stats-lede">

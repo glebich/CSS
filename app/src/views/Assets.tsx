@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { useStore } from "../store";
-import { FlowSteps, Sparkle } from "../components/chrome";
+import { FlowSteps, Icon, Sparkle } from "../components/chrome";
 import { Theater } from "../components/Theater";
 import { materials, type Material } from "../data/seed";
-import type { ProjectFile } from "../engine/types";
+import type { AnalyzedProject, ProjectFile } from "../engine/types";
 
 /** An honest one-line note about what a real file is. */
 function fileNote(f: ProjectFile): string {
@@ -126,12 +126,57 @@ function ExampleVisual({ m, understood }: { m: Material; understood: boolean }) 
 }
 
 /**
+ * What the examination actually did, once it is done. The same
+ * checklist that ran during the reading stays on the surface with its
+ * marks filled in, each line carrying the number it measured, so the
+ * step never ends in silence.
+ */
+function ExaminedSummary({ project }: { project: AnalyzedProject | null }) {
+  const findings = project ? project.lenses.flatMap((l) => l.findings).length : 9;
+  const rows: Array<[string, string]> = project
+    ? [
+        ["Uploaded the files", `${project.inventory.fileCount} files, ${Math.round(project.inventory.totalBytes / 1024)} KB`],
+        ["Reassembled the app", `${project.inventory.framework}, ${project.inventory.componentCount} components`],
+        ["Read the strategy", project.understanding],
+        ["Judged the design", `${project.lenses.length} lenses weighed`],
+        ["Walked the journeys", `${project.inventory.screens.length} screens found`],
+        ["Checked for breakage", `${findings} finding${findings === 1 ? "" : "s"}, each with evidence`],
+      ]
+    : [
+        ["Uploaded the files", `${materials.length} materials, 3 screens`],
+        ["Reassembled the app", "React, 14 components"],
+        ["Read the strategy", "A confidence instrument for pilots who fly rarely"],
+        ["Judged the design", "Ten lenses weighed"],
+        ["Walked the journeys", "Three screens, two flows"],
+        ["Checked for breakage", "Nine findings, each with evidence"],
+      ];
+  return (
+    <div className="theater-list examined-list">
+      <div className="section-label" style={{ marginBottom: 6 }}>
+        {project ? "What was examined" : "What was examined, example"}
+      </div>
+      {rows.map(([label, detail]) => (
+        <div key={label}>
+          <div className="theater-row is-done">
+            <span className="theater-row-mark">
+              <Icon name="check" size={13} />
+            </span>
+            <span className="theater-row-label">{label}</span>
+          </div>
+          <div className="theater-row-sub">{detail}</div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/**
  * The materials on the canvas. For a real project everything shown is
  * measured from the dropped bytes: the inventory, each file, each note.
  * For the example, the seeded cards say Example out loud.
  */
 export function Assets() {
-  const { uploadPhase, go, project, pendingDrop } = useStore();
+  const { uploadPhase, go, project, pendingDrop, togglePanel } = useStore();
   const reading = uploadPhase === "reading";
   const understood = uploadPhase === "understood";
   /* while the examination runs, the files stay inside the closed folder
@@ -142,6 +187,16 @@ export function Assets() {
   useEffect(() => {
     if (!busy && (understood || project !== null)) setAssetsOpen(true);
   }, [busy, understood, project]);
+
+  /* the files return first, then the folder reads as closed */
+  function closeFolder() {
+    if (closing) return;
+    setClosing(true);
+    window.setTimeout(() => {
+      setAssetsOpen(false);
+      setClosing(false);
+    }, 420);
+  }
 
   return (
     <main className="canvas canvas-dotted" style={{ position: "relative" }}>
@@ -160,6 +215,7 @@ export function Assets() {
         {/* one surface, no waiting room: the checklist does the work in
             the open, and the folder holds the files beside it */}
         {busy && <Theater />}
+        {!busy && <ExaminedSummary project={project} />}
 
         {/* the folder never leaves the table; open, it stands emptied
             beside its files, and the X rides its own edge */}
@@ -169,10 +225,13 @@ export function Assets() {
             onClick={() => setAssetsOpen(true)}
             aria-label="Open the materials"
           >
-            <span className="asset-back" aria-hidden />
-            <span className="asset-peek asset-peek-1" aria-hidden />
-            <span className="asset-peek asset-peek-2" aria-hidden />
-            <span className="asset-peek asset-peek-3" aria-hidden />
+            {/* the shapes share one skin: near each other they merge */}
+            <span className="asset-goo" aria-hidden>
+              <span className="asset-back" />
+              <span className="asset-peek asset-peek-1" />
+              <span className="asset-peek asset-peek-2" />
+              <span className="asset-peek asset-peek-3" />
+            </span>
             <span className="asset-front" aria-hidden />
             <span className="asset-folder-name">App files</span>
             <span className="asset-folder-count">
@@ -183,7 +242,12 @@ export function Assets() {
             )}
           </button>
         ) : (
-          <div className={`asset-folder is-open${closing ? " is-refilling" : ""}`}>
+          /* the whole open folder is a door back; the X is the label */
+          <div
+            className={`asset-folder is-open${closing ? " is-refilling" : ""}`}
+            onClick={closeFolder}
+            title="Close the folder"
+          >
             <span className="asset-front" aria-hidden />
             <span className="asset-folder-name">App files</span>
             <span className="asset-folder-count">
@@ -192,23 +256,15 @@ export function Assets() {
             {!project && !pendingDrop && (
               <span className="chip asset-folder-chip">Example</span>
             )}
-            {!reading && (
-              <button
-                className="circle asset-folder-x"
-                onClick={() => {
-                  setClosing(true);
-                  window.setTimeout(() => {
-                    setAssetsOpen(false);
-                    setClosing(false);
-                  }, 420);
-                }}
-                aria-label="Close the materials"
-              >
-                <svg width="11" height="11" viewBox="0 0 8 8" fill="none" aria-hidden>
-                  <path d="M1 1l6 6M7 1L1 7" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
-                </svg>
-              </button>
-            )}
+            <button
+              className="circle asset-folder-x"
+              onClick={closeFolder}
+              aria-label="Close the materials"
+            >
+              <svg width="11" height="11" viewBox="0 0 8 8" fill="none" aria-hidden>
+                <path d="M1 1l6 6M7 1L1 7" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+              </svg>
+            </button>
           </div>
         )}
         {assetsOpen && (
@@ -223,17 +279,40 @@ export function Assets() {
           }}
         >
           {project
-            ? [...project.files.values()].slice(0, 12).map((f, i) => (
-                <div
-                  key={f.path}
-                  className={`file-card${reading ? " is-reading" : ""}${understood ? " is-understood" : ""}${!reading ? (closing ? " fly-out" : " fly-in") : ""}`}
-                  style={{ animationDelay: `${i * (reading ? 90 : 45)}ms` }}
-                >
-                  <div className="file-name">{f.path.split("/").pop()}</div>
-                  <div className="file-size">{f.path.includes("/") ? f.path.slice(0, f.path.lastIndexOf("/")) : ""}</div>
-                  <div className="file-summary">{fileNote(f)}</div>
-                </div>
-              ))
+            ? (() => {
+                /* around ten files on the table; the rest wait behind one
+                   card that opens the file room */
+                const all = [...project.files.values()];
+                const shown = all.slice(0, 10);
+                const rest = all.length - shown.length;
+                const motion = `${reading ? " is-reading" : ""}${understood ? " is-understood" : ""}${!reading ? (closing ? " fly-out" : " fly-in") : ""}`;
+                return (
+                  <>
+                    {shown.map((f, i) => (
+                      <div
+                        key={f.path}
+                        className={`file-card${motion}`}
+                        style={{ animationDelay: `${i * (reading ? 90 : 45)}ms` }}
+                      >
+                        <div className="file-name">{f.path.split("/").pop()}</div>
+                        <div className="file-size">{f.path.includes("/") ? f.path.slice(0, f.path.lastIndexOf("/")) : ""}</div>
+                        <div className="file-summary">{fileNote(f)}</div>
+                      </div>
+                    ))}
+                    {rest > 0 && (
+                      <button
+                        className={`file-card file-card-more${motion}`}
+                        style={{ animationDelay: `${shown.length * 45}ms` }}
+                        onClick={() => togglePanel("resident")}
+                        title="Every file, in the file room"
+                      >
+                        <span className="file-more-n">+{rest}</span>
+                        <span className="file-summary">more files, all in the file room</span>
+                      </button>
+                    )}
+                  </>
+                );
+              })()
             : pendingDrop
               ? /* your own drop, still being read: quiet placeholders,
                    never the example's cards over your bytes */

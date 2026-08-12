@@ -162,6 +162,16 @@ export function Home() {
               >
                 Copy the link
               </button>
+              {/* the plain edit door: name, domain, files, one panel */}
+              <button
+                className="circle"
+                style={{ width: 32, height: 32 }}
+                onClick={() => togglePanel("resident")}
+                title="Edit the app, its name, domain, and files"
+                aria-label="Edit the app"
+              >
+                <Icon name="edit" size={13} />
+              </button>
             </>
           ) : (
             <button className="pill pill-sm" onClick={() => go("report")}>

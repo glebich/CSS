@@ -87,8 +87,15 @@ check(
   await page.getByText("You built it with AI. We make it ready for the world.").isVisible(),
 );
 check(
-  "the expertise row names its houses",
-  await page.locator(".land-cred").getByText("OpenAI").isVisible(),
+  "the expertise band names its houses",
+  await page.locator(".land-marks").getByText("OpenAI").isVisible(),
+);
+check(
+  "the expertise band runs the hero's full width",
+  Math.abs(
+    (await page.locator(".land-marks").boundingBox()).width -
+      (await page.locator(".land-hero").boundingBox()).width,
+  ) <= 2,
 );
 check(
   "the landing numbers say where they came from",

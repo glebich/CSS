@@ -892,7 +892,7 @@ input {
   font-size: 10.5px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: rgba(245, 244, 255, 0.35);
+  color: var(--gray-small);
 }
 
 /* the marks read on the light page; a dark band flips them itself */
@@ -3736,6 +3736,32 @@ input {
   font-variant-numeric: tabular-nums;
 }
 
+/* the folder holds its exact shape open or closed */
+.asset-folder {
+  height: 380px;
+}
+
+/* one card carries the files past the first ten */
+.file-card-more {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: none;
+  font: inherit;
+  cursor: pointer;
+  text-align: center;
+}
+
+.file-more-n {
+  font-size: 24px;
+  font-weight: 560;
+  letter-spacing: -0.02em;
+  color: var(--ink-strong);
+  font-variant-numeric: tabular-nums;
+}
+
 /* the rename door shows its pencil, quietly, all the time */
 .tab-renameable button {
   display: inline-flex;
@@ -3893,12 +3919,68 @@ input {
 }
 
 /* the credential row: the career behind the taste system, said plainly */
-.land-cred {
+/* the credential band: the same width as the hero, the marks spread
+   across it in their own cells, the way a real logo wall reads */
+.land-marks {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 0 28px 72px;
+}
+
+.land-marks-lede {
+  font-size: 14.5px;
+  line-height: 1.65;
+  color: var(--gray-secondary);
+  max-width: 460px;
+  margin-bottom: 22px;
+}
+
+.land-marks-lede strong {
+  color: var(--ink-strong);
+  font-weight: 560;
+}
+
+.land-marks-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border: 1px solid var(--hairline);
+  border-radius: 20px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.45);
+}
+
+.land-mark {
   display: flex;
   align-items: center;
-  gap: 10px 14px;
-  flex-wrap: wrap;
-  margin-top: 18px;
+  justify-content: center;
+  padding: 34px 12px;
+  font-size: 21px;
+  font-weight: 560;
+  letter-spacing: -0.015em;
+  color: var(--ink-body);
+  cursor: default;
+  transition: color var(--t-fast), background var(--t-fast);
+}
+
+.land-mark:not(:last-child) {
+  border-right: 1px solid var(--hairline);
+}
+
+.land-mark:hover {
+  color: var(--ink-strong);
+  background: rgba(255, 255, 255, 0.7);
+}
+
+@media (max-width: 760px) {
+  .land-marks-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .land-mark:nth-child(2) {
+    border-right: none;
+  }
+  .land-mark:nth-child(-n + 2) {
+    border-bottom: 1px solid var(--hairline);
+  }
 }
 
 /* the laws breathe */
@@ -3959,18 +4041,18 @@ input {
 }
 
 .asset-peek-1 {
-  right: -48px;
-  top: 16px;
-  width: 118px;
-  height: 152px;
+  right: -46px;
+  top: 22px;
+  width: 112px;
+  height: 132px;
   background: radial-gradient(130% 130% at 18% 16%, #2f5fe0 0%, #6d95f5 44%, #cfe0ff 74%, #eef4ff 100%);
 }
 
 .asset-peek-2 {
-  right: -56px;
-  top: 152px;
-  width: 112px;
-  height: 140px;
+  right: -54px;
+  top: 172px;
+  width: 106px;
+  height: 122px;
   background: linear-gradient(170deg, #f2efe9 0%, #e2ded6 100%);
   overflow: hidden;
 }
@@ -3987,10 +4069,10 @@ input {
 }
 
 .asset-peek-3 {
-  right: -40px;
-  top: 272px;
-  width: 100px;
-  height: 96px;
+  right: -38px;
+  top: 312px;
+  width: 96px;
+  height: 80px;
   background: linear-gradient(165deg, #b9b6bd 0%, #77747c 100%);
 }
 
@@ -4207,4 +4289,232 @@ input {
 
 .file-card.fly-out {
   animation: fly-out 0.4s cubic-bezier(0.5, 0, 0.75, 0.4) both;
+}
+
+/* =========================================================== liquid
+   The interface behaves like one material. Shapes that come near each
+   other merge; glass bends what passes behind it; motion settles the
+   way a liquid does, fast at the start and long at the end. */
+
+:root {
+  /* out of the gate fast, then a long settle, no bounce */
+  --t-liquid: 620ms cubic-bezier(0.32, 0.72, 0, 1);
+  /* a small overshoot, for things that pop into place */
+  --t-spring: 520ms cubic-bezier(0.34, 1.42, 0.64, 1);
+}
+
+.liquid-defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* the folder's shapes share one skin */
+.asset-goo {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  filter: url(#osyle-goo);
+}
+
+/* every glass surface refracts what passes behind it. The plain blur
+   is declared first on purpose: a browser that cannot parse a filter
+   reference here keeps its frost instead of losing the backdrop. */
+.glass-panel,
+.sidebar,
+.notice,
+.asset-front,
+.theater-list,
+.ask-float .ask-pill {
+  backdrop-filter: blur(24px) saturate(170%);
+  -webkit-backdrop-filter: blur(24px) saturate(170%);
+  backdrop-filter: url(#osyle-liquid) blur(20px) saturate(175%);
+}
+
+/* the specular rim: light catches the top edge of a glass body */
+.glass-panel,
+.sidebar,
+.notice,
+.theater-list,
+.ask-float .ask-pill,
+.asset-folder .asset-front {
+  box-shadow:
+    var(--shadow-float),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.4),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.45);
+}
+
+/* things made of liquid answer the hand slowly, then hold */
+.pill,
+.circle,
+.chip-door,
+.side-row,
+.card,
+.file-card,
+.land-mark,
+.persona-card {
+  transition:
+    transform var(--t-spring),
+    box-shadow var(--t-liquid),
+    background var(--t-liquid),
+    color var(--t-fast);
+}
+
+.pill:hover,
+.circle:hover {
+  transform: translateY(-1px) scale(1.015);
+}
+
+.pill:active,
+.circle:active {
+  transform: translateY(0) scale(0.985);
+  transition: transform 90ms ease-out;
+}
+
+.file-card:hover {
+  transform: translateY(-3px);
+}
+
+/* the files leave the folder as drops: squashed and blobby at the
+   lip, stretching out, settling into a card */
+@keyframes fly-in {
+  0% {
+    transform: translate(-250px, 46px) scale(0.42, 0.66) rotate(-6deg);
+    border-radius: 46%;
+    opacity: 0;
+  }
+  40% {
+    opacity: 1;
+  }
+  72% {
+    transform: translate(0, 0) scale(1.05, 0.95) rotate(0deg);
+    border-radius: 22px;
+    opacity: 1;
+  }
+  100% {
+    transform: none;
+    border-radius: 16px;
+    opacity: 1;
+  }
+}
+
+.file-card.fly-in {
+  animation: fly-in var(--t-liquid) cubic-bezier(0.22, 0.9, 0.32, 1.1) both;
+}
+
+/* and return the same way, reversed: they narrow and pour back in */
+@keyframes fly-out {
+  0% {
+    transform: none;
+    border-radius: 16px;
+    opacity: 1;
+  }
+  35% {
+    transform: scale(1.04, 0.94);
+    border-radius: 22px;
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-250px, 46px) scale(0.42, 0.66) rotate(-6deg);
+    border-radius: 46%;
+    opacity: 0;
+  }
+}
+
+.file-card.fly-out {
+  animation: fly-out 0.42s cubic-bezier(0.5, 0, 0.75, 0.4) both;
+}
+
+/* a screen arriving is a body of liquid finding its level */
+.fade-in {
+  animation: liquid-in var(--t-liquid) both;
+}
+
+@keyframes liquid-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.994);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* the notices pour in from the top right and merge visually as they
+   stack, each one settling under the last */
+@keyframes notice-in {
+  0% {
+    opacity: 0;
+    transform: translate(10px, -10px) scale(0.9, 0.86);
+    border-radius: 40px;
+  }
+  60% {
+    opacity: 1;
+    border-radius: 20px;
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+    border-radius: 16px;
+  }
+}
+
+.notice {
+  animation: notice-in var(--t-liquid) both;
+}
+
+/* someone who asked for less motion gets less of it */
+@media (prefers-reduced-motion: reduce) {
+  .file-card.fly-in,
+  .file-card.fly-out,
+  .notice,
+  .fade-in {
+    animation-duration: 1ms;
+  }
+  .pill,
+  .circle,
+  .card,
+  .file-card,
+  .side-row,
+  .land-mark,
+  .persona-card {
+    transition-duration: 1ms;
+  }
+}
+
+/* the done checklist keeps the reading card's shape and rhythm */
+.examined-list {
+  flex: 1.2;
+  min-width: 280px;
+  max-width: 420px;
+}
+
+.examined-list .theater-row {
+  padding: 9px 2px;
+}
+
+.examined-list .theater-row-sub {
+  padding: 2px 2px 9px 38px;
+}
+
+/* glass has to stay readable: enough milk in it that the words on top
+   never compete with the words refracting underneath */
+.glass-panel {
+  background: linear-gradient(155deg, rgba(255, 255, 255, 0.9), rgba(246, 245, 243, 0.82));
+}
+
+.sidebar {
+  background: rgba(255, 255, 255, 0.82);
+}
+
+.notice {
+  background: rgba(255, 255, 255, 0.86);
+}
+
+.theater-list {
+  background: rgba(255, 255, 255, 0.88);
 }

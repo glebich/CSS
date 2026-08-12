@@ -5,6 +5,7 @@ import { MoodPanel, PersonasPanel, RunOverlay } from "./components/panels";
 import { ResidentPanel } from "./components/ResidentPanel";
 import { WorkspacePreview } from "./components/Workspace";
 import { NoticeStack } from "./components/Notices";
+import { LiquidDefs } from "./components/Liquid";
 import { Landing } from "./views/Landing";
 import { Place } from "./views/Place";
 import { Assets } from "./views/Assets";
@@ -131,6 +132,8 @@ function Shell() {
 export default function App() {
   return (
     <StoreProvider>
+      {/* the filters every glass and every merging shape reaches for */}
+      <LiquidDefs />
       <Shell />
     </StoreProvider>
   );
