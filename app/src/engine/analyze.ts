@@ -108,8 +108,10 @@ export async function analyzeProject(
   files: Map<string, ProjectFile>,
   say: (line: ProgressLine) => void,
   truncated: boolean,
+  /** quick: skip the theater pacing for silent re-examinations */
+  quick = false,
 ): Promise<AnalyzedProject> {
-  const pause = (ms: number) => new Promise((r) => setTimeout(r, ms));
+  const pause = (ms: number) => (quick ? Promise.resolve() : new Promise((r) => setTimeout(r, ms)));
 
   say({ phase: "Reassemble", text: `Reading ${files.size} files` });
   await pause(500);

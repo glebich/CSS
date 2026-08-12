@@ -27,6 +27,9 @@ const KIND_LINES: Record<string, string> = {
   "stack.claimed": "Claimed on the stack",
   "ask.asked": "You asked",
   "name.changed": "Renamed",
+  "files.added": "Files added",
+  "file.replaced": "File replaced",
+  "file.edited": "File edited",
 };
 
 function humanKind(kind: string): string {

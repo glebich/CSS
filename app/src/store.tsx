@@ -259,6 +259,9 @@ interface Store {
   resetDemo: () => void;
   /** rename the resident in place, Figma style, and the rooms follow */
   renameResident: (name: string) => void;
+  /* the file room: add, replace, and edit the files after the drop */
+  mergeFiles: (dropped: DroppedFile[], replacePath?: string) => Promise<void>;
+  saveFileText: (path: string, text: string) => Promise<void>;
   /* the work speaks: every working door files a job in the stack */
   jobs: Job[];
   beginJob: (title: string, detail?: string) => string;
@@ -810,6 +813,114 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     [project, realSlug, stackBase, record, beginJob, updateJob, endJob],
   );
 
+  /* The registry entry follows every change so the address serves the
+     new bytes; same shape giveAddress writes. */
+  const writeRegistry = useCallback(
+    (analyzed: AnalyzedProject, slug: string) => {
+      const registry = loadJson<Record<string, unknown>>("osyle.residents", {});
+      const textFiles = [...analyzed.files.values()]
+        .filter((f) => f.text !== null)
+        .slice(0, 40)
+        .map((f) => ({ path: f.path, text: (f.text as string).slice(0, 200_000) }));
+      let mediaBudget = 3_000_000;
+      const media = [...analyzed.files.values()]
+        .filter((f) => f.dataUri)
+        .slice(0, 8)
+        .filter((f) => {
+          mediaBudget -= (f.dataUri as string).length;
+          return mediaBudget > 0;
+        })
+        .map((f) => ({ path: f.path, dataUri: f.dataUri as string, bytes: f.bytes }));
+      registry[slug] = {
+        name: analyzed.inventory.name,
+        vitality: analyzed.vitality,
+        styleId,
+        savedAt: new Date().toISOString(),
+        files: textFiles,
+        media,
+      };
+      saveJson("osyle.residents", registry);
+    },
+    [styleId],
+  );
+
+  /* The file room: new material merges into the app and the whole
+     examination runs again, quietly; a replacement keeps its path so
+     nothing that points at the file breaks. */
+  const mergeFiles = useCallback(
+    async (dropped: DroppedFile[], replacePath?: string) => {
+      if (!project || dropped.length === 0) return;
+      const job = beginJob(
+        replacePath ? `Replacing ${replacePath}` : "Adding files",
+        "Reading the new material.",
+      );
+      try {
+        const incoming = await filesFromInput(dropped);
+        if (incoming.size === 0) {
+          endJob(job, "Nothing readable arrived.", true);
+          return;
+        }
+        const merged = new Map(project.files);
+        if (replacePath && incoming.size === 1) {
+          const nf = [...incoming.values()][0];
+          merged.set(replacePath, { ...nf, path: replacePath });
+        } else {
+          for (const [p, f] of incoming) merged.set(p, f);
+        }
+        updateJob(job, { detail: "Re-examining the app." });
+        const analyzed = await analyzeProject(
+          project.inventory.name,
+          merged,
+          () => undefined,
+          merged.size >= 40,
+          true,
+        );
+        setProject(analyzed);
+        record(replacePath ? "file.replaced" : "files.added", {
+          path: replacePath ?? null,
+          count: incoming.size,
+        });
+        if (realSlug) writeRegistry(analyzed, realSlug);
+        endJob(
+          job,
+          replacePath
+            ? `${replacePath} replaced. The render follows.`
+            : `${incoming.size} file${incoming.size === 1 ? "" : "s"} added and examined.`,
+        );
+      } catch {
+        endJob(job, "The files could not be read.", true);
+      }
+    },
+    [project, realSlug, beginJob, updateJob, endJob, record, writeRegistry],
+  );
+
+  const saveFileText = useCallback(
+    async (path: string, text: string) => {
+      if (!project) return;
+      const old = project.files.get(path);
+      if (!old || old.text === null) return;
+      const job = beginJob(`Saving ${path}`, "The edit is landing.");
+      try {
+        const merged = new Map(project.files);
+        merged.set(path, { ...old, text, bytes: new TextEncoder().encode(text).length });
+        const analyzed = await analyzeProject(
+          project.inventory.name,
+          merged,
+          () => undefined,
+          merged.size >= 40,
+          true,
+        );
+        setProject(analyzed);
+        record("file.edited", { path });
+        if (realSlug) writeRegistry(analyzed, realSlug);
+        endJob(job, `${path} saved and re-examined.`);
+      } catch {
+        endJob(job, "The edit could not be saved.", true);
+      }
+    },
+    [project, realSlug, beginJob, endJob, record, writeRegistry],
+  );
+
   /* The name is editable where it is worn. The project, the tab, and
      the residency registry all follow; the address keeps its slug so
      shared links never break. */
@@ -1138,6 +1249,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     acceptTransform,
     resetDemo,
     renameResident,
+    mergeFiles,
+    saveFileText,
     jobs,
     beginJob,
     updateJob,

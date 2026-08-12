@@ -36,7 +36,7 @@ function SectionLabel({ children }: { children: string }) {
 }
 
 export function ResidentPanel() {
-  const { project, realSlug, stack, go, togglePanel } = useStore();
+  const { project, realSlug, stack, go, togglePanel, mergeFiles, saveFileText } = useStore();
   const slug = project ? realSlug : resident.slug;
   const name = project ? project.inventory.name : resident.name;
 
@@ -67,9 +67,9 @@ export function ResidentPanel() {
   const [domainSaved, setDomainSaved] = useState(false);
   const unlisted = slug ? visibility[slug] === "unlisted" : false;
 
-  const files = project
-    ? [...project.files.values()].filter((f) => f.text !== null)
-    : null;
+  const files = project ? [...project.files.values()] : null;
+  const [editingPath, setEditingPath] = useState<string | null>(null);
+  const [draftText, setDraftText] = useState("");
 
   return (
     <>
@@ -101,22 +101,92 @@ export function ResidentPanel() {
 
         <SectionLabel>The files it holds</SectionLabel>
         {files ? (
-          <div style={{ display: "grid", gap: 4 }}>
-            {files.slice(0, 10).map((f) => (
-              <div key={f.path} style={{ display: "flex", gap: 10, fontSize: 12.5, color: "var(--ink-body)" }}>
-                <span className="mono" style={{ flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                  {f.path}
-                </span>
-                <span style={{ color: "var(--gray-small)", flex: "none" }}>
-                  {(f.bytes / 1024).toFixed(1)} KB
-                </span>
+          <div style={{ display: "grid", gap: 2 }}>
+            {/* the file room: every file visible and workable in place */}
+            <label className="pill pill-sm file-add">
+              Add files
+              <input
+                type="file"
+                multiple
+                style={{ display: "none" }}
+                onChange={(e) => {
+                  const list = [...(e.target.files ?? [])];
+                  e.target.value = "";
+                  if (list.length > 0) void mergeFiles(list);
+                }}
+              />
+            </label>
+            {files.map((f) => (
+              <div key={f.path} className="file-row">
+                <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+                  {f.dataUri && /\.(png|jpe?g|gif|webp|svg)$/i.test(f.path) && (
+                    <img className="file-thumb" src={f.dataUri} alt="" />
+                  )}
+                  <span
+                    className="mono"
+                    style={{ flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontSize: 12.5 }}
+                  >
+                    {f.path}
+                  </span>
+                  <span style={{ color: "var(--gray-small)", flex: "none", fontSize: 12 }}>
+                    {(f.bytes / 1024).toFixed(1)} KB
+                  </span>
+                </div>
+                <div className="file-acts">
+                  <label className="file-act">
+                    Replace
+                    <input
+                      type="file"
+                      style={{ display: "none" }}
+                      onChange={(e) => {
+                        const picked = e.target.files?.[0];
+                        e.target.value = "";
+                        if (picked) void mergeFiles([picked], f.path);
+                      }}
+                    />
+                  </label>
+                  {f.text !== null && (
+                    <button
+                      className="file-act"
+                      onClick={() => {
+                        if (editingPath === f.path) {
+                          setEditingPath(null);
+                        } else {
+                          setEditingPath(f.path);
+                          setDraftText(f.text ?? "");
+                        }
+                      }}
+                    >
+                      {editingPath === f.path ? "Close" : "Edit"}
+                    </button>
+                  )}
+                </div>
+                {editingPath === f.path && (
+                  <div style={{ marginTop: 6 }}>
+                    <textarea
+                      className="file-editor mono"
+                      value={draftText}
+                      onChange={(e) => setDraftText(e.target.value)}
+                      spellCheck={false}
+                    />
+                    <div style={{ display: "flex", gap: 8, marginTop: 6 }}>
+                      <button
+                        className="pill pill-sm pill-dark"
+                        onClick={() => {
+                          void saveFileText(f.path, draftText);
+                          setEditingPath(null);
+                        }}
+                      >
+                        Save the file
+                      </button>
+                      <button className="pill pill-sm" onClick={() => setEditingPath(null)}>
+                        Discard
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             ))}
-            {files.length > 10 && (
-              <span style={{ fontSize: 12, color: "var(--gray-small)" }}>
-                and {files.length - 10} more
-              </span>
-            )}
           </div>
         ) : (
           <div style={{ display: "grid", gap: 4 }}>
@@ -126,6 +196,9 @@ export function ResidentPanel() {
                 <span style={{ color: "var(--gray-small)" }}>{m.size}</span>
               </div>
             ))}
+            <span style={{ fontSize: 12, color: "var(--gray-small)", marginTop: 4 }}>
+              The example is read only. Drop your own app to work its files.
+            </span>
           </div>
         )}
         {slug && (

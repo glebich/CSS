@@ -854,6 +854,46 @@ check(
   "the last update is dated",
   await page.locator(".resident-panel").getByText("Last updated", { exact: false }).isVisible(),
 );
+
+/* the file room: add, edit, and replace, like a file system */
+const fileCountBefore = await page.locator(".file-row").count();
+await page
+  .locator(".file-add input[type=file]")
+  .setInputFiles({ name: "notes.txt", mimeType: "text/plain", buffer: Buffer.from("hello room") });
+await page.waitForTimeout(900);
+check(
+  "adding a file grows the room and files a notice",
+  (await page.locator(".file-row").count()) === fileCountBefore + 1 &&
+    (await page.locator(".notice", { hasText: "Adding files" }).isVisible()),
+);
+const cssRow = page.locator(".file-row", { hasText: "styles.css" }).first();
+await cssRow.getByText("Edit", { exact: true }).click();
+check("a text file opens in the editor", await page.locator(".file-editor").isVisible());
+const cssText = await page.locator(".file-editor").inputValue();
+await page.locator(".file-editor").fill(`${cssText}\n.file-room-proof { color: green; }`);
+await page.getByText("Save the file").click();
+await page.waitForTimeout(900);
+check(
+  "saving re-examines and says so",
+  await page.locator(".notice", { hasText: "saved and re-examined" }).isVisible(),
+);
+await cssRow.getByText("Edit", { exact: true }).click();
+check(
+  "the saved edit is truly in the file",
+  (await page.locator(".file-editor").inputValue()).includes(".file-room-proof"),
+);
+await cssRow.getByText("Close", { exact: true }).click();
+await cssRow.locator("input[type=file]").setInputFiles({
+  name: "styles.css",
+  mimeType: "text/css",
+  buffer: Buffer.from("body { background: #fff; color: #111; }"),
+});
+await page.waitForTimeout(900);
+check(
+  "replacing keeps the path and says so",
+  await page.locator(".notice", { hasText: "Replacing" }).isVisible() &&
+    (await page.locator(".file-row", { hasText: "styles.css" }).count()) === 1,
+);
 check(
   "the connection knows its repo",
   await page.locator(".resident-panel").getByText("osyle/sunrise").isVisible(),

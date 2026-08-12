@@ -808,6 +808,20 @@ door living in the bar with the other sheet dials; the drop page
 says Drop your app in three words. The suite grew to cover all of
 it.
 
+### Increment Z. The file room. DELIVERED
+
+The files stopped being a list and became a place to work. Every
+file the app holds is visible in the resident panel with its size,
+images with their thumbnails. Add files merges new material into
+the app and the whole examination runs again, quietly, with the
+notice carrying it. Replace on any row swaps the bytes and keeps
+the path so nothing pointing at the file breaks; a logo or an
+image swaps the same way as code. Text files open in a plain
+editor in place and save back re-examined. Every change lands in
+the residency registry so the address serves the new bytes, and
+the ledger records each one. The engine gained a quick mode so
+silent re-examinations skip the theater pacing.
+
 ### Increment I. What remains, in spec order
 
 The Redis-backed limiter and the Postgres and MinIO drivers when
