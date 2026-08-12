@@ -421,6 +421,9 @@ input {
   border-radius: 140px;
   backdrop-filter: blur(10px);
   background: rgba(243, 241, 239, 0.55);
+  /* never wider than the room it stands in; the ask yields first */
+  max-width: 100%;
+  min-width: 0;
 }
 
 .bar-pill {
@@ -476,9 +479,9 @@ input {
   color: var(--gray-tertiary);
 }
 
-/* the wide ask: grows with the line, yields on phones */
+/* the wide ask: grows with the line, yields when the room narrows */
 .ask-pill.ask-pill-wide {
-  min-width: min(340px, 100%);
+  min-width: min(160px, 100%);
   max-width: 480px;
   flex: 1 1 240px;
   box-shadow: var(--shadow-pill);
@@ -673,9 +676,18 @@ input {
   border-bottom: none;
 }
 
-@media (max-width: 1160px) {
+/* The bar lives with the work, not under the bench: when the rail is
+   on the right, the bar centers within the main column. */
+.workspace + .bottombar {
+  right: 330px;
+}
+
+@media (max-width: 1360px) {
   .workspace-preview {
     display: none;
+  }
+  .workspace + .bottombar {
+    right: 0;
   }
 }
 

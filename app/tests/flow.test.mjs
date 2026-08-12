@@ -153,6 +153,20 @@ check(
   "history speaks beside the work",
   await page.locator(".workspace-preview").getByText("History").isVisible(),
 );
+{
+  /* the bar centers within the main column and never sits on the rail */
+  const bar = await page.locator(".bar-shell").boundingBox();
+  const rail = await page.locator(".workspace-preview").boundingBox();
+  check("the bar never overlaps the bench", !!bar && !!rail && bar.x + bar.width <= rail.x);
+}
+/* between the floor and the bench: the rail steps aside, the bar stays */
+await page.setViewportSize({ width: 1300, height: 810 });
+check(
+  "the rail steps aside when the room narrows",
+  !(await page.locator(".workspace-preview").isVisible()),
+);
+check("the bar keeps the room at 1300", await page.locator(".bar-shell").isVisible());
+await page.setViewportSize({ width: 1440, height: 810 });
 
 /* Heal: what it will touch is shown first, never behind a link */
 check(

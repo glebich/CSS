@@ -781,6 +781,16 @@ deploy, the runbook carries the five DNS records and the HTTPS
 step, and the build already spoke relative paths so nothing else
 moved.
 
+### Increment X. The bar and the bench make room. DELIVERED
+
+The navigation bar stopped drifting over the workspace rail. It now
+centers within the main column whenever the rail is out, it can
+never grow wider than the room it stands in because the ask pill
+yields first, and the rail itself steps aside below 1360 where the
+bench would crowd the bar. Three new journey checks hold the line:
+the bar and the rail never intersect at 1440, the rail hides at
+1300, and the bar keeps the room.
+
 ### Increment I. What remains, in spec order
 
 The Redis-backed limiter and the Postgres and MinIO drivers when
