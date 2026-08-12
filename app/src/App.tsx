@@ -101,8 +101,9 @@ function Shell() {
     <div className="shell">
       <TopBar inResident={inResident} />
       <div style={{ display: "flex", flex: 1, minHeight: 0 }}>
-        {/* the rooms live in a sidebar now, macOS style, floating glass */}
-        {inResident && <SideBar />}
+        {/* one map from the first step: during setup the rail stands
+            with its rooms dimmed, so the geography never changes */}
+        <SideBar preview={inFlow} />
         <div
           style={{ position: "relative", flex: 1, minWidth: 0, display: "flex", flexDirection: "column" }}
         >

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { readLedger, sdk, useStore } from "../store";
 import { FlowSteps, Page, Sparkle } from "../components/chrome";
 import { quotas, resident } from "../data/seed";
@@ -58,6 +58,18 @@ export function Address() {
   const [invited, setInvited] = useState(false);
   const [claimEmail, setClaimEmail] = useState("");
   const [claimError, setClaimError] = useState<string | null>(null);
+
+  /* the stack's memory, read back: how many examinations it holds */
+  const [onRecord, setOnRecord] = useState<{ count: number; latest: number } | null>(null);
+  useEffect(() => {
+    if (!stackClaim || !realSlug) return;
+    fetch(`${stack.base}/residents/${realSlug}/report`, { credentials: "include" })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((b: { report: { vitality: number } | null; history: unknown[] } | null) => {
+        if (b?.report) setOnRecord({ count: b.history.length, latest: b.report.vitality });
+      })
+      .catch(() => undefined);
+  }, [stackClaim, realSlug, stack.base]);
 
   /* The real ceremony: a dropped, examined app just moved in. */
   if (realSlug && project) {
@@ -203,6 +215,13 @@ export function Address() {
                 ? `${stackClaim.uploaded} file${stackClaim.uploaded === 1 ? "" : "s"} in the Vault, versioned from day one. ${stackClaim.note}`
                 : stackClaim.note}
             </p>
+            {onRecord && (
+              <p style={{ fontSize: 12.5, color: "var(--gray-meta)", marginTop: 6 }}>
+                {onRecord.count} examination{onRecord.count === 1 ? "" : "s"} on
+                record at the stack, the latest at vitality {onRecord.latest}.
+                The health has a history now.
+              </p>
+            )}
           </div>
         )}
         <p

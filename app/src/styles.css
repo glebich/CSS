@@ -4825,3 +4825,46 @@ input {
     animation: none;
   }
 }
+
+/* the waiting rail: same geography, dimmed until launch. On phones
+   the setup keeps its single grammar; the rail waits offstage. */
+.side-row.is-waiting {
+  opacity: 0.38;
+  cursor: default;
+}
+
+.side-row.is-waiting:hover {
+  background: none;
+  transform: none;
+}
+
+.side-waiting-note {
+  margin-top: auto;
+  padding: 10px 12px 2px;
+  font-size: 10.5px;
+  letter-spacing: 0.05em;
+  color: var(--gray-tertiary);
+}
+
+@media (max-width: 700px) {
+  .sidebar.is-preview {
+    display: none;
+  }
+}
+
+/* the lenses read as a table: score, name, verdict, one grid */
+.lens-row {
+  display: grid;
+  grid-template-columns: 52px 218px 1fr;
+  gap: 18px;
+  align-items: baseline;
+}
+
+@media (max-width: 760px) {
+  .lens-row {
+    grid-template-columns: 52px 1fr;
+  }
+  .lens-row .lens-note {
+    grid-column: 2;
+  }
+}

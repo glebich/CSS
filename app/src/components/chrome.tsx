@@ -416,6 +416,7 @@ function SideRow({
   active,
   sheet,
   badge,
+  waiting,
   onClick,
 }: {
   icon: IconName;
@@ -423,13 +424,16 @@ function SideRow({
   active: boolean;
   sheet?: boolean;
   badge?: boolean;
+  waiting?: boolean;
   onClick: () => void;
 }) {
   return (
     <button
-      className={`side-row${active ? " is-active" : ""}${sheet ? " side-row-sheet" : ""}`}
-      onClick={onClick}
+      className={`side-row${active ? " is-active" : ""}${sheet ? " side-row-sheet" : ""}${waiting ? " is-waiting" : ""}`}
+      onClick={waiting ? undefined : onClick}
       aria-label={label}
+      aria-disabled={waiting || undefined}
+      title={waiting ? "Opens once the app launches" : undefined}
     >
       <span className="side-row-icon">
         <Icon name={icon} size={17} />
@@ -445,7 +449,7 @@ function SideRow({
  * macOS style. Rooms navigate; Run, Mood, and People open sheets over
  * the work and wear a quiet tint to say so.
  */
-export function SideBar() {
+export function SideBar({ preview = false }: { preview?: boolean }) {
   const { view, go, inbox, panel, togglePanel, project } = useStore();
   const unread = inbox.filter((e) => !e.read).length;
   /* A real project lives on one Report; navigation would only dilute it. */
@@ -455,11 +459,15 @@ export function SideBar() {
     (v === "transform" && view === "reveal") ||
     (v === "findings" && view === "issues");
   return (
-    <nav className="sidebar" aria-label="The rooms">
+    <nav
+      className={`sidebar${preview ? " is-preview" : ""}`}
+      aria-label="The rooms"
+    >
       <SideRow
         icon="play"
         label="Run"
         sheet
+        waiting={preview}
         active={panel === "run"}
         onClick={() => togglePanel("run")}
       />
@@ -470,7 +478,8 @@ export function SideBar() {
           key={item.view}
           icon={item.icon}
           label={item.label}
-          active={active(item.view)}
+          waiting={preview}
+          active={!preview && active(item.view)}
           onClick={() => go(item.view)}
         />
       ))}
@@ -481,8 +490,9 @@ export function SideBar() {
           key={item.view}
           icon={item.icon}
           label={item.label}
-          active={active(item.view)}
-          badge={item.view === "inbox" && unread > 0}
+          waiting={preview}
+          active={!preview && active(item.view)}
+          badge={!preview && item.view === "inbox" && unread > 0}
           onClick={() => go(item.view)}
         />
       ))}
@@ -492,6 +502,7 @@ export function SideBar() {
         icon="mood"
         label="Mood"
         sheet
+        waiting={preview}
         active={panel === "mood"}
         onClick={() => togglePanel("mood")}
       />
@@ -499,9 +510,14 @@ export function SideBar() {
         icon="persona"
         label="People"
         sheet
+        waiting={preview}
         active={panel === "personas"}
         onClick={() => togglePanel("personas")}
       />
+      {/* the map never changes shape; it only waits to open */}
+      {preview && (
+        <span className="side-waiting-note">The rooms open at launch</span>
+      )}
     </nav>
   );
 }

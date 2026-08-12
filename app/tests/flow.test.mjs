@@ -128,6 +128,11 @@ check(
 await page.getByText("Drop your app", { exact: false }).last().click();
 check("place shows the flow steps", await page.locator(".flow-steps").isVisible());
 check(
+  "one map from the first step: the rail stands, dimmed",
+  (await page.locator(".sidebar.is-preview").isVisible()) &&
+    (await page.locator(".side-row.is-waiting").count()) > 6,
+);
+check(
   "loose files have one door, wearing the clip",
   (await page.getByLabel("Just files", { exact: true }).count()) === 1,
 );
@@ -786,6 +791,14 @@ check(
   await page
     .getByText("Claimed. app-3-files.osyle.app is registered on the stack.")
     .isVisible(),
+);
+check(
+  "the stack's memory reads back",
+  await page
+    .getByText("on record at the stack", { exact: false })
+    .waitFor({ timeout: 6000 })
+    .then(() => true)
+    .catch(() => false),
 );
 const survival = await (await fetch("http://localhost:8787/survival")).json();
 check("the resident lives in the stack's database", survival.total >= 1);
