@@ -28,6 +28,7 @@ jobs:
         run: |
           cd app/dist
           touch .nojekyll
+          echo "osyle.xyz" > CNAME
           git init -b gh-pages
           git config user.name "osyle-deploy"
           git config user.email "deploy@users.noreply.github.com"

@@ -773,6 +773,14 @@ browser journey through the product on a freshly installed
 Chromium, and both stage 15 drills, the 200 people and the fire.
 A red run is the truth about the branch; nothing merges on hope.
 
+### Increment W. The public address. DELIVERED
+
+The demo leaves the borrowed github.io address for a real one. The
+publishing workflow pins osyle.xyz with a CNAME file on every
+deploy, the runbook carries the five DNS records and the HTTPS
+step, and the build already spoke relative paths so nothing else
+moved.
+
 ### Increment I. What remains, in spec order
 
 The Redis-backed limiter and the Postgres and MinIO drivers when

@@ -16,6 +16,30 @@ honest boundary is named at the end.
 git clone https://github.com/glebich/CSS.git osyle && cd osyle
 ```
 
+## The public demo at osyle.xyz
+
+The demo build deploys itself to GitHub Pages on every push, and the
+publishing workflow pins the custom domain with a CNAME file. To
+serve it at `osyle.xyz`, add these records at the registrar:
+
+| Record | Host | Points to |
+|--------|------|-----------|
+| A | `osyle.xyz` | 185.199.108.153 |
+| A | `osyle.xyz` | 185.199.109.153 |
+| A | `osyle.xyz` | 185.199.110.153 |
+| A | `osyle.xyz` | 185.199.111.153 |
+| CNAME | `www` | `glebich.github.io` |
+
+Then in the repository settings, Pages, confirm the custom domain
+reads `osyle.xyz` and tick Enforce HTTPS once the certificate is
+issued (GitHub mints it automatically, usually within the hour).
+From the first deploy after this, the old github.io address
+redirects to `osyle.xyz`, so the DNS records above need to exist
+before that redirect helps anyone.
+
+The rest of this runbook is about the full stack on your own box at
+`osyle.app`; the two are independent.
+
 ## 1. DNS, once
 
 At your DNS provider, point these at the box (an A record to your
