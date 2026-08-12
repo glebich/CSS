@@ -3532,3 +3532,56 @@ input {
     grid-template-columns: repeat(2, 1fr);
   }
 }
+
+/* home as one screen: the score on the left, the act on the right */
+.home-grid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 10px 44px;
+  align-items: start;
+  justify-content: center;
+  margin-top: 6px;
+}
+
+.home-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.home-cell-act {
+  padding-top: 14px;
+  min-width: 0;
+}
+
+@media (max-width: 1080px) {
+  .home-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* the report head: the burst beside its reasoning, not above it */
+.report-head {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 8px 36px;
+  align-items: center;
+  max-width: 860px;
+  width: 100%;
+}
+
+.report-head-copy {
+  min-width: 0;
+  text-align: left;
+}
+
+@media (max-width: 900px) {
+  .report-head {
+    grid-template-columns: 1fr;
+    justify-items: center;
+  }
+  .report-head-copy {
+    text-align: center;
+  }
+}

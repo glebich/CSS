@@ -161,8 +161,13 @@ check("home says it lives here now", await page.getByText("It lives here now.").
 check("the app is reachable from home", await page.getByText("Open your app").isVisible());
 check(
   "vitality explains itself in place",
-  await page.getByText("Vitality is your app", { exact: false }).isVisible(),
+  await page.getByText("Your app's health, 0 to 100", { exact: false }).isVisible(),
 );
+{
+  /* the home fits one screen: the act column ends above the fold */
+  const heal = await page.getByText("Four issues can heal themselves").boundingBox();
+  check("the home shows the act without scrolling", !!heal && heal.y + heal.height < 810);
+}
 check(
   "the sidebar's icons say their names",
   await page.locator(".side-row-label", { hasText: "Studio" }).isVisible(),

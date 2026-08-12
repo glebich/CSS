@@ -160,7 +160,9 @@ export function Home() {
           )}
         </div>
 
-        <span className="instrument-label" style={{ marginTop: 14 }}>
+        <div className="home-grid">
+        <div className="home-cell home-cell-score">
+        <span className="instrument-label">
           Vitality
         </span>
         <InstrumentBurst
@@ -169,24 +171,20 @@ export function Home() {
           onClick={() => go(project ? "report" : "exam")}
           title={project ? "See the report" : "See the ten lenses"}
         />
-        <p
-          style={{
-            fontSize: 13,
-            color: "var(--gray-small)",
-            maxWidth: 460,
-            textAlign: "center",
-            lineHeight: 1.55,
-          }}
+        <span
+          style={{ fontSize: 12, color: "var(--gray-small)" }}
+          title="Vitality is your app's health, 0 to 100, weighed across ten lenses at the last examination."
         >
-          Vitality is your app&apos;s health, 0 to 100, weighed across ten
-          lenses at the last examination. Tap the number for the why.
-        </p>
+          Your app's health, 0 to 100. Tap the number for the why.
+        </span>
 
-        <div className="pulse-line" style={{ marginTop: 10 }}>
+        <div className="pulse-line" style={{ marginTop: 6 }}>
           <span className={`pulse-dot${healedSomething ? " swell" : ""}`} />
           <span>{pulseLine}</span>
         </div>
 
+        </div>
+        <div className="home-cell home-cell-act">
         {/* the unprompted note: the director spoke, the door is quiet */}
         {!project && inbox.some((e) => !e.read && e.director) && (
           <button
@@ -202,7 +200,7 @@ export function Home() {
           style={{
             display: "flex",
             gap: 40,
-            marginTop: 32,
+            marginTop: 6,
             color: "var(--gray-meta)",
             fontSize: 13,
           }}
@@ -236,7 +234,7 @@ export function Home() {
           )}
         </div>
 
-        <div style={{ marginTop: 40, display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
+        <div style={{ marginTop: 14, display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
           {project ? (
             realUndecided.length > 0 ? (
               <button className="pill pill-dark" onClick={() => go("report")}>
@@ -259,7 +257,7 @@ export function Home() {
             /* what Heal will touch is shown first, never behind a link */
             <div
               className="card card-solid card-pad"
-              style={{ maxWidth: 480, textAlign: "left", marginBottom: 90 }}
+              style={{ maxWidth: 480, textAlign: "left", marginBottom: 70 }}
             >
               <div style={{ fontSize: 16.5, fontWeight: 550 }}>
                 {numberWord(healableOpen.length)} issue
@@ -317,6 +315,8 @@ export function Home() {
               </button>
             </>
           )}
+        </div>
+        </div>
         </div>
       </div>
     </Page>

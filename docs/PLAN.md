@@ -864,6 +864,20 @@ room's folders flattened into quiet header groups with counts and
 folding after a grid quirk let cards overlap an open editor; the
 suite caught it, a screenshot proved it, and flex ended it.
 
+### Increment AD. One screen, and the journey. DELIVERED
+
+The home stopped scrolling: the statement and the address card up
+top, the burst on the left, and everything to act on stacked
+beside it, the director's note, uptime and percentile, and the
+heal card with its receipt, all above the fold at a desktop size,
+with a journey check holding the fold. The report's burst moved
+beside its reasoning instead of above it. And the SDK room raised
+a journey board: Arrive, Sign in, First drill, Keep returning,
+each with its count, its bar, what was lost after the stage
+before, who is stuck by name, and a door to act; your counts live,
+the pilots labeled the example. The first seconds of a real drop
+stopped wearing the example's clothes on the way here.
+
 ### Increment I. What remains, in spec order
 
 The Redis-backed limiter and the Postgres and MinIO drivers when

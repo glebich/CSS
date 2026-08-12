@@ -182,23 +182,28 @@ export function Report() {
       <FlowSteps current="report" />
       {/* 1. The number, and how it was made */}
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", paddingTop: 10 }}>
-        <span className="instrument-label">Vitality</span>
-        <InstrumentBurst score={project.vitality} size={320} fontSize="clamp(64px, 9vw, 96px)" />
-        <p
-          style={{
-            fontStyle: "italic",
-            fontSize: 15.5,
-            color: "var(--ink-body)",
-            maxWidth: 620,
-            textAlign: "center",
-            lineHeight: 1.6,
-          }}
-        >
-          {project.understanding}
-        </p>
-        <p style={{ fontSize: 12, color: "var(--gray-small)", maxWidth: 640, textAlign: "center", marginTop: 10 }}>
-          {project.vitalityWhy}
-        </p>
+        {/* the number and how it was made stand side by side, one screen */}
+        <div className="report-head">
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+            <span className="instrument-label">Vitality</span>
+            <InstrumentBurst score={project.vitality} size={236} fontSize="clamp(52px, 7vw, 72px)" />
+          </div>
+          <div className="report-head-copy">
+            <p
+              style={{
+                fontStyle: "italic",
+                fontSize: 15.5,
+                color: "var(--ink-body)",
+                lineHeight: 1.6,
+              }}
+            >
+              {project.understanding}
+            </p>
+            <p style={{ fontSize: 12, color: "var(--gray-small)", marginTop: 10 }}>
+              {project.vitalityWhy}
+            </p>
+          </div>
+        </div>
         {project.inventory.services.length > 0 && (
           <p style={{ fontSize: 12.5, color: "var(--gray-meta)", marginTop: 10, display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", justifyContent: "center" }}>
             Connections, detected in your files:
