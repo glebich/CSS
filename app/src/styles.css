@@ -5031,3 +5031,12 @@ input {
   background-repeat: no-repeat;
   background-position: right 12px center;
 }
+
+/* a receipt's chip never collides with a wrapping title */
+.receipt-row {
+  align-items: flex-start;
+}
+
+.receipt-row .chip {
+  flex: none;
+}

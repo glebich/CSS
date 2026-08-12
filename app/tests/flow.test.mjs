@@ -812,6 +812,17 @@ check(
     .then(() => true)
     .catch(() => false),
 );
+check(
+  "the stack's copy has a public door",
+  await page.getByText("Open the stack's copy").isVisible(),
+);
+check(
+  "the stack actually serves the claimed page",
+  await page.evaluate(async () => {
+    const r = await fetch("http://localhost:8787/serve/app-3-files/");
+    return r.ok && (r.headers.get("content-type") || "").includes("text/html");
+  }),
+);
 const survival = await (await fetch("http://localhost:8787/survival")).json();
 check("the resident lives in the stack's database", survival.total >= 1);
 check(

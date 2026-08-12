@@ -222,6 +222,17 @@ export function Address() {
                 The health has a history now.
               </p>
             )}
+            {stackClaim.uploaded > 0 && (
+              <a
+                className="pill pill-sm"
+                style={{ marginTop: 12, textDecoration: "none", alignSelf: "flex-start" }}
+                href={`${stack.base}/serve/${realSlug}/`}
+                target="_blank"
+                rel="noreferrer"
+              >
+                Open the stack's copy
+              </a>
+            )}
           </div>
         )}
         <p

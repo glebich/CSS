@@ -359,6 +359,49 @@ const reportAnon = await app.inject({
 });
 check("the report needs its owner", reportAnon.statusCode === 401);
 
+/* the address, served: public pages straight out of the Vault */
+const servedFile = await app.inject({
+  method: "GET",
+  url: "/serve/skyrecall/src/index.html",
+});
+check(
+  "the stack serves the newest version publicly",
+  servedFile.statusCode === 200 &&
+    servedFile.headers["content-type"].includes("text/html") &&
+    servedFile.body === "<h1>one</h1>",
+);
+
+const servedRoot = await app.inject({ method: "GET", url: "/serve/skyrecall/" });
+check(
+  "the bare address resolves to an index",
+  servedRoot.statusCode === 200 && servedRoot.headers["content-type"].includes("text/html"),
+);
+
+const servedRedirect = await app.inject({ method: "GET", url: "/serve/skyrecall" });
+check(
+  "the slug alone walks through the same door",
+  servedRedirect.statusCode === 302 &&
+    servedRedirect.headers.location === "/serve/skyrecall/",
+);
+
+const servedMiss = await app.inject({
+  method: "GET",
+  url: "/serve/skyrecall/no/such/file.js",
+});
+check(
+  "a missing file gets the honest page, not a stack trace",
+  servedMiss.statusCode === 404 && servedMiss.body.includes("Nothing lives at this path"),
+);
+
+const servedGhost = await app.inject({ method: "GET", url: "/serve/nobody-here/" });
+check("an unknown resident gets the same honest page", servedGhost.statusCode === 404);
+
+const servedDots = await app.inject({
+  method: "GET",
+  url: "/serve/skyrecall/..%2F..%2Fetc%2Fpasswd",
+});
+check("upward dots are refused", servedDots.statusCode === 400);
+
 resetLimitsForTests();
 let importWall;
 for (let i = 0; i < 13; i += 1) {
