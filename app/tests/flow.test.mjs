@@ -211,6 +211,10 @@ await page.getByText("Create the concept").click();
 await page.waitForTimeout(900);
 
 /* The reveal and the surface */
+check(
+  "the arrival beat bridges the seam",
+  await page.getByText("This is its home now.", { exact: false }).isVisible(),
+);
 const vitality = await page.locator(".instrument").innerText();
 check("vitality reveals at 66", vitality === "66");
 check("tab title carries the state", (await page.title()).includes("SkyRecall 66"));
@@ -323,6 +327,10 @@ check("heal raises vitality to 69", (await page.locator(".instrument").innerText
 /* No dead ends: home offers the next door after healing */
 check("home offers the next step", await page.getByText("See what changed").isVisible());
 check("the healed work is shown, not implied", await page.getByText("What Heal changed").isVisible());
+check(
+  "the number's diary draws once two values exist",
+  (await page.locator(".vita-spark polyline").count()) === 1,
+);
 check(
   "promote stands beside the reveal as a next door",
   await page.getByText("Promote it").isVisible(),

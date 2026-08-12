@@ -41,6 +41,7 @@ export function Home() {
     healableOpen,
     healed,
     go,
+    vitalityHistory,
     justLaunched,
     clearLaunchArrival,
     returned,
@@ -53,9 +54,17 @@ export function Home() {
     togglePanel,
   } = useStore();
   const [reveal] = useState(justLaunched);
+  /* the arrival beat: one sentence bridging the wizard into the home,
+     gone on its own before it can become furniture */
+  const [arrival, setArrival] = useState(justLaunched);
   useEffect(() => {
     if (justLaunched) clearLaunchArrival();
   }, [justLaunched, clearLaunchArrival]);
+  useEffect(() => {
+    if (!arrival) return;
+    const t = window.setTimeout(() => setArrival(false), 2600);
+    return () => window.clearTimeout(t);
+  }, [arrival]);
   const shown = useRevealCount(project ? project.vitality : vitality, reveal);
   const healedSomething = healed.size > 1; // the guilt banner starts healed in the seed
   const unread = inbox.filter((e) => !e.read).length;
@@ -97,6 +106,15 @@ export function Home() {
 
   return (
     <Page>
+      {/* the seam between Launch and Home, closed with one sentence */}
+      {arrival && (
+        <div className="arrival-note" aria-hidden>
+          {project
+            ? `${project.inventory.name} examined. ${realFindings.length} finding${realFindings.length === 1 ? "" : "s"}. This is its home now.`
+            : "Examined across ten lenses. Nine findings. This is its home now."}
+        </div>
+      )}
+
       {/* the return note arrives the way work notices do: quiet glass
           in the corner, never a block pushing the room down */}
       {returned && !project && (
@@ -210,6 +228,33 @@ export function Home() {
           <span className={`pulse-dot${healedSomething ? " swell" : ""}`} />
           <span>{pulseLine}</span>
         </div>
+
+        {/* the number's diary: drawn only once two real values exist */}
+        {vitalityHistory.length >= 2 && (
+          <div
+            className="vita-spark"
+            title="Every value the number has held on this machine, in order"
+          >
+            <svg width="132" height="30" viewBox="0 0 132 30" aria-label="Vitality over time">
+              <polyline
+                fill="none"
+                stroke="var(--pulse)"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                points={vitalityHistory
+                  .slice(-20)
+                  .map((h, i, arr) => {
+                    const x = arr.length === 1 ? 66 : (i / (arr.length - 1)) * 128 + 2;
+                    const y = 28 - (h.v / 100) * 26;
+                    return `${x.toFixed(1)},${y.toFixed(1)}`;
+                  })
+                  .join(" ")}
+              />
+            </svg>
+            <span>the number, over time on this machine</span>
+          </div>
+        )}
 
         </section>
         <div className="home-cell home-cell-act">

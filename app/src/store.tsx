@@ -78,6 +78,7 @@ const LAUNCHED_KEY = "osyle.demo.launched";
 const DECISIONS_KEY = "osyle.demo.findingDecisions";
 const LEDGER_KEY = "osyle.demo.ledger";
 const COMFORT_KEY = "osyle.demo.comfort";
+const VHIST_KEY = "osyle.demo.vitalityHistory";
 const CAPTION_KEY = "osyle.demo.feelingCaption";
 const AUDIENCE_KEY = "osyle.demo.audience";
 const STUDIO_KEY = "osyle.demo.studioApplied";
@@ -263,6 +264,8 @@ interface Store {
   heal: () => void;
   healableOpen: string[];
   vitality: number;
+  /** every value the number has held on this machine, in order */
+  vitalityHistory: Array<{ v: number; at: string }>;
   lensScore: (key: string) => number;
   inbox: InboxEntry[];
   markRead: (id: string) => void;
@@ -1145,6 +1148,21 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     return Math.round(weighted);
   }, [lensScore, project]);
 
+  /* the number's own diary: every value it has held on this machine,
+     appended when it changes, never invented */
+  const [vitalityHistory, setVitalityHistory] = useState<Array<{ v: number; at: string }>>(
+    () => loadJson(VHIST_KEY, []),
+  );
+  useEffect(() => {
+    const current = project ? project.vitality : vitality;
+    setVitalityHistory((cur) => {
+      if (cur.length > 0 && cur[cur.length - 1].v === current) return cur;
+      const next = [...cur, { v: current, at: new Date().toISOString() }].slice(-40);
+      saveJson(VHIST_KEY, next);
+      return next;
+    });
+  }, [vitality, project]);
+
   const heal = useCallback(() => {
     if (healing || healableOpen.length === 0) return;
     setHealing(true);
@@ -1251,6 +1269,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     setPeople(personas);
     setLaunchGoal(null);
     setLaunchSuccess(null);
+    setVitalityHistory([]);
+    saveJson(VHIST_KEY, []);
     setDevice("mobile");
     setPanel("none");
     setUploadPhase("idle");
@@ -1332,6 +1352,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     heal,
     healableOpen,
     vitality,
+    vitalityHistory,
     lensScore,
     inbox,
     markRead,

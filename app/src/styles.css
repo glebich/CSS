@@ -4766,3 +4766,62 @@ input {
     font-size: 22px;
   }
 }
+
+/* the arrival beat: one sentence on glass, gone before it is furniture */
+.arrival-note {
+  position: absolute;
+  top: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 40;
+  pointer-events: none;
+  padding: 12px 22px;
+  border-radius: 30px;
+  background: rgba(255, 255, 255, 0.66);
+  backdrop-filter: blur(20px) saturate(170%);
+  -webkit-backdrop-filter: blur(20px) saturate(170%);
+  box-shadow: var(--shadow-float), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  font-size: 14px;
+  font-weight: 530;
+  color: var(--ink-strong);
+  white-space: nowrap;
+  animation: arrival-beat 2.6s ease-out both;
+}
+
+@keyframes arrival-beat {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-8px) scale(0.97);
+  }
+  10%,
+  82% {
+    opacity: 1;
+    transform: translateX(-50%);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-6px);
+  }
+}
+
+/* the number's diary under the instrument: one quiet violet line */
+.vita-spark {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  margin-top: 8px;
+}
+
+.vita-spark span {
+  font-size: 10.5px;
+  letter-spacing: 0.04em;
+  color: var(--gray-tertiary);
+}
+
+/* less motion means the note simply stands, then leaves */
+@media (prefers-reduced-motion: reduce) {
+  .arrival-note {
+    animation: none;
+  }
+}
