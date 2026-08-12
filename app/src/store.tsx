@@ -184,6 +184,8 @@ interface Store {
   /** the theater calls this when its last line lands, or on Skip */
   finishReading: () => void;
   droppedName: string | null;
+  /** the name of a real drop being read right now, before the project exists */
+  pendingDrop: string | null;
   /* the real engine: an actually analyzed project, or null for the example */
   project: AnalyzedProject | null;
   analyzeFiles: (dropped: DroppedFile[]) => Promise<void>;
@@ -485,6 +487,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [extraInbox, setExtraInbox] = useState<InboxEntry[]>([]);
   const [readIds, setReadIds] = useState<Set<string>>(new Set());
   const [droppedName, setDroppedName] = useState<string | null>(null);
+  const [pendingDrop, setPendingDrop] = useState<string | null>(null);
   const [seenTips, setSeenTips] = useState<Set<string>>(
     () => new Set(loadJson<string[]>(SEEN_KEY, [])),
   );
@@ -644,7 +647,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         ? (first?.name ?? "project").replace(/\.zip$/i, "")
         : `${dropped.length} files`;
     setDroppedName(null);
-    setProgress([]);
+    /* the room knows a real app is being read from the first instant,
+       so the example never speaks over someone's own drop */
+    setPendingDrop(name);
+    setProgress([{ phase: "Reassemble", text: `Reading ${name}` }]);
     setView("assets");
     setUploadPhase("reading");
     try {
@@ -654,6 +660,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           { phase: "Reassemble", text: "Nothing readable arrived. Try a zip, a folder, or web files." },
         ]);
         window.setTimeout(() => setUploadPhase("idle"), 1600);
+        setPendingDrop(null);
         setView("place");
         return;
       }
@@ -665,6 +672,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         truncated,
       );
       setProject(analyzed);
+      setPendingDrop(null);
       setRealDecisions({});
       record("project.analyzed", {
         name,
@@ -678,6 +686,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         ...prev,
         { phase: "Errors", text: "Reading failed partway. What was read still counts; drop again to retry." },
       ]);
+      setPendingDrop(null);
       window.setTimeout(() => setUploadPhase("understood"), 900);
     }
   }, [record]);
@@ -1190,6 +1199,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     beginUpload,
     finishReading,
     droppedName,
+    pendingDrop,
     project,
     analyzeFiles,
     analyzeRepo,

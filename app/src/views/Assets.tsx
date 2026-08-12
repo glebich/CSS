@@ -130,10 +130,10 @@ function ExampleVisual({ m, understood }: { m: Material; understood: boolean }) 
  * For the example, the seeded cards say Example out loud.
  */
 export function Assets() {
-  const { uploadPhase, go, project, progress } = useStore();
+  const { uploadPhase, go, project, progress, pendingDrop } = useStore();
   const reading = uploadPhase === "reading";
   const understood = uploadPhase === "understood";
-  const realRun = progress.length > 0 || project !== null;
+  const realRun = pendingDrop !== null || progress.length > 0 || project !== null;
 
   return (
     <main className="canvas canvas-dotted" style={{ position: "relative" }}>
@@ -166,11 +166,17 @@ export function Assets() {
         >
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <span style={{ fontSize: 18, fontWeight: 510 }}>
-              {project ? project.inventory.name : "SkyRecall"}
+              {project ? project.inventory.name : (pendingDrop ?? "SkyRecall")}
             </span>
-            {!project && <span className="chip">Example</span>}
+            {!project && !pendingDrop && <span className="chip">Example</span>}
           </div>
-          {project ? (
+          {!project && pendingDrop ? (
+            <div style={{ marginTop: 10, fontSize: 13, color: "var(--gray-secondary)", lineHeight: 1.8 }}>
+              Your drop, being read
+              <br />
+              The inventory arrives as the bytes do
+            </div>
+          ) : project ? (
             <div style={{ marginTop: 10, fontSize: 13, color: "var(--gray-secondary)", lineHeight: 1.8 }}>
               {project.inventory.framework}
               <br />
@@ -221,15 +227,26 @@ export function Assets() {
                   <div className="file-summary">{fileNote(f)}</div>
                 </div>
               ))
-            : materials.map((m, i) => (
-                <div
-                  key={m.id}
-                  className={`file-card${reading ? " is-reading" : ""}${understood ? " is-understood" : ""}`}
-                  style={reading ? { animationDelay: `${i * 90}ms` } : undefined}
-                >
-                  <ExampleVisual m={m} understood={understood} />
-                </div>
-              ))}
+            : pendingDrop
+              ? /* your own drop, still being read: quiet placeholders,
+                   never the example's cards over your bytes */
+                Array.from({ length: 6 }, (_, i) => (
+                  <div
+                    key={i}
+                    className="file-card is-reading"
+                    style={{ animationDelay: `${i * 90}ms`, minHeight: 92 }}
+                    aria-hidden
+                  />
+                ))
+              : materials.map((m, i) => (
+                  <div
+                    key={m.id}
+                    className={`file-card${reading ? " is-reading" : ""}${understood ? " is-understood" : ""}`}
+                    style={reading ? { animationDelay: `${i * 90}ms` } : undefined}
+                  >
+                    <ExampleVisual m={m} understood={understood} />
+                  </div>
+                ))}
         </div>
 
         {reading && <Theater />}
