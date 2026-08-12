@@ -112,7 +112,6 @@ export function BrandMark({ size = 26 }: { size?: number }) {
 export function Wordmark() {
   return (
     <span className="wordmark">
-      <BrandMark />
       Osyle<sup>&reg;</sup>
     </span>
   );

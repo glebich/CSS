@@ -300,6 +300,65 @@ check(
   rationed.statusCode === 429 && Number(rationed.headers["retry-after"]) >= 1,
 );
 
+/* the report lives with the resident: append-only, capped, owned */
+const noReport = await app.inject({
+  method: "GET",
+  url: "/residents/skyrecall/report",
+  cookies,
+});
+check("an unexamined resident has no report", noReport.json().report === null);
+
+const badVitality = await app.inject({
+  method: "PUT",
+  url: "/residents/skyrecall/report",
+  cookies,
+  payload: { vitality: 140, findings: 3 },
+});
+check("an impossible vitality refuses", badVitality.statusCode === 400);
+
+const rep1 = await app.inject({
+  method: "PUT",
+  url: "/residents/skyrecall/report",
+  cookies,
+  payload: {
+    vitality: 61,
+    findings: 9,
+    lenses: [
+      { key: "design", score: 55, findings: 3 },
+      { key: "code", score: 70.4, findings: 2 },
+      { key: "x".repeat(80), score: 10, findings: 1 },
+      "not a lens",
+    ],
+  },
+});
+check("a report is recorded", rep1.statusCode === 201);
+check(
+  "dirty lenses are dropped, clean ones rounded",
+  rep1.json().report.lenses.length === 2 && rep1.json().report.lenses[1].score === 70,
+);
+
+await app.inject({
+  method: "PUT",
+  url: "/residents/skyrecall/report",
+  cookies,
+  payload: { vitality: 66, findings: 7 },
+});
+const repRead = await app.inject({
+  method: "GET",
+  url: "/residents/skyrecall/report",
+  cookies,
+});
+check(
+  "the latest examination fronts the history",
+  repRead.json().report.vitality === 66 && repRead.json().history.length === 2,
+);
+
+const reportAnon = await app.inject({
+  method: "GET",
+  url: "/residents/skyrecall/report",
+});
+check("the report needs its owner", reportAnon.statusCode === 401);
+
 resetLimitsForTests();
 let importWall;
 for (let i = 0; i < 13; i += 1) {

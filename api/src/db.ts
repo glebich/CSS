@@ -66,6 +66,16 @@ export function platformDb(): DatabaseSync {
       created_at TEXT NOT NULL,
       done_at TEXT
     );
+    CREATE TABLE IF NOT EXISTS reports (
+      id TEXT PRIMARY KEY,
+      resident_id TEXT NOT NULL,
+      vitality INTEGER NOT NULL,
+      findings INTEGER NOT NULL,
+      lenses TEXT NOT NULL,
+      examined_at TEXT NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS reports_by_resident
+      ON reports (resident_id, examined_at);
   `);
   /* Data dirs older than the survival column pick it up here. */
   try {

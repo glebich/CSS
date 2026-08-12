@@ -53,7 +53,7 @@ export function Sdk() {
       <div className="section-label" style={{ marginTop: 22 }}>
         The people inside
       </div>
-      <div className="card card-solid" style={{ padding: "6px 24px", maxWidth: 720 }}>
+      <div className="card card-solid people-table" style={{ padding: "6px 24px" }}>
         <div className="inbox-item">
           <span className="pulse-dot" />
           <div style={{ flex: 1 }}>

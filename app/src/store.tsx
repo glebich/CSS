@@ -823,6 +823,26 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         } catch {
           /* the registration stands; the Vault fills on the next claim */
         }
+        /* the report moves in with the files: what the engine measured,
+           recorded on the stack so the health has a history */
+        try {
+          await fetch(`${stackBase}/residents/${body.resident.slug}/report`, {
+            method: "PUT",
+            credentials: "include",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({
+              vitality: project.vitality,
+              findings: project.lenses.reduce((n, l) => n + l.findings.length, 0),
+              lenses: project.lenses.map((l) => ({
+                key: l.key,
+                score: l.score,
+                findings: l.findings.length,
+              })),
+            }),
+          });
+        } catch {
+          /* the claim stands; the report lands on the next examination */
+        }
         setStackClaim({ address: body.resident.address, note: body.note, uploaded });
         record("stack.claimed", { slug: realSlug, address: body.resident.address, uploaded });
         endJob(job, `Claimed. ${uploaded} files versioned at ${body.resident.address}.`);

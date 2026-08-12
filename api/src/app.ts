@@ -11,6 +11,7 @@ import { registerResidents } from "./residents.js";
 import { registerVault } from "./vault.js";
 import { registerRdb } from "./rdb.js";
 import { registerGrowth } from "./growth.js";
+import { registerReports } from "./reports.js";
 import { platformDb } from "./db.js";
 import { blobsHealthy } from "./blobs.js";
 import { allow, walled } from "./limits.js";
@@ -82,6 +83,7 @@ export async function buildApp(): Promise<FastifyInstance> {
   registerVault(app);
   registerRdb(app);
   registerGrowth(app);
+  registerReports(app);
 
   return app;
 }

@@ -166,6 +166,12 @@ function ExaminedSummary({ project }: { project: AnalyzedProject | null }) {
           <div className="theater-row-sub">{detail}</div>
         </div>
       ))}
+      {/* why any of this matters, said at the moment of judgment */}
+      <p className="examined-worth">
+        {project
+          ? "Each finding carries evidence and a fix path. The report prices the work, labeled estimates."
+          : "A professional review bills hours for what these nine cover. Four heal themselves in one tap. Estimates, labeled in the report."}
+      </p>
     </div>
   );
 }
@@ -225,13 +231,8 @@ export function Assets() {
             onClick={() => setAssetsOpen(true)}
             aria-label="Open the materials"
           >
-            {/* the shapes share one skin: near each other they merge */}
-            <span className="asset-goo" aria-hidden>
-              <span className="asset-back" />
-              <span className="asset-peek asset-peek-1" />
-              <span className="asset-peek asset-peek-2" />
-              <span className="asset-peek asset-peek-3" />
-            </span>
+            {/* no pretend previews: the folder keeps a clean face until
+                real file thumbnails exist to peek out of it */}
             <span className="asset-front" aria-hidden />
             <span className="asset-folder-name">App files</span>
             <span className="asset-folder-count">

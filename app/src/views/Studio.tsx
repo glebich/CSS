@@ -129,6 +129,8 @@ export function Studio() {
         Nothing applies without you.
       </p>
 
+      {/* one column, one grid: every section hangs from the same rail */}
+      <div style={{ maxWidth: 720 }}>
       <div style={{ display: "flex", gap: 10, marginTop: 22, alignItems: "center", flexWrap: "wrap" }}>
         <div className="ask-pill ask-pill-wide">
           <input
@@ -199,7 +201,7 @@ export function Studio() {
       <div className="section-label" style={{ marginTop: 40 }}>
         Your keys
       </div>
-      <div className="card card-pad" style={{ maxWidth: 560 }}>
+      <div className="card card-pad">
         <div style={{ display: "grid", gap: 10 }}>
           <label
             style={{ fontSize: 11, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--gray-small)" }}
@@ -246,6 +248,7 @@ export function Studio() {
           Keys stay on this machine. They power live edits when Real Mode
           arrives with its stage.
         </p>
+      </div>
       </div>
     </Page>
   );

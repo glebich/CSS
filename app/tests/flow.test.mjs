@@ -149,7 +149,10 @@ check("the folder stays on the table while open", await page.locator(".asset-fol
 await page.getByLabel("Close the materials").click();
 await page.waitForTimeout(700);
 check("the files are back inside the folder", (await page.locator(".file-card").count()) === 0);
-check("the closed folder shows its sheets", (await page.locator(".asset-peek").count()) === 3);
+check(
+  "the closed folder keeps a clean face, no pretend previews",
+  (await page.locator(".asset-peek").count()) === 0,
+);
 await page.getByLabel("Open the materials").click();
 await page.waitForTimeout(700);
 check("the files fly back out of the folder", (await page.locator(".file-card").count()) >= 6);
