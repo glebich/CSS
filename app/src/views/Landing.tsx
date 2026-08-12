@@ -26,19 +26,66 @@ const LENSES = [
   "Performance weight",
 ];
 
-/* Every number on this page is real and says where it came from. */
+/* The market flip, in published numbers. Sources named below the row. */
 const STATS: Array<{ figure: string; caption: string }> = [
   {
-    figure: "8 lenses",
-    caption: "Each a real analyzer that cites the file and line it read, never a vibe.",
+    figure: "84%",
+    caption: "of developers now build with AI coding tools. Generation is no longer the hard part.",
   },
   {
-    figure: "36 ms",
-    caption: "p95 across 1400 calls in the 200 person drill, measured on the build machine.",
+    figure: "3%",
+    caption: "report high trust in AI-generated code. Trust is the scarce good now.",
   },
   {
-    figure: "0.3 s",
-    caption: "Cold start after the rehearsal destroyed the data and restored it from backup.",
+    figure: "66%",
+    caption: "name almost right, but not quite as their top frustration with generated code.",
+  },
+  {
+    figure: "45%",
+    caption: "of AI-generated code samples carry an OWASP Top 10 security flaw.",
+  },
+];
+
+/* The loop, exactly as the product runs it. */
+const LOOP: Array<{ n: string; title: string; body: string }> = [
+  {
+    n: "1",
+    title: "Import",
+    body: "Drop a zip, a folder, or connect the repository. Output from any builder walks in the same door and becomes a resident with its own address.",
+  },
+  {
+    n: "2",
+    title: "Examine",
+    body: "Eight real lenses read the app and roll into one Vitality score. Every finding carries its file and line, a cited standard, and what fixing it is worth, labeled an estimate.",
+  },
+  {
+    n: "3",
+    title: "Heal and transform",
+    body: "One tap repairs what can be repaired, with a receipt for each fix. Plain-language edits arrive as diffs and nothing applies without you. Styles, mood, and personas reshape the same app live.",
+  },
+  {
+    n: "4",
+    title: "Run, watch, promote",
+    body: "The app serves at its address, versioned in the Vault. The Monitor watches uptime and stalls, the people inside show where they drop off, and Promote carries it to the audience it was built to win.",
+  },
+];
+
+/* The three problems the whole industry agrees are unsolved. */
+const PROBLEMS: Array<{ title: string; pain: string; answer: string }> = [
+  {
+    title: "Nobody knows if it works",
+    pain: "The bottleneck moved from writing code to verifying behavior, and a third of generated apps ship with no testing at all.",
+    answer: "Osyle examines every arrival across eight lenses with file and line evidence, and never lets a report end in a dead end.",
+  },
+  {
+    title: "Everything looks the same",
+    pain: "Identical prompts yield identical results. Generated software converges to the statistical average, and users can feel it.",
+    answer: "A taste system calibrated on a real design corpus reshapes the same app into futures that feel authored, not averaged.",
+  },
+  {
+    title: "Nobody owns it after it ships",
+    pain: "Vulnerabilities enter generated code at many times the human rate, and the person who prompted it cannot self-assess any of it.",
+    answer: "Residency means the app keeps being worked on: versioned, watched, healed, and improved after the tab closes.",
   },
 ];
 
@@ -60,33 +107,6 @@ const LAWS: Array<{ title: string; body: string }> = [
 function validKey(kind: "anthropic" | "gemini", value: string): boolean | null {
   if (!value) return null;
   return kind === "anthropic" ? /^sk-ant-/.test(value) : /^AIza/.test(value);
-}
-
-function Feature({ id, label, heading, lede, points, extra }: {
-  id: string;
-  label: string;
-  heading: string;
-  lede: string;
-  points: string[];
-  extra?: React.ReactNode;
-}) {
-  return (
-    <section id={id} className="land-feature">
-      <div className="land-feature-head">
-        <span className="section-label">{label}</span>
-        <h2>{heading}</h2>
-        <p>{lede}</p>
-      </div>
-      <div className="land-feature-body">
-        <ul className="land-points">
-          {points.map((p) => (
-            <li key={p}>{p}</li>
-          ))}
-        </ul>
-        {extra}
-      </div>
-    </section>
-  );
 }
 
 /**
@@ -134,9 +154,9 @@ export function Landing() {
       <nav className="land-nav">
         <Wordmark />
         <div className="land-nav-links">
-          <a href="#examination">The examination</a>
-          <a href="#address">The address</a>
-          <a href="#life">The life</a>
+          <a href="#examination">The moment</a>
+          <a href="#address">The loop</a>
+          <a href="#life">The problems</a>
           <a href="#laws">The laws</a>
         </div>
         <div className="land-nav-cta">
@@ -152,12 +172,13 @@ export function Landing() {
       <header className="land-hero">
         <div className="land-hero-copy">
           <span className="section-label">Where generated software lives</span>
-          <h1>Turn a generated app into software people can trust.</h1>
+          <h1>Anyone can generate an app. Almost no one can trust one.</h1>
           <p>
-            Drop the app your AI built, or connect its repository. Osyle examines
-            it across eight real lenses with file and line evidence, heals what
-            it can with a receipt for every repair, and gives it an address
-            where it keeps living, versioned, served, and watched.
+            Osyle is the home for software built anywhere. Drop the app your
+            AI made or connect its repository; it gets examined across eight
+            real lenses with file and line evidence, healed with receipts,
+            and an address where it keeps living, versioned, watched, and
+            found by the audience it was built for.
           </p>
           <div className="land-hero-ctas">
             <button className="pill pill-dark" onClick={() => go("place")}>
@@ -184,8 +205,8 @@ export function Landing() {
 
       <section className="land-stats">
         <p className="land-stats-lede">
-          Built for people whose app was written in an afternoon, and who still
-          have to stand behind it.
+          The market flipped. Generating software became easy; trusting it did
+          not.
         </p>
         <div className="land-stats-row">
           {STATS.map((s) => (
@@ -196,62 +217,73 @@ export function Landing() {
           ))}
         </div>
         <p className="land-stats-foot">
-          Every push runs both test suites and both drills in public before
-          anything ships.
+          Stack Overflow Developer Survey 2026, forty-nine thousand
+          respondents; Cloud Security Alliance 2026.
         </p>
       </section>
 
-      <Feature
-        id="examination"
-        label="The examination"
-        heading="It reads the app the way a senior team would."
-        lede="Minutes after the drop you hold a report where every line can defend itself."
-        points={[
-          "Every finding cites its file and line; nothing arrives as an opinion.",
-          "What a repair is worth is said in dollars a month and labeled an estimate.",
-          "Heal applies the repairs it can and shows the receipt for each one.",
-          "A clean app is never a dead end; the improvement prompt carries the deeper pass to whatever builds your app.",
-        ]}
-        extra={
-          <div className="land-lens-grid">
-            {LENSES.map((l) => (
-              <span key={l} className="land-lens">
-                {l}
-              </span>
-            ))}
-          </div>
-        }
-      />
+      <section id="examination" className="land-now-what">
+        <span className="section-label">The moment we own</span>
+        <h2>I built it. Now what?</h2>
+        <p>
+          Every builder ends at the same cliff: a working-looking app and no
+          idea whether it holds. That moment is Osyle's front door. Output
+          from any of these walks in and becomes a resident.
+        </p>
+        <div className="land-works" style={{ padding: "18px 0 0" }}>
+          {WORKS_WITH.map((w) => (
+            <span key={w.name} className="works-mark" title={w.does}>
+              {w.name}
+            </span>
+          ))}
+        </div>
+      </section>
 
-      <Feature
-        id="address"
-        label="The address"
-        heading="A report is not a home."
-        lede="The app moves in, and moving in means it keeps existing after the tab closes."
-        points={[
-          "It serves at its own address, openable and shareable from day one.",
-          "The Vault versions every file; nothing is ever overwritten, and one click restores any earlier version forward.",
-          "The resident panel keeps the files, the latest updates, pull requests, visibility, and the domain door in one place.",
-          "The Survival Index counts a resident alive when its own users touch it, not when a dashboard says so.",
-        ]}
-      />
+      <section id="address" className="land-loop">
+        <span className="section-label">The loop</span>
+        <h2>Import. Examine. Heal. Run.</h2>
+        <div className="land-loop-row">
+          {LOOP.map((step) => (
+            <div key={step.n} className="land-loop-step card card-pad">
+              <span className="land-loop-n">{step.n}</span>
+              <h3>{step.title}</h3>
+              <p>{step.body}</p>
+            </div>
+          ))}
+        </div>
+        <div className="land-lens-grid" style={{ marginTop: 22, justifyContent: "center" }}>
+          {LENSES.map((l) => (
+            <span key={l} className="land-lens">
+              {l}
+            </span>
+          ))}
+        </div>
+      </section>
 
-      <Feature
-        id="life"
-        label="The life"
-        heading="Software that keeps being worked on."
-        lede="The room around the app: who is inside it, how it feels, and how it changes."
-        points={[
-          "The people inside: live rows from the SDK, streaks, drills, and where they drop off.",
-          "The Studio takes a change in plain words and shows the diff; nothing applies without you, and your own key powers the live edits.",
-          "Mood, personas, and devices reshape the same app live, from a phone to a watch.",
-          "The store kit and the report card leave the building with you when it is time to ship.",
-        ]}
-      />
+      <section id="life" className="land-problems">
+        <span className="section-label">The three unsolved problems</span>
+        <h2>Everyone generates. Nobody holds the seam.</h2>
+        <div className="land-laws-row">
+          {PROBLEMS.map((p) => (
+            <div key={p.title} className="land-law">
+              <h3>{p.title}</h3>
+              <p>{p.pain}</p>
+              <p className="land-answer">{p.answer}</p>
+            </div>
+          ))}
+        </div>
+        <p className="land-makers">
+          And for the people who build software for others: designers,
+          freelancers, and agencies run their clients' residents here, and the
+          managed layer turns every shipped app into a lasting relationship
+          instead of a handoff. The revenue share arrives with the store
+          stage.
+        </p>
+      </section>
 
       <section id="laws" className="land-laws">
         <span className="section-label">The laws we keep</span>
-        <h2>Why you can trust the page in front of you.</h2>
+        <h2>Sold hard, told straight.</h2>
         <div className="land-laws-row">
           {LAWS.map((law) => (
             <div key={law.title} className="land-law">
@@ -262,23 +294,15 @@ export function Landing() {
         </div>
       </section>
 
-      <section className="land-works">
-        <span className="works-label">Works with</span>
-        {WORKS_WITH.map((w) => (
-          <span key={w.name} className="works-mark" title={w.does}>
-            {w.name}
-          </span>
-        ))}
-      </section>
-
       <footer className="land-close">
         <div className="brand-glow" style={{ transform: "translateX(-190px)" }} />
         <h2>A billion apps are about to be generated. None of them have a home.</h2>
         <p className="land-close-sub">
-          GitHub gave code a home and became the front door of an industry.
-          Generated apps need their own: examined on arrival, healed,
-          addressed, and alive. Osyle is that home, and homes are where the
-          value settles.
+          Shopify's moat was never the themes; it was running the store.
+          Ours is not generation; it is running the software. GitHub gave
+          code a home and became the front door of an industry. Osyle is
+          that home for generated apps, and homes are where the value
+          settles.
         </p>
         <div className="brand-promises">Safe. Designed. Usable. Tested. Evolving. Shared.</div>
         <button className="brand-enter" onClick={() => go("place")}>

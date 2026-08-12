@@ -73,12 +73,20 @@ check(
   await page.getByText("See who lives here").first().isVisible(),
 );
 check(
-  "the landing says what Osyle is",
-  await page.getByText("Turn a generated app into software people can trust.").isVisible(),
+  "the landing leads with the trust gap",
+  await page.getByText("Anyone can generate an app. Almost no one can trust one.").isVisible(),
 );
 check(
   "the landing numbers say where they came from",
-  await page.getByText("p95 across 1400 calls", { exact: false }).isVisible(),
+  await page.getByText("Stack Overflow Developer Survey 2026", { exact: false }).isVisible(),
+);
+check(
+  "the landing owns the now-what moment",
+  await page.getByText("I built it. Now what?").isVisible(),
+);
+check(
+  "the loop is told in four steps",
+  (await page.locator(".land-loop-step").count()) === 4,
 );
 check(
   "the landing names the laws it keeps",

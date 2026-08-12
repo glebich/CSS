@@ -3112,3 +3112,103 @@ input {
 .chip-door:hover {
   color: var(--ink-strong);
 }
+
+/* the selling spine: the moment, the loop, the problems */
+.land-stats-row {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.land-now-what {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 90px 28px 10px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.land-now-what h2,
+.land-loop h2,
+.land-problems h2 {
+  font-size: 30px;
+  letter-spacing: -0.015em;
+  font-weight: 560;
+  color: var(--ink-strong);
+}
+
+.land-now-what p {
+  max-width: 520px;
+  font-size: 14.5px;
+  line-height: 1.65;
+  color: var(--gray-secondary);
+}
+
+.land-loop {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 90px 28px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.land-loop-row {
+  margin-top: 8px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.land-loop-step h3 {
+  font-size: 15px;
+  font-weight: 560;
+  color: var(--ink-strong);
+  margin-top: 8px;
+}
+
+.land-loop-step p {
+  margin-top: 7px;
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--gray-secondary);
+}
+
+.land-loop-n {
+  font-size: 26px;
+  font-weight: 560;
+  color: var(--gray-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+.land-problems {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 90px 28px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.land-answer {
+  margin-top: 10px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--ink-strong);
+}
+
+.land-makers {
+  margin-top: 26px;
+  max-width: 640px;
+  font-size: 13.5px;
+  line-height: 1.65;
+  color: var(--gray-secondary);
+}
+
+@media (max-width: 980px) {
+  .land-stats-row,
+  .land-loop-row {
+    grid-template-columns: 1fr;
+  }
+}
