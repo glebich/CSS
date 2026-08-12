@@ -3089,3 +3089,12 @@ input {
   color: var(--ink-body);
   resize: vertical;
 }
+
+.land-close-sub {
+  position: relative;
+  margin-top: 18px;
+  max-width: 560px;
+  font-size: 14.5px;
+  line-height: 1.65;
+  color: rgba(245, 244, 255, 0.72);
+}

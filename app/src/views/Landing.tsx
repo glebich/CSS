@@ -273,7 +273,13 @@ export function Landing() {
 
       <footer className="land-close">
         <div className="brand-glow" style={{ transform: "translateX(-190px)" }} />
-        <h2>Drop the app. Watch it examined. Give it the address.</h2>
+        <h2>A billion apps are about to be generated. None of them have a home.</h2>
+        <p className="land-close-sub">
+          GitHub gave code a home and became the front door of an industry.
+          Generated apps need their own: examined on arrival, healed,
+          addressed, and alive. Osyle is that home, and homes are where the
+          value settles.
+        </p>
         <div className="brand-promises">Safe. Designed. Usable. Tested. Evolving. Shared.</div>
         <button className="brand-enter" onClick={() => go("place")}>
           <Sparkle size={13} />
