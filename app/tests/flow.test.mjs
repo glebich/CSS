@@ -173,6 +173,19 @@ await page.getByPlaceholder(/./).last().fill("who is using it");
 await page.keyboard.press("Enter");
 await page.waitForTimeout(500);
 check("asking about users lands with the people", await page.getByText("The people inside").isVisible());
+check(
+  "the journey board tells the four stages",
+  (await page.locator(".journey-stage").count()) === 4,
+);
+check(
+  "the journey names who is stuck and offers the door",
+  (await page.getByText("Priya Nair stalled", { exact: false }).isVisible()) &&
+    (await page.getByText("See the stall").isVisible()),
+);
+check(
+  "the journey says which counts are example",
+  await page.getByText("the three pilots are the example", { exact: false }).isVisible(),
+);
 await page.getByPlaceholder(/./).last().fill("make the call text larger for glare");
 await page.keyboard.press("Enter");
 await page.waitForTimeout(500);

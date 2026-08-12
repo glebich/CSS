@@ -21,7 +21,7 @@ db.kv.set("streak", db.kv.get("streak", 0) + 1);`;
 /** The SDK surface: rows, auth-lite, key-value. Real software, real users. */
 export function Sdk() {
   const [, bump] = useState(0);
-  const { go } = useStore();
+  const { go, togglePanel } = useStore();
 
   const drills = sdk.rows("drills");
   const user = sdk.auth.user();
@@ -80,14 +80,66 @@ export function Sdk() {
           </div>
         ))}
       </div>
-      <div style={{ display: "flex", gap: 10, alignItems: "center", marginTop: 12, flexWrap: "wrap" }}>
-        <span style={{ fontSize: 13, color: "var(--gray-meta)" }}>
-          Four of nine sessions stalled at the weather briefing.
-        </span>
-        <button className="pill pill-sm" onClick={() => go("monitor")}>
-          See where they drop off
-        </button>
+      {/* the journey: where each person is, and where they stop.
+          Counts mix you, live, with the three example pilots, said so. */}
+      <div className="section-label" style={{ marginTop: 26 }}>
+        The journey
       </div>
+      <div className="journey-board">
+        {(() => {
+          const signed = user ? 1 : 0;
+          const drilled = drillRows.length > 0 ? 1 : 0;
+          const returned = streak > 1 ? 1 : 0;
+          const stages = [
+            { label: "Arrive", count: 3 + 1, stuck: null as string | null, act: null as (() => void) | null, actLabel: null as string | null },
+            {
+              label: "Sign in",
+              count: 3 + signed,
+              stuck: signed ? null : "You have not signed in on this machine",
+              act: null,
+              actLabel: null,
+            },
+            {
+              label: "First drill",
+              count: 3 + drilled,
+              stuck: drilled ? null : "Your first drill is one tap away",
+              act: () => togglePanel("run"),
+              actLabel: "Run the drill",
+            },
+            {
+              label: "Keep returning",
+              count: 2 + returned,
+              stuck: "Priya Nair stalled at the weather card",
+              act: () => go("monitor"),
+              actLabel: "See the stall",
+            },
+          ];
+          const top = stages[0].count;
+          return stages.map((s, i) => (
+            <div key={s.label} className="journey-stage card card-pad">
+              <span className="instrument-label">{s.label}</span>
+              <div className="journey-count">{s.count}</div>
+              <div className="journey-track">
+                <div className="journey-fill" style={{ width: `${Math.round((s.count / top) * 100)}%` }} />
+              </div>
+              {i > 0 && stages[i - 1].count > s.count && (
+                <span className="journey-drop">
+                  {stages[i - 1].count - s.count} lost after {stages[i - 1].label.toLowerCase()}
+                </span>
+              )}
+              {s.stuck && <p className="journey-stuck">{s.stuck}</p>}
+              {s.act && s.actLabel && (
+                <button className="pill pill-sm" style={{ marginTop: 8 }} onClick={s.act}>
+                  {s.actLabel}
+                </button>
+              )}
+            </div>
+          ));
+        })()}
+      </div>
+      <p style={{ fontSize: 12, color: "var(--gray-small)", marginTop: 8 }}>
+        You count live; the three pilots are the example, labeled above.
+      </p>
       <p style={{ color: "var(--gray-meta)", marginTop: 6, maxWidth: 640 }}>
         Every resident carries its own isolated end-user database through a tiny
         SDK. Rows, auth-lite, and key-value. In Demo Mode it runs against local
