@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useStore } from "../store";
-import { FlowSteps, Icon, Sparkle } from "../components/chrome";
+import { Icon, Sparkle } from "../components/chrome";
 import { Theater } from "../components/Theater";
 import { materials, type Material } from "../data/seed";
 import type { AnalyzedProject, ProjectFile } from "../engine/types";
@@ -206,7 +206,6 @@ export function Assets() {
 
   return (
     <main className="canvas canvas-dotted" style={{ position: "relative" }}>
-      <FlowSteps current="assets" />
       <div
         style={{
           display: "flex",

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useStore } from "../store";
-import { FlowSteps, Icon, Sparkle } from "../components/chrome";
+import { Icon, Sparkle } from "../components/chrome";
 import { styleCatalog, styleCategories, tasteSources, type StyleCard } from "../data/seed";
 
 /** A miniature interface drawn in the style's own materials. */
@@ -79,7 +79,6 @@ export function StyleExplore() {
 
   return (
     <main className="canvas" style={{ position: "relative" }}>
-      <FlowSteps current="style" top={10} />
       <div className="explore-bar">
         <button className="circle" style={{ width: 48, height: 48 }} onClick={() => go("assets")} aria-label="Back">
           <Icon name="back" size={18} />

@@ -402,6 +402,13 @@ const servedDots = await app.inject({
 });
 check("upward dots are refused", servedDots.statusCode === 400);
 
+/* the repo door refuses malformed names before any network is asked;
+   the fetch itself needs GitHub and is proven by the app suite */
+const repoBadOwner = await app.inject({ method: "GET", url: "/fetch/github/bad.owner/app" });
+check("a dotted owner is refused at the repo door", repoBadOwner.statusCode === 400);
+const repoDots = await app.inject({ method: "GET", url: "/fetch/github/someone/..." });
+check("dots alone are refused at the repo door", repoDots.statusCode === 400);
+
 resetLimitsForTests();
 let importWall;
 for (let i = 0; i < 13; i += 1) {

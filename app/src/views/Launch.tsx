@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useStore } from "../store";
-import { FlowSteps, Icon, Page, Sparkle } from "../components/chrome";
+import { Icon, Page, Sparkle } from "../components/chrome";
 import { launchReview, styleCatalog } from "../data/seed";
 
 function moodWords(energy: number, style: number, tone: number): string {
@@ -88,7 +88,6 @@ export function Launch() {
 
   return (
     <Page>
-      <FlowSteps current="launch" />
 
       <div style={{ textAlign: "center", marginBottom: 34, marginTop: 20 }}>
         <h1 className="statement" style={{ fontSize: "clamp(48px, 5.5vw, 80px)" }}>

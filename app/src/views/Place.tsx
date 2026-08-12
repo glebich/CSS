@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { useStore } from "../store";
-import { FlowSteps, GitHubMark, Icon, Sparkle } from "../components/chrome";
+import { GitHubMark, Icon, Sparkle } from "../components/chrome";
 
 /**
  * The place state: a real intake. Dropped files and zips are actually
@@ -113,7 +113,6 @@ export function Place() {
       }}
       onDrop={onDrop}
     >
-      <FlowSteps current="place" />
       {PILLS.map((p, i) => (
         <span
           key={`${p.label}-${i}`}

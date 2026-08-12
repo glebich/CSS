@@ -229,8 +229,10 @@ function WorkChip() {
   );
 }
 
+const TOPBAR_FLOW = new Set<View>(["place", "assets", "style", "launch"]);
+
 export function TopBar({ inResident }: { inResident: boolean }) {
-  const { go, resetDemo, tabs, project, togglePanel } = useStore();
+  const { go, resetDemo, tabs, project, togglePanel, view } = useStore();
   return (
     <header className="topbar">
       <button onClick={() => go(inResident ? "home" : "landing")} aria-label="Osyle">
@@ -250,6 +252,12 @@ export function TopBar({ inResident }: { inResident: boolean }) {
           <Icon name="plus" size={14} />
         </button>
       </div>
+      {/* during setup the steps ride the bar itself, one row of chrome */}
+      {TOPBAR_FLOW.has(view) && (
+        <div className="topbar-steps">
+          <FlowSteps current={view} />
+        </div>
+      )}
       <span className="topbar-spacer" />
       <WorkChip />
       <button className="topbar-quiet topbar-keep" onClick={() => togglePanel("resident")}>

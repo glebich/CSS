@@ -55,6 +55,7 @@ page.on("console", (m) => {
   if (
     m.type() === "error" &&
     !text.includes("status of 404") &&
+    !text.includes("status of 502") &&
     !text.includes("dropboxusercontent") &&
     !text.includes("1000logos") &&
     !text.includes("logos-world") &&
@@ -958,8 +959,10 @@ await goToPlace();
 
 /* -----------------------------------------------------------------
    The repo door: a person names their repository and the whole real
-   examination follows. GitHub's zipball is stubbed at the network
-   edge, so everything after the fetch is the true pipeline. */
+   examination follows. The stack's repo proxy is the network edge
+   now, so it is stubbed where the browser asks it, and the direct
+   zipball stays stubbed for the fallback path; everything after the
+   fetch is the true pipeline. */
 const fixtureZip = zipSync({
   "sunrise-main/index.html": strToU8(
     readFileSync(new URL("./fixture/index.html", import.meta.url), "utf8"),
@@ -980,6 +983,23 @@ await page.route("**/api.github.com/repos/osyle/sunrise/zipball", (route) =>
 );
 await page.route("**/api.github.com/repos/osyle/nowhere/zipball", (route) =>
   route.fulfill({ status: 404, contentType: "application/json", body: "{}" }),
+);
+await page.route("**/fetch/github/osyle/sunrise", (route) =>
+  route.fulfill({
+    status: 200,
+    contentType: "application/zip",
+    body: Buffer.from(fixtureZip),
+  }),
+);
+await page.route("**/fetch/github/osyle/nowhere", (route) =>
+  route.fulfill({
+    status: 404,
+    contentType: "application/json",
+    body: JSON.stringify({
+      error:
+        "github.com/osyle/nowhere is not reachable. Private repositories connect with Real Mode's token flow.",
+    }),
+  }),
 );
 await page.getByLabel("Connect a GitHub repository").click();
 await page.getByPlaceholder("github.com/you/your-app").fill("github.com/osyle/nowhere");

@@ -712,6 +712,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
    * app from it and the whole examination follows. Public repos now;
    * the token flow for private ones arrives with Real Mode.
    */
+  /* the stack's readiness, read fresh at call time: analyzeRepo is
+     memoized above the stack block, so a ref carries the truth */
+  const stackReadyRef = useRef(false);
+
   const analyzeRepo = useCallback(
     async (text: string): Promise<string | null> => {
       const ref = parseRepoUrl(text);
@@ -720,7 +724,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
          honest refusal lands where the person still is */
       const job = beginJob(`Reaching ${ref.owner}/${ref.repo}`, "Asking GitHub for the app.");
       try {
-        const file = await fetchRepoZip(ref);
+        const file = await fetchRepoZip(ref, stackReadyRef.current ? stackBase : undefined);
         record("repo.connected", { repo: `${ref.owner}/${ref.repo}` });
         updateJob(job, { detail: "The app answered. Examining it." });
         await analyzeFiles([file]);
@@ -765,7 +769,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     const ctl = new AbortController();
     const t = window.setTimeout(() => ctl.abort(), 2500);
     fetch(`${stackBase}/health`, { signal: ctl.signal })
-      .then((r) => setStackUp(r.ok))
+      .then((r) => {
+        setStackUp(r.ok);
+        stackReadyRef.current = r.ok;
+      })
       .catch(() => setStackUp(false))
       .finally(() => window.clearTimeout(t));
     return () => {

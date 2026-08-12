@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useStore } from "../store";
-import { FlowSteps, Icon, InstrumentBurst, Page, Sparkle } from "../components/chrome";
+import { Icon, InstrumentBurst, Page, Sparkle } from "../components/chrome";
 import { bumpGrowth, drawReportCard } from "../engine/reportcard";
 import { motionFor, styleCatalog } from "../data/seed";
 import { buildSrcDoc, transformCss } from "../engine/analyze";
@@ -179,7 +179,6 @@ export function Report() {
 
   return (
     <Page wide>
-      <FlowSteps current="report" />
       {/* 1. The number, and how it was made */}
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", paddingTop: 10 }}>
         {/* the number and how it was made stand side by side, one screen */}
