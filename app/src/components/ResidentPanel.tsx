@@ -157,6 +157,50 @@ export function ResidentPanel() {
   );
   const [domainDraft, setDomainDraft] = useState(slug ? (domains[slug] ?? "") : "");
   const [domainLine, setDomainLine] = useState<string | null>(null);
+
+  /* the stack's round: the caretaker's last look, read when the panel
+     opens, refreshed on demand */
+  interface RoundPulse {
+    files: number;
+    bytes: number;
+    indexOk: boolean;
+    brokenRefs: number;
+    lookedAt: string;
+  }
+  const [round, setRound] = useState<RoundPulse | null>(null);
+  const [roundNote, setRoundNote] = useState<string | null>(null);
+  useEffect(() => {
+    if (!project || !stack.on || !stack.up || !realSlug) return;
+    fetch(`${stack.base}/residents/${realSlug}/pulse`, { credentials: "include" })
+      .then((r) => (r.ok ? (r.json() as Promise<{ pulse: RoundPulse | null }>) : null))
+      .then((b) => {
+        if (b?.pulse) setRound(b.pulse);
+      })
+      .catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [project, realSlug, stack.on, stack.up, stack.base]);
+  const askForALook = () => {
+    if (!realSlug) {
+      setRoundNote("Claim the app on the stack and the round begins.");
+      return;
+    }
+    fetch(`${stack.base}/residents/${realSlug}/pulse`, {
+      method: "POST",
+      credentials: "include",
+    })
+      .then(async (res) => {
+        if (res.ok) {
+          const body = (await res.json()) as { pulse: RoundPulse };
+          setRound(body.pulse);
+          setRoundNote(null);
+        } else if (res.status === 404 || res.status === 401) {
+          setRoundNote("Claim the app on the stack and the round begins.");
+        } else {
+          setRoundNote(`The stack answered ${res.status}.`);
+        }
+      })
+      .catch(() => setRoundNote("The stack is not answering."));
+  };
   const unlisted = slug ? visibility[slug] === "unlisted" : false;
 
   const files = project ? [...project.files.values()] : null;
@@ -392,6 +436,31 @@ export function ResidentPanel() {
             Visibility and the domain open once the app has its address. The
             door is at the end of the report.
           </p>
+        )}
+
+        {project && stack.on && stack.up && (
+          <>
+            <SectionLabel>The stack&apos;s round</SectionLabel>
+            <div style={{ display: "grid", gap: 8 }}>
+              <p style={{ fontSize: 12.5, color: "var(--gray-small)" }}>
+                {round
+                  ? `Looked ${round.lookedAt.slice(0, 10)}, ${round.lookedAt.slice(11, 16)}. ` +
+                    `${round.files} file${round.files === 1 ? "" : "s"}, ` +
+                    `${Math.max(1, Math.round(round.bytes / 1024))} KB. ` +
+                    `The front door ${round.indexOk ? "answers" : "is silent"}. ` +
+                    `${round.brokenRefs} broken reference${round.brokenRefs === 1 ? "" : "s"}.`
+                  : "No look recorded yet. The round walks on the stack's clock, or ask now."}
+              </p>
+              {roundNote && (
+                <p className="fade-in" style={{ fontSize: 12, color: "var(--gray-small)" }}>
+                  {roundNote}
+                </p>
+              )}
+              <button className="pill pill-sm" style={{ justifySelf: "start" }} onClick={askForALook}>
+                Ask for a fresh look
+              </button>
+            </div>
+          </>
         )}
 
         <SectionLabel>Security and privacy</SectionLabel>

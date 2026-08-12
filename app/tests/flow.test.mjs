@@ -1185,6 +1185,17 @@ check(
   "the stack serves the app by its own name",
   byName.status === 200 && byName.body.includes("<"),
 );
+
+/* the stack's round: the caretaker's look, asked for from the panel */
+await page.locator(".resident-panel").getByText("Ask for a fresh look").click();
+await page.waitForTimeout(900);
+check(
+  "the stack's round answers on demand",
+  await page
+    .locator(".resident-panel")
+    .getByText("The front door answers", { exact: false })
+    .isVisible(),
+);
 await page.goto("http://localhost:5197/#/discover");
 await page.waitForTimeout(400);
 check("unlisted stays off discover", (await page.getByText("sunrise.osyle.app").count()) === 0);

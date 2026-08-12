@@ -492,6 +492,55 @@ const servedGone = await app.inject({
 });
 check("a shed name stops answering", servedGone.statusCode === 404);
 
+/* the round: the caretaker's look, on the clock and on demand */
+const { runRound } = await import("../dist/rounds.js");
+const looked = runRound();
+check("the round looks at every resident", looked >= 2);
+check("a fresh pulse is not retaken within the day", runRound() === 0);
+const pulseGet = await app.inject({
+  method: "GET",
+  url: "/residents/skyrecall/pulse",
+  cookies,
+});
+const pulseBody = pulseGet.json();
+check(
+  "the pulse reads back to the owner",
+  pulseGet.statusCode === 200 &&
+    pulseBody.pulse.files >= 1 &&
+    pulseBody.pulse.indexOk === true &&
+    pulseBody.pulse.brokenRefs === 0,
+);
+const ledger = platformDb()
+  .prepare("SELECT COUNT(*) AS n FROM jobs WHERE kind = 'round.look' AND status = 'done'")
+  .get();
+check("every look lands in the ledger", ledger.n >= looked);
+/* a reference to a file that is not there is seen for what it is */
+await app.inject({
+  method: "PUT",
+  url: "/residents/second-home/files/index.html",
+  cookies: cookie3,
+  headers: { "content-type": "application/octet-stream" },
+  payload: '<script src="missing.js"></script>',
+});
+const freshLook = await app.inject({
+  method: "POST",
+  url: "/residents/second-home/pulse",
+  cookies: cookie3,
+});
+const fresh = freshLook.json();
+check(
+  "a fresh look counts the broken reference",
+  freshLook.statusCode === 200 &&
+    fresh.pulse.brokenRefs === 1 &&
+    fresh.pulse.indexOk === true,
+);
+const strangerPulse = await app.inject({
+  method: "GET",
+  url: "/residents/skyrecall/pulse",
+  cookies: cookie3,
+});
+check("a stranger cannot read the pulse", strangerPulse.statusCode === 404);
+
 /* the repo door refuses malformed names before any network is asked;
    the fetch itself needs GitHub and is proven by the app suite */
 const repoBadOwner = await app.inject({ method: "GET", url: "/fetch/github/bad.owner/app" });

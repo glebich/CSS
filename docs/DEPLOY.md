@@ -152,6 +152,17 @@ restarts; if tests fail, nothing ships.
   that Host header is answered as the resident's site, whole. Point
   the domain's DNS at the box running the api and the app serves by
   its own name.
+- **The round.** The api walks every resident on a clock and looks
+  with the only eyes a server honestly has: newest file count and
+  weight, a knock on the front door the way the serving door resolves
+  it, and every local reference followed to see that it lands. Each
+  look is one pulse row (the last 30 kept) and one ledger line in the
+  jobs table; the owner reads the latest pulse in the panel or asks
+  for a fresh look. `OSYLE_ROUNDS=off` stops the clock;
+  `OSYLE_ROUND_EVERY_MS` and `OSYLE_ROUND_SWEEP_MS` tune how stale a
+  pulse may grow and how often the sweep walks. The client's ten
+  lenses stay in the client; the round is the caretaker's flashlight,
+  not the examination.
 - **Magic-link mail.** Claim links are minted and stored, but no mail
   provider is wired; in this era the claim completes in the same
   browser session, which is how the product uses it.

@@ -67,6 +67,17 @@ export function platformDb(): DatabaseSync {
       created_at TEXT NOT NULL,
       done_at TEXT
     );
+    CREATE TABLE IF NOT EXISTS pulses (
+      id TEXT PRIMARY KEY,
+      resident_id TEXT NOT NULL,
+      files INTEGER NOT NULL,
+      bytes INTEGER NOT NULL,
+      index_ok INTEGER NOT NULL,
+      broken_refs INTEGER NOT NULL,
+      looked_at TEXT NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS pulses_by_resident
+      ON pulses (resident_id, looked_at);
     CREATE TABLE IF NOT EXISTS reports (
       id TEXT PRIMARY KEY,
       resident_id TEXT NOT NULL,

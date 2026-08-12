@@ -14,6 +14,7 @@ import { registerGrowth } from "./growth.js";
 import { registerReports } from "./reports.js";
 import { registerServe } from "./serve.js";
 import { registerRepos } from "./repos.js";
+import { registerRounds } from "./rounds.js";
 import { platformDb } from "./db.js";
 import { blobsHealthy } from "./blobs.js";
 import { allow, walled } from "./limits.js";
@@ -106,6 +107,7 @@ export async function buildApp(): Promise<FastifyInstance> {
   registerReports(app);
   registerServe(app);
   registerRepos(app);
+  registerRounds(app);
 
   return app;
 }
