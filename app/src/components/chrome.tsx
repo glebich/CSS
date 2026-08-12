@@ -42,7 +42,8 @@ export type IconName =
   | "list"
   | "eye"
   | "gauge"
-  | "repo";
+  | "repo"
+  | "brush";
 
 /** 24px stroke icons drawn to match the Osyle_N icon sheet: 1.6 stroke, round caps. */
 export function Icon({ name, size = 22 }: { name: IconName; size?: number }) {
@@ -52,6 +53,9 @@ export function Icon({ name, size = 22 }: { name: IconName; size?: number }) {
     inbox: <path d="M4 5h16v14H4Z M4 13h5c0 1.6 1.3 3 3 3s3-1.4 3-3h5" />,
     sdk: <path d="m9 8-4.5 4L9 16m6-8 4.5 4L15 16" />,
     promote: <path d="M7 17 17 7m0 0H9m8 0v8" />,
+    brush: (
+      <path d="M20 4c-3.6.6-7.4 3-10.4 6.4l3.9 3.9C16.9 11.4 19.4 7.6 20 4ZM9 11c-1.9.3-3.3 2-3.3 4 0 1.5-.8 2.3-1.7 2.8 1.5 1 4.3 1.3 5.9-.3 1.1-1.1 1.3-2.8.7-4.2" />
+    ),
     mood: <path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Zm-3.5-8c.8 1.8 2 2.7 3.5 2.7s2.7-.9 3.5-2.7M9 9.5h.01M15 9.5h.01" />,
     persona: <path d="M12 11.5a3.75 3.75 0 1 0 0-7.5 3.75 3.75 0 0 0 0 7.5ZM5 20c.8-3.3 3.5-5 7-5s6.2 1.7 7 5" />,
     play: <path d="M8 5.5v13l10-6.5L8 5.5Z" />,

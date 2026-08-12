@@ -295,6 +295,7 @@ export function Assets() {
                         key={f.path}
                         className={`file-card${motion}`}
                         style={{ animationDelay: `${i * (reading ? 90 : 45)}ms` }}
+                        title={f.path}
                       >
                         <div className="file-name">{f.path.split("/").pop()}</div>
                         <div className="file-size">{f.path.includes("/") ? f.path.slice(0, f.path.lastIndexOf("/")) : ""}</div>

@@ -123,7 +123,19 @@ export function PersonasPanel() {
       {people.map((p) =>
         editingId === p.id ? (
           <div key={p.id} className="persona-card is-active persona-editing">
-            <span className="persona-portrait" style={{ background: p.portrait }} />
+            <span className="persona-portrait" style={{ background: p.portrait }}>
+              {p.photo && (
+                <img
+                  className="persona-photo"
+                  src={p.photo}
+                  alt=""
+                  loading="lazy"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).style.display = "none";
+                  }}
+                />
+              )}
+            </span>
             <div style={{ minWidth: 0, flex: 1, display: "flex", flexDirection: "column", gap: 6 }}>
               <input
                 className="persona-input"
@@ -174,7 +186,19 @@ export function PersonasPanel() {
             onClick={() => setPersonaId(p.id)}
             role="button"
           >
-            <span className="persona-portrait" style={{ background: p.portrait }} />
+            <span className="persona-portrait" style={{ background: p.portrait }}>
+              {p.photo && (
+                <img
+                  className="persona-photo"
+                  src={p.photo}
+                  alt=""
+                  loading="lazy"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).style.display = "none";
+                  }}
+                />
+              )}
+            </span>
             <div style={{ minWidth: 0, flex: 1 }}>
               <div className="persona-name">{p.name}</div>
               <div className="persona-meta">

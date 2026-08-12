@@ -994,12 +994,14 @@ export interface Persona {
   line: string;
   portrait: string;
   reach: string;
+  /** a real face when the network serves it; the gradient stands in */
+  photo?: string;
 }
 
 export const personas: Persona[] = [
-  { id: "p-maria", name: "Maria Chen", age: 51, role: "Airline captain", line: "Flies twice a quarter and feels the rust in week three", portrait: "linear-gradient(150deg, #93a9c4 0%, #4c6785 55%, #253549 100%)", reach: "about 2.1M people fit this" },
-  { id: "p-tom", name: "Tom Alvarez", age: 38, role: "Private pilot", line: "Weekend flyer, weather is the thing he rehearses least", portrait: "linear-gradient(150deg, #d9b08a 0%, #a97a4e 55%, #5e3f24 100%)", reach: "about 3.4M people fit this" },
-  { id: "p-priya", name: "Priya Nair", age: 29, role: "Student pilot", line: "Checkride in June, drills on the train home", portrait: "linear-gradient(150deg, #b3a5e8 0%, #7b6bff 55%, #3d3480 100%)", reach: "about 1.2M people fit this" },
+  { id: "p-maria", name: "Maria Chen", age: 51, role: "Airline captain", line: "Flies twice a quarter and feels the rust in week three", portrait: "linear-gradient(150deg, #93a9c4 0%, #4c6785 55%, #253549 100%)", reach: "about 2.1M people fit this", photo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQEHsTc9wSW5LDZiFmbL9CwHNfqamyhMSSKFG4HReaNcemq12dpJQVw3Lg&s=10" },
+  { id: "p-tom", name: "Tom Alvarez", age: 38, role: "Private pilot", line: "Weekend flyer, weather is the thing he rehearses least", portrait: "linear-gradient(150deg, #d9b08a 0%, #a97a4e 55%, #5e3f24 100%)", reach: "about 3.4M people fit this", photo: "https://img.magnific.com/free-photo/young-bearded-man-with-striped-shirt_273609-5677.jpg?semt=ais_test_b&w=740&q=80" },
+  { id: "p-priya", name: "Priya Nair", age: 29, role: "Student pilot", line: "Checkride in June, drills on the train home", portrait: "linear-gradient(150deg, #b3a5e8 0%, #7b6bff 55%, #3d3480 100%)", reach: "about 1.2M people fit this", photo: "https://www.shutterstock.com/image-photo/jewelry-portrait-smile-indian-woman-260nw-2648536503.jpg" },
 ];
 
 /**

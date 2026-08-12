@@ -114,7 +114,7 @@ export function StyleExplore() {
         )}
       </div>
 
-      <div style={{ textAlign: "center", padding: "12px 0 18px" }}>
+      <div style={{ textAlign: "center", padding: "56px 0 18px" }}>
         <h1 className="statement" style={{ fontSize: "clamp(56px, 6.5vw, 96px)" }}>
           Explore a style
         </h1>

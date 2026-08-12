@@ -260,7 +260,7 @@ export function Landing() {
         <div className="land-marks-row">
           {[
             { n: "Apple", src: "https://1000logos.net/wp-content/uploads/2016/10/Apple-Logo.png" },
-            { n: "Google", src: "https://cdn.mos.cms.futurecdn.net/rjqJEKv6P9Yjy9d3KMGvp8.jpg" },
+            { n: "Google", src: "https://cdn.freebiesupply.com/images/large/2x/google-logo-black-transparent.png" },
             { n: "OpenAI", src: "https://1000logos.net/wp-content/uploads/2024/07/OpenAI-Logo-2022.png" },
             { n: "Samsung", src: "https://logos-world.net/wp-content/uploads/2020/06/Samsung-Logo.png" },
           ].map((m) => (

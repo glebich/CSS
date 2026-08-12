@@ -5040,3 +5040,149 @@ input {
 .receipt-row .chip {
   flex: none;
 }
+
+/* the rail folds like a panel closing: it narrows on the liquid
+   curve while its body fades, and the arrow keeps its seat */
+.workspace-preview {
+  position: relative;
+  transition:
+    width var(--t-liquid),
+    padding var(--t-liquid),
+    background var(--t-liquid);
+}
+
+.workspace-preview .workspace-fold {
+  position: absolute;
+  top: 18px;
+  left: 14px;
+  z-index: 3;
+  width: 28px;
+  height: 28px;
+  background: #fff;
+  box-shadow: var(--shadow-card);
+}
+
+.workspace-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  min-width: 282px;
+  transition: opacity 0.32s ease-out;
+}
+
+.workspace-preview .workspace-preview-caption {
+  padding-left: 34px;
+}
+
+.workspace-preview.is-folded {
+  width: 56px;
+  padding-left: 8px;
+  padding-right: 8px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.workspace-preview.is-folded .workspace-body {
+  opacity: 0;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .workspace-preview,
+  .workspace-body {
+    transition-duration: 1ms;
+  }
+}
+
+/* a real face sits in the portrait, cropped so the head stays; the
+   drawn gradient stands behind it for whenever the network refuses */
+.persona-portrait {
+  overflow: hidden;
+}
+
+.persona-photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 22%;
+  border-radius: inherit;
+}
+
+/* one optical size across the wall: the glyph and the wordmarks
+   weighed by eye, not by the pixel heights they shipped with */
+.land-mark:nth-child(1) .land-mark-img {
+  height: 38px;
+}
+
+.land-mark:nth-child(2) .land-mark-img {
+  height: 52px;
+}
+
+.land-mark:nth-child(3) .land-mark-img {
+  height: 50px;
+}
+
+.land-mark:nth-child(4) .land-mark-img {
+  height: 46px;
+}
+
+/* real drops bring long names; they clamp to two lines and carry an
+   ellipsis, the path keeps to one, nothing clips mid-letter */
+.file-card .file-name {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+}
+
+.file-card .file-size {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+/* the file card, per the Figma sheet (node 231:6999, scaled 115 to
+   ~150): square frosted card, the name in medium ink, the note in
+   small ink that dissolves at the bottom instead of clipping. The
+   example and a real drop wear exactly the same card. */
+.file-card {
+  display: flex;
+  flex-direction: column;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  padding: 15px 16px 12px;
+}
+
+.file-card .file-name {
+  font-size: 13.5px;
+  font-weight: 510;
+  letter-spacing: -0.01em;
+  color: #4f515a;
+}
+
+.file-card .file-size {
+  font-size: 10.5px;
+  color: var(--gray-tertiary);
+  margin-top: 2px;
+}
+
+.file-card .file-summary {
+  display: block;
+  flex: 1;
+  min-height: 0;
+  margin-top: 9px;
+  font-size: 11px;
+  line-height: 1.5;
+  color: #4f515a;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(180deg, #000 62%, transparent 98%);
+  mask-image: linear-gradient(180deg, #000 62%, transparent 98%);
+}
