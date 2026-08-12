@@ -21,6 +21,7 @@ import {
   styleCatalog,
   type Archetype,
   type InboxEntry,
+  type Persona,
   inboxSeed,
 } from "./data/seed";
 import { analyzeProject, filesFromInput, type DroppedFile } from "./engine/analyze";
@@ -223,6 +224,15 @@ interface Store {
   ledgerCount: number;
   personaId: string;
   setPersonaId: (id: string) => void;
+  /* the people: the seeded three to start, then yours, all editable */
+  people: Persona[];
+  updatePersona: (id: string, patch: Partial<Omit<Persona, "id">>) => void;
+  addPersona: () => string;
+  /* the launch review speaks your words once you rewrite a row */
+  launchGoal: string | null;
+  setLaunchGoal: (t: string | null) => void;
+  launchSuccess: string | null;
+  setLaunchSuccess: (t: string | null) => void;
   /* the Audience: archetypes, one primary, dial state per archetype */
   /* the Studio: scripted edits applied by consent, remembered */
   appliedEdits: string[];
@@ -297,6 +307,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     loadJson<Mood>(MOOD_KEY, { energy: 30, style: 25, tone: 65 }),
   );
   const [personaId, setPersonaIdRaw] = useState(() => loadJson(PERSONA_KEY, "p-maria"));
+  const [people, setPeople] = useState<Persona[]>(personas);
+  const [launchGoal, setLaunchGoal] = useState<string | null>(null);
+  const [launchSuccess, setLaunchSuccess] = useState<string | null>(null);
   const [device, setDevice] = useState<Device>("mobile");
   const [panel, setPanel] = useState<"none" | "mood" | "personas" | "run" | "resident">("none");
   const [decisions, setDecisions] = useState<Record<string, "accepted" | "aside">>(
@@ -1037,9 +1050,46 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     [record],
   );
 
-  const setPersonaId = useCallback((id: string) => {
-    if (personas.some((p) => p.id === id)) setPersonaIdRaw(id);
-  }, []);
+  const setPersonaId = useCallback(
+    (id: string) => {
+      if (people.some((p) => p.id === id)) setPersonaIdRaw(id);
+    },
+    [people],
+  );
+
+  const updatePersona = useCallback(
+    (id: string, patch: Partial<Omit<Persona, "id">>) => {
+      setPeople((cur) => cur.map((p) => (p.id === id ? { ...p, ...patch } : p)));
+      record("persona.edited", { id });
+    },
+    [record],
+  );
+
+  /* new people wear drawn gradients like the seeded three; the reach
+     says it is unmeasured until someone measures it */
+  const addPersona = useCallback((): string => {
+    const id = `p-own-${Math.random().toString(36).slice(2, 8)}`;
+    const cloth = [
+      "linear-gradient(150deg, #a5c4b1 0%, #5f8a6f 55%, #2c4a38 100%)",
+      "linear-gradient(150deg, #e0a5a5 0%, #b05f5f 55%, #5e2626 100%)",
+      "linear-gradient(150deg, #a5b8e0 0%, #5f74b0 55%, #263a5e 100%)",
+    ];
+    setPeople((cur) => [
+      ...cur,
+      {
+        id,
+        name: "New persona",
+        age: 34,
+        role: "Their role",
+        line: "One line on when they reach for the app",
+        portrait: cloth[cur.length % cloth.length],
+        reach: "reach not measured yet",
+      },
+    ]);
+    setPersonaIdRaw(id);
+    record("persona.added", { id });
+    return id;
+  }, [record]);
 
   const togglePanel = useCallback((p: "mood" | "personas" | "run" | "resident") => {
     setPanel((prev) => (prev === p ? "none" : p));
@@ -1178,6 +1228,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     setStyleIdRaw("st-paper");
     setMoodRaw({ energy: 30, style: 25, tone: 65 });
     setPersonaIdRaw("p-maria");
+    setPeople(personas);
+    setLaunchGoal(null);
+    setLaunchSuccess(null);
     setDevice("mobile");
     setPanel("none");
     setUploadPhase("idle");
@@ -1228,6 +1281,13 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     ledgerCount,
     personaId,
     setPersonaId,
+    people,
+    updatePersona,
+    addPersona,
+    launchGoal,
+    setLaunchGoal,
+    launchSuccess,
+    setLaunchSuccess,
     appliedEdits,
     applyEdit,
     ask,

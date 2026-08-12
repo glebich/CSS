@@ -135,6 +135,18 @@ check("the understanding panel is live", await page.getByText("What it understan
 await page.getByText("Skip", { exact: true }).click();
 await page.waitForTimeout(400);
 check("materials become understood", (await page.locator(".file-card.is-understood").count()) >= 6);
+
+/* the folder never leaves the table: it stands open beside its files,
+   takes them back in, and lets them out again with the same motion */
+check("the folder stays on the table while open", await page.locator(".asset-folder.is-open").isVisible());
+await page.getByLabel("Close the materials").click();
+await page.waitForTimeout(700);
+check("the files are back inside the folder", (await page.locator(".file-card").count()) === 0);
+check("the closed folder shows its sheets", (await page.locator(".asset-peek").count()) === 3);
+await page.getByLabel("Open the materials").click();
+await page.waitForTimeout(700);
+check("the files fly back out of the folder", (await page.locator(".file-card").count()) >= 6);
+
 await page.getByText("Explore a style", { exact: false }).last().click();
 check("style flow step is current", await page.locator(".flow-step.is-current", { hasText: "Style" }).isVisible());
 
@@ -155,6 +167,36 @@ check(
 
 await page.locator(".style-tile").first().click();
 await page.getByText("Continue with", { exact: false }).click();
+
+/* the review is not a fait accompli: the success row rewrites in place */
+await page.getByText("returns within a week", { exact: false }).click();
+await page.getByLabel("Success").fill("Two drills finished in the first sitting");
+await page.getByLabel("Success").press("Enter");
+check(
+  "the success row wears your words",
+  await page.getByText("Two drills finished in the first sitting").isVisible(),
+);
+
+/* the people open too: a fourth persona, named on the spot */
+await page.getByText("Change the personas").click();
+await page.getByText("Add a persona").click();
+await page.getByLabel("Persona name").fill("Dana Reyes");
+await page.getByText("Done", { exact: true }).click();
+check(
+  "the new persona fronts the review",
+  await page.getByText("Dana Reyes", { exact: false }).first().isVisible(),
+);
+await page.locator(".persona-card", { hasText: "Maria Chen" }).click();
+await page.getByLabel("Close personas").click();
+
+/* the platform chips choose, they do not just report */
+await page.locator(".platform-chip", { hasText: "Web" }).click();
+check(
+  "web takes the platform",
+  await page.locator(".platform-chip:not(.off)", { hasText: "Web" }).isVisible(),
+);
+await page.locator(".platform-chip", { hasText: "iOS" }).click();
+
 await page.getByText("Create the concept").click();
 await page.waitForTimeout(900);
 

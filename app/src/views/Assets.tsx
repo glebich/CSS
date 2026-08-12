@@ -210,6 +210,8 @@ export function Assets() {
           )}
         </div>
 
+        {/* the folder never leaves the table; open, it stands emptied
+            beside its files, and the X rides its own edge */}
         {!assetsOpen ? (
           <button
             className="asset-folder"
@@ -226,29 +228,40 @@ export function Assets() {
             </span>
           </button>
         ) : (
-        <div style={{ position: "relative", flex: 1, minWidth: 280 }}>
-          {!reading && (
-            <button
-              className="circle asset-folder-x"
-              onClick={() => {
-                setClosing(true);
-                window.setTimeout(() => {
-                  setAssetsOpen(false);
-                  setClosing(false);
-                }, 420);
-              }}
-              aria-label="Close the materials"
-            >
-              <svg width="11" height="11" viewBox="0 0 8 8" fill="none" aria-hidden>
-                <path d="M1 1l6 6M7 1L1 7" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
-              </svg>
-            </button>
-          )}
+          <div className={`asset-folder is-open${closing ? " is-refilling" : ""}`}>
+            <span className="asset-front" aria-hidden />
+            <span className="asset-folder-name">App files</span>
+            <span className="asset-folder-count">
+              {project ? project.files.size : pendingDrop ? "reading" : materials.length}
+            </span>
+            {!reading && (
+              <button
+                className="circle asset-folder-x"
+                onClick={() => {
+                  setClosing(true);
+                  window.setTimeout(() => {
+                    setAssetsOpen(false);
+                    setClosing(false);
+                  }, 420);
+                }}
+                aria-label="Close the materials"
+              >
+                <svg width="11" height="11" viewBox="0 0 8 8" fill="none" aria-hidden>
+                  <path d="M1 1l6 6M7 1L1 7" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+                </svg>
+              </button>
+            )}
+          </div>
+        )}
+        {assetsOpen && (
         <div
           style={{
             display: "grid",
             gridTemplateColumns: "repeat(auto-fill, minmax(148px, 1fr))",
             gap: 12,
+            flex: 1,
+            minWidth: 280,
+            alignContent: "flex-start",
           }}
         >
           {project
@@ -283,7 +296,6 @@ export function Assets() {
                     <ExampleVisual m={m} understood={understood} />
                   </div>
                 ))}
-        </div>
         </div>
         )}
 

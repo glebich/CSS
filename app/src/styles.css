@@ -550,6 +550,8 @@ input {
   font-size: 16px;
   letter-spacing: 0.01em;
   color: var(--gray-secondary);
+  /* when the line wraps, the second line hangs left, never centers */
+  text-align: left;
 }
 
 /* ----------------------------------------------------- the big instrument */
@@ -3709,15 +3711,127 @@ input {
   font-variant-numeric: tabular-nums;
 }
 
+/* the X rides the folder's own edge, the way the reference draws it */
 .asset-folder-x {
   position: absolute;
-  left: -14px;
-  top: 42%;
+  right: -14px;
+  top: 22px;
   width: 40px;
   height: 40px;
   z-index: 3;
   background: #fff;
   box-shadow: var(--shadow-pill);
+}
+
+/* the open folder stays on the table, emptied; the sheets are out,
+   the silhouette holds so nothing jumps between states */
+.asset-folder.is-open {
+  flex: none;
+  cursor: default;
+}
+
+.asset-folder.is-open:hover {
+  transform: none;
+}
+
+/* while the files return, the folder leans toward them */
+.asset-folder.is-refilling {
+  transform: translateY(-2px) scale(1.015);
+  transition: transform 0.3s ease;
+}
+
+/* the launch review opens: values are doors, chips choose */
+.platform-chip {
+  border: none;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.review-value-door {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 7px;
+  text-align: left;
+  border: none;
+  background: none;
+  font: inherit;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--ink-body);
+  padding: 0;
+  cursor: text;
+  border-radius: 6px;
+  flex: 1;
+  min-width: 0;
+}
+
+.review-value-door svg {
+  flex: none;
+  align-self: center;
+  color: var(--gray-tertiary);
+  opacity: 0;
+  transition: opacity var(--t-fast);
+}
+
+.review-value-door:hover svg,
+.review-value-door:focus-visible svg {
+  opacity: 1;
+}
+
+.review-edit {
+  flex: 1;
+  min-width: 0;
+  font: inherit;
+  line-height: 1.55;
+  color: var(--ink);
+  background: #fff;
+  border: 1px solid var(--line-strong, rgba(0, 0, 0, 0.14));
+  border-radius: 10px;
+  padding: 8px 10px;
+  resize: vertical;
+  outline: none;
+}
+
+/* a persona opens into its own fields, right in the card */
+.persona-input {
+  width: 100%;
+  min-width: 0;
+  font: inherit;
+  font-size: 13px;
+  color: var(--ink);
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 8px;
+  padding: 5px 8px;
+  outline: none;
+}
+
+.persona-edit {
+  flex: none;
+  align-self: flex-start;
+  width: 26px;
+  height: 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  background: none;
+  color: var(--gray-tertiary);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity var(--t-fast);
+}
+
+.persona-card:hover .persona-edit,
+.persona-edit:focus-visible {
+  opacity: 1;
+}
+
+.persona-editing {
+  cursor: default;
+  align-items: flex-start;
 }
 
 /* on phones the rail and the floating ask claim the bottom; content
@@ -3764,7 +3878,11 @@ input {
   content: "";
   position: absolute;
   inset: 0;
-  background: url("https://dl.dropboxusercontent.com/scl/fi/i0pwaaq7vxaa1xbofy2om/42.png?rlkey=lk6fdmdwf7jhqkmboytuwhcd5") center / cover no-repeat;
+  /* the raw form is the one Dropbox documents for embedding; the older
+     direct-host form rides behind it as a second chance */
+  background:
+    url("https://www.dropbox.com/scl/fi/i0pwaaq7vxaa1xbofy2om/42.png?rlkey=lk6fdmdwf7jhqkmboytuwhcd5&raw=1") center / cover no-repeat,
+    url("https://dl.dropboxusercontent.com/scl/fi/i0pwaaq7vxaa1xbofy2om/42.png?rlkey=lk6fdmdwf7jhqkmboytuwhcd5") center / cover no-repeat;
   opacity: 0.9;
 }
 
@@ -4000,23 +4118,23 @@ input {
 
 .asset-peek-1 {
   right: -22px;
-  top: 24px;
+  top: 26px;
   width: 96px;
-  height: 190px;
+  height: 160px;
 }
 
 .asset-peek-2 {
   right: -16px;
-  top: 228px;
+  top: 196px;
   width: 84px;
-  height: 120px;
+  height: 100px;
 }
 
 .asset-peek-3 {
   right: -19px;
-  top: 362px;
+  top: 306px;
   width: 90px;
-  height: 90px;
+  height: 62px;
 }
 
 /* the files return to the folder with the same weight, reversed */

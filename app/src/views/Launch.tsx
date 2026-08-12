@@ -1,6 +1,7 @@
+import { useState } from "react";
 import { useStore } from "../store";
-import { FlowSteps, Page, Sparkle } from "../components/chrome";
-import { launchReview, personas, styleCatalog } from "../data/seed";
+import { FlowSteps, Icon, Page, Sparkle } from "../components/chrome";
+import { launchReview, styleCatalog } from "../data/seed";
 
 function moodWords(energy: number, style: number, tone: number): string {
   const a = energy >= 60 ? "Energetic" : "Calm";
@@ -9,10 +10,80 @@ function moodWords(energy: number, style: number, tone: number): string {
   return `${a}, ${b}, ${c}`;
 }
 
-/** Ready to launch: everything chosen, reviewed in one card, one action. */
+/** A review value that opens into a textarea where it stands. */
+function EditableValue({
+  value,
+  label,
+  onSave,
+}: {
+  value: string;
+  label: string;
+  onSave: (t: string) => void;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(value);
+  if (editing) {
+    return (
+      <textarea
+        className="review-edit"
+        value={draft}
+        aria-label={label}
+        autoFocus
+        rows={2}
+        onChange={(e) => setDraft(e.target.value)}
+        onBlur={() => {
+          if (draft.trim()) onSave(draft.trim());
+          setEditing(false);
+        }}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
+            (e.target as HTMLTextAreaElement).blur();
+          }
+          if (e.key === "Escape") {
+            setDraft(value);
+            setEditing(false);
+          }
+        }}
+      />
+    );
+  }
+  return (
+    <button
+      className="review-value review-value-door"
+      title="Rewrite this in your own words"
+      onClick={() => {
+        setDraft(value);
+        setEditing(true);
+      }}
+    >
+      {value}
+      <Icon name="edit" size={11} />
+    </button>
+  );
+}
+
+/** Ready to launch: everything chosen, reviewed in one card, one action.
+    Every row is a door: rewrite the words, change the people, the style,
+    the platforms, right here. */
 export function Launch() {
-  const { goHomeFromLaunch, mood, personaId, styleId, device, project, togglePanel } = useStore();
-  const persona = personas.find((p) => p.id === personaId) ?? personas[0];
+  const {
+    goHomeFromLaunch,
+    mood,
+    personaId,
+    styleId,
+    device,
+    setDevice,
+    project,
+    togglePanel,
+    go,
+    people,
+    launchGoal,
+    setLaunchGoal,
+    launchSuccess,
+    setLaunchSuccess,
+  } = useStore();
+  const persona = people.find((p) => p.id === personaId) ?? people[0];
   const style = styleCatalog.find((s) => s.id === styleId) ?? styleCatalog[0];
 
   return (
@@ -29,11 +100,16 @@ export function Launch() {
       <div className="review-card" style={{ maxWidth: 720, margin: "0 auto" }}>
         <div className="review-row">
           <span className="review-label">{project ? "The project" : "Primary goal"}</span>
-          <span className="review-value">
-            {project
-              ? `${project.inventory.name}: ${project.understanding}`
-              : launchReview.goal}
-          </span>
+          <EditableValue
+            label="Primary goal"
+            value={
+              launchGoal ??
+              (project
+                ? `${project.inventory.name}: ${project.understanding}`
+                : launchReview.goal)
+            }
+            onSave={setLaunchGoal}
+          />
         </div>
         <div className="review-row">
           <span className="review-label">Audience</span>
@@ -51,21 +127,60 @@ export function Launch() {
         </div>
         <div className="review-row">
           <span className="review-label">Success</span>
-          <span className="review-value">{launchReview.success}</span>
+          <EditableValue
+            label="Success"
+            value={launchSuccess ?? launchReview.success}
+            onSave={setLaunchSuccess}
+          />
         </div>
         <div className="review-row">
           <span className="review-label">Style and mood</span>
           <span className="review-value">
             {style.name} by {style.by}. {moodWords(mood.energy, mood.style, mood.tone)}.
           </span>
+          <button
+            className="pill pill-sm"
+            style={{ flex: "none" }}
+            onClick={() => togglePanel("mood")}
+          >
+            Mood
+          </button>
+          <button
+            className="pill pill-sm"
+            style={{ flex: "none" }}
+            onClick={() => go("style")}
+          >
+            Change the style
+          </button>
         </div>
         <div className="review-row">
           <span className="review-label">Platforms</span>
           <span className="review-value" style={{ display: "inline-flex", gap: 8 }}>
-            <span className={`platform-chip${device === "mobile" ? "" : " off"}`}>iOS</span>
-            <span className={`platform-chip${device === "mobile" ? "" : " off"}`}>Android</span>
-            <span className={`platform-chip${device === "website" || device === "desktop" ? "" : " off"}`}>Web</span>
-            <span className={`platform-chip${device === "watch" ? "" : " off"}`}>Watch</span>
+            {/* the chips choose; the render follows the chosen device */}
+            <button
+              className={`platform-chip${device === "mobile" ? "" : " off"}`}
+              onClick={() => setDevice("mobile")}
+            >
+              iOS
+            </button>
+            <button
+              className={`platform-chip${device === "mobile" ? "" : " off"}`}
+              onClick={() => setDevice("mobile")}
+            >
+              Android
+            </button>
+            <button
+              className={`platform-chip${device === "website" || device === "desktop" ? "" : " off"}`}
+              onClick={() => setDevice("website")}
+            >
+              Web
+            </button>
+            <button
+              className={`platform-chip${device === "watch" ? "" : " off"}`}
+              onClick={() => setDevice("watch")}
+            >
+              Watch
+            </button>
           </span>
         </div>
       </div>

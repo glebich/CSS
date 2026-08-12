@@ -1,6 +1,5 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { useStore, type Mood } from "../store";
-import { personas } from "../data/seed";
 import { Icon } from "./chrome";
 import { MiniApp } from "./MiniApp";
 
@@ -109,8 +108,9 @@ export function MoodPanel() {
  * with the age dial breathing a live reach estimate.
  */
 export function PersonasPanel() {
-  const { personaId, setPersonaId, togglePanel } = useStore();
-  const active = personas.find((p) => p.id === personaId) ?? personas[0];
+  const { personaId, setPersonaId, togglePanel, people, updatePersona, addPersona } = useStore();
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const active = people.find((p) => p.id === personaId) ?? people[0];
   const drag = useDragValue(() => undefined);
   return (
     <aside className="glass-panel floating-panel fade-in" style={{ width: 320 }}>
@@ -120,23 +120,89 @@ export function PersonasPanel() {
         </svg>
       </button>
       <div className="panel-title">Who this is for</div>
-      {personas.map((p) => (
-        <div
-          key={p.id}
-          className={`persona-card${p.id === personaId ? " is-active" : ""}`}
-          onClick={() => setPersonaId(p.id)}
-          role="button"
-        >
-          <span className="persona-portrait" style={{ background: p.portrait }} />
-          <div style={{ minWidth: 0 }}>
-            <div className="persona-name">{p.name}</div>
-            <div className="persona-meta">
-              {p.age} &middot; {p.role}
+      {people.map((p) =>
+        editingId === p.id ? (
+          <div key={p.id} className="persona-card is-active persona-editing">
+            <span className="persona-portrait" style={{ background: p.portrait }} />
+            <div style={{ minWidth: 0, flex: 1, display: "flex", flexDirection: "column", gap: 6 }}>
+              <input
+                className="persona-input"
+                value={p.name}
+                aria-label="Persona name"
+                onChange={(e) => updatePersona(p.id, { name: e.target.value })}
+                autoFocus
+              />
+              <div style={{ display: "flex", gap: 6 }}>
+                <input
+                  className="persona-input"
+                  style={{ width: 54, flex: "none" }}
+                  value={p.age}
+                  inputMode="numeric"
+                  aria-label="Persona age"
+                  onChange={(e) => {
+                    const n = Number(e.target.value.replace(/\D/g, ""));
+                    if (Number.isFinite(n)) updatePersona(p.id, { age: Math.min(99, n) });
+                  }}
+                />
+                <input
+                  className="persona-input"
+                  value={p.role}
+                  aria-label="Persona role"
+                  onChange={(e) => updatePersona(p.id, { role: e.target.value })}
+                />
+              </div>
+              <input
+                className="persona-input"
+                value={p.line}
+                aria-label="Persona line"
+                onChange={(e) => updatePersona(p.id, { line: e.target.value })}
+                onKeyDown={(e) => e.key === "Enter" && setEditingId(null)}
+              />
+              <button
+                className="pill pill-sm"
+                style={{ alignSelf: "flex-start" }}
+                onClick={() => setEditingId(null)}
+              >
+                Done
+              </button>
             </div>
-            <div className="persona-line">{p.line}</div>
           </div>
-        </div>
-      ))}
+        ) : (
+          <div
+            key={p.id}
+            className={`persona-card${p.id === personaId ? " is-active" : ""}`}
+            onClick={() => setPersonaId(p.id)}
+            role="button"
+          >
+            <span className="persona-portrait" style={{ background: p.portrait }} />
+            <div style={{ minWidth: 0, flex: 1 }}>
+              <div className="persona-name">{p.name}</div>
+              <div className="persona-meta">
+                {p.age} &middot; {p.role}
+              </div>
+              <div className="persona-line">{p.line}</div>
+            </div>
+            <button
+              className="persona-edit"
+              aria-label={`Edit ${p.name}`}
+              onClick={(e) => {
+                e.stopPropagation();
+                setPersonaId(p.id);
+                setEditingId(p.id);
+              }}
+            >
+              <Icon name="edit" size={12} />
+            </button>
+          </div>
+        ),
+      )}
+      <button
+        className="pill pill-sm"
+        style={{ marginTop: 4 }}
+        onClick={() => setEditingId(addPersona())}
+      >
+        Add a persona
+      </button>
       <div className="age-track" {...drag}>
         <div
           className="mood-fill"
@@ -146,7 +212,7 @@ export function PersonasPanel() {
           Age {active.age}
         </span>
         <span className="mood-max" style={{ bottom: 10, fontSize: 11 }}>
-          {active.reach}, an estimate
+          {active.reach.startsWith("about") ? `${active.reach}, an estimate` : active.reach}
         </span>
       </div>
 
