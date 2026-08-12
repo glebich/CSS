@@ -93,11 +93,11 @@ const PROBLEMS: Array<{ n: string; title: string; pain: string; answer: string }
 ];
 
 const LAWS: Array<{ title: string; body: string }> = [
-  { title: "Estimates say so", body: "Every guess is labeled a guess, with its reasoning." },
-  { title: "Examples say so", body: "Seeded rows wear the word Example. Yours say live." },
+  { title: "Estimates say so", body: "Every guess is labeled a guess. Every measured number carries its evidence." },
+  { title: "Examples say so", body: "Demo data wears the word Example. Your data speaks live." },
   {
     title: "Unbuilt stages name themselves",
-    body: "What has not arrived names the stage it arrives with.",
+    body: "Nothing pretends to exist. What has not arrived names its stage.",
   },
 ];
 
@@ -170,14 +170,14 @@ export function Landing() {
 
       <header className="land-hero">
         <div className="land-hero-copy">
-          <span className="section-label">Where generated software lives</span>
-          <h1>Anyone can generate an app. Almost no one can trust one.</h1>
+          <span className="section-label">The last mile for generated apps</span>
+          <h1>You built it with AI. We make it ready for the world.</h1>
           <p>
-            Osyle is the home for software built anywhere. Drop the app your
-            AI made or connect its repository; it gets examined across eight
-            real lenses with file and line evidence, healed with receipts,
-            and an address where it keeps living, versioned, watched, and
-            found by the audience it was built for.
+            Osyle is the last mile between a vibe-coded app and a
+            professional product. Drop what you built, from any tool; it
+            gets examined across eight real lenses, healed with receipts,
+            dressed by a taste system built on twenty-five years of product
+            design, and given an address where it keeps living.
           </p>
           <div className="land-hero-ctas">
             <button className="pill pill-dark" onClick={() => go("place")}>
@@ -191,6 +191,14 @@ export function Landing() {
           <span className="land-hero-note">
             Free. The examination asks for no account.
           </span>
+          <div className="land-cred">
+            <span className="works-label">Design led by 25 years building products for</span>
+            {["Apple", "Google", "OpenAI", "Samsung"].map((n) => (
+              <span key={n} className="works-mark" title="Named for the design career behind the taste system, nothing implied beyond it">
+                {n}
+              </span>
+            ))}
+          </div>
         </div>
         <figure className="land-hero-render">
           <div className="phone-frame land-phone">
@@ -296,7 +304,7 @@ export function Landing() {
 
       <section id="laws" className="land-laws">
         <span className="section-label">The laws we keep</span>
-        <h2>Sold hard, told straight.</h2>
+        <h2>Honesty is the interface.</h2>
         <div className="land-laws-row">
           {LAWS.map((law) => (
             <div key={law.title} className="land-law">

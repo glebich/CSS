@@ -135,8 +135,8 @@ export function Assets() {
   const reading = uploadPhase === "reading";
   const understood = uploadPhase === "understood";
   const realRun = pendingDrop !== null || progress.length > 0 || project !== null;
-  /* the materials rest inside one folder; a click opens the grid */
-  const [assetsOpen, setAssetsOpen] = useState(false);
+  /* the materials rest in a folder between visits; work opens it */
+  const [assetsOpen, setAssetsOpen] = useState(reading || realRun);
 
   return (
     <main className="canvas canvas-dotted" style={{ position: "relative" }}>
@@ -216,22 +216,26 @@ export function Assets() {
             aria-label="Open the materials"
           >
             <span className="asset-folder-name">Materials</span>
-            <span className="asset-folder-peek" aria-hidden />
+            <span className="asset-peek asset-peek-1" aria-hidden />
+            <span className="asset-peek asset-peek-2" aria-hidden />
+            <span className="asset-peek asset-peek-3" aria-hidden />
             <span className="asset-folder-count">
               {project ? project.files.size : pendingDrop ? "reading" : materials.length}
             </span>
           </button>
         ) : (
         <div style={{ position: "relative", flex: 1, minWidth: 280 }}>
-          <button
-            className="circle asset-folder-x"
-            onClick={() => setAssetsOpen(false)}
-            aria-label="Close the materials"
-          >
-            <svg width="11" height="11" viewBox="0 0 8 8" fill="none" aria-hidden>
-              <path d="M1 1l6 6M7 1L1 7" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
-            </svg>
-          </button>
+          {!reading && (
+            <button
+              className="circle asset-folder-x"
+              onClick={() => setAssetsOpen(false)}
+              aria-label="Close the materials"
+            >
+              <svg width="11" height="11" viewBox="0 0 8 8" fill="none" aria-hidden>
+                <path d="M1 1l6 6M7 1L1 7" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+              </svg>
+            </button>
+          )}
         <div
           style={{
             display: "grid",
@@ -243,8 +247,8 @@ export function Assets() {
             ? [...project.files.values()].slice(0, 12).map((f, i) => (
                 <div
                   key={f.path}
-                  className={`file-card${reading ? " is-reading" : ""}${understood ? " is-understood" : ""}`}
-                  style={reading ? { animationDelay: `${i * 90}ms` } : undefined}
+                  className={`file-card${reading ? " is-reading" : ""}${understood ? " is-understood" : ""}${!reading ? " fly-in" : ""}`}
+                  style={{ animationDelay: `${i * (reading ? 90 : 45)}ms` }}
                 >
                   <div className="file-name">{f.path.split("/").pop()}</div>
                   <div className="file-size">{f.path.includes("/") ? f.path.slice(0, f.path.lastIndexOf("/")) : ""}</div>
@@ -265,8 +269,8 @@ export function Assets() {
               : materials.map((m, i) => (
                   <div
                     key={m.id}
-                    className={`file-card${reading ? " is-reading" : ""}${understood ? " is-understood" : ""}`}
-                    style={reading ? { animationDelay: `${i * 90}ms` } : undefined}
+                    className={`file-card${reading ? " is-reading" : ""}${understood ? " is-understood" : ""}${!reading ? " fly-in" : ""}`}
+                    style={{ animationDelay: `${i * (reading ? 90 : 45)}ms` }}
                   >
                     <ExampleVisual m={m} understood={understood} />
                   </div>

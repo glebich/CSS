@@ -74,14 +74,21 @@ check(
   "the landing carries the six promises",
   await page.getByText("Safe. Designed. Usable. Tested. Evolving. Shared.").isVisible(),
 );
-check("the rail wears eight marks", (await page.locator(".works-mark").count()) === 8);
+check(
+  "the rail wears eight marks",
+  (await page.locator(".land-works .works-mark").count()) === 8,
+);
 check(
   "the landing doors to discover",
   await page.getByText("See who lives here").first().isVisible(),
 );
 check(
-  "the landing leads with the trust gap",
-  await page.getByText("Anyone can generate an app. Almost no one can trust one.").isVisible(),
+  "the landing leads with the last mile",
+  await page.getByText("You built it with AI. We make it ready for the world.").isVisible(),
+);
+check(
+  "the expertise row names its houses",
+  await page.locator(".land-cred").getByText("OpenAI").isVisible(),
 );
 check(
   "the landing numbers say where they came from",
@@ -127,11 +134,7 @@ check("the theater streams the feed", await page.getByText("Reconstructing the a
 check("the understanding panel is live", await page.getByText("What it understands so far").isVisible());
 await page.getByText("Skip", { exact: true }).click();
 await page.waitForTimeout(400);
-/* the materials rest in one folder; a click opens the grid */
-check("the materials rest in a folder", await page.locator(".asset-folder").isVisible());
-await page.getByLabel("Open the materials").click();
 check("materials become understood", (await page.locator(".file-card.is-understood").count()) >= 6);
-await page.getByLabel("Close the materials").click();
 await page.getByText("Explore a style", { exact: false }).last().click();
 check("style flow step is current", await page.locator(".flow-step.is-current", { hasText: "Style" }).isVisible());
 

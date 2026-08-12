@@ -3716,3 +3716,118 @@ input {
   background: #fff;
   box-shadow: var(--shadow-pill);
 }
+
+/* on phones the rail and the floating ask claim the bottom; content
+   gets the room to scroll clear of both */
+@media (max-width: 700px) {
+  .canvas-inner {
+    padding-bottom: 230px;
+  }
+}
+
+/* the credential row: the career behind the taste system, said plainly */
+.land-cred {
+  display: flex;
+  align-items: center;
+  gap: 10px 14px;
+  flex-wrap: wrap;
+  margin-top: 18px;
+}
+
+/* the laws breathe */
+.land-laws {
+  padding-top: 110px;
+  padding-bottom: 40px;
+  gap: 18px;
+}
+
+.land-laws-row {
+  margin-top: 30px;
+  gap: 26px;
+}
+
+.land-law {
+  padding-top: 20px;
+}
+
+.land-law p {
+  margin-top: 10px;
+  font-size: 13.5px;
+}
+
+/* the close wears the film still; the dark and the glow stay beneath
+   so an unreachable image never leaves the band bare */
+.land-close::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url("https://dl.dropboxusercontent.com/scl/fi/i0pwaaq7vxaa1xbofy2om/42.png?rlkey=lk6fdmdwf7jhqkmboytuwhcd5") center / cover no-repeat;
+  opacity: 0.9;
+}
+
+.land-close::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(6, 6, 8, 0.55) 0%, rgba(6, 6, 8, 0.25) 55%, rgba(6, 6, 8, 0.65) 100%);
+}
+
+.land-close > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* previews peek out of the folder like sheets in a real one */
+.asset-peek {
+  position: absolute;
+  border-radius: 12px;
+  box-shadow: var(--shadow-card);
+  z-index: -1;
+}
+
+.asset-peek-1 {
+  right: -14px;
+  top: 30px;
+  width: 52px;
+  height: 150px;
+  background: linear-gradient(160deg, #b9a5ff 0%, #8f7bf2 100%);
+  transform: rotate(5deg);
+}
+
+.asset-peek-2 {
+  right: -8px;
+  top: 196px;
+  width: 44px;
+  height: 110px;
+  background: linear-gradient(160deg, #f2d16b 0%, #e8b93d 100%);
+  transform: rotate(-3deg);
+}
+
+.asset-peek-3 {
+  right: -11px;
+  top: 318px;
+  width: 48px;
+  height: 84px;
+  background: linear-gradient(160deg, #1c222c 0%, #39445a 100%);
+  transform: rotate(4deg);
+}
+
+/* the files leave the folder with weight: a small throw, an overshoot,
+   a settle, staggered card by card */
+@keyframes fly-in {
+  from {
+    transform: translate(-300px, 70px) rotate(-7deg) scale(0.55);
+    opacity: 0;
+  }
+  55% {
+    opacity: 1;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+.file-card.fly-in {
+  animation: fly-in 0.55s cubic-bezier(0.22, 0.9, 0.32, 1.14) both;
+}
