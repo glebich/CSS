@@ -283,10 +283,35 @@ export function Home() {
               </button>
             </div>
           ) : !transformAccepted ? (
-            <button className="pill pill-dark" onClick={() => go("transform")}>
-              See what changed
-              <Sparkle size={13} />
-            </button>
+            <>
+              {/* the work is shown, not implied: what Heal changed, then the doors */}
+              {healed.size > 0 && (
+                <div style={{ textAlign: "left", width: "100%" }}>
+                  <div style={{ fontSize: 15, fontWeight: 550 }}>What Heal changed</div>
+                  <div className="receipt" style={{ maxWidth: "none" }}>
+                    {issues
+                      .filter((i) => healed.has(i.id))
+                      .map((i) => (
+                        <div key={i.id} className="receipt-row">
+                          <Icon name="check" size={12} />
+                          {i.title}
+                          <span className="topbar-spacer" />
+                          <span className="chip">{i.lens}</span>
+                        </div>
+                      ))}
+                  </div>
+                </div>
+              )}
+              <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                <button className="pill pill-dark" onClick={() => go("transform")}>
+                  See what changed
+                  <Sparkle size={13} />
+                </button>
+                <button className="pill" onClick={() => go("promote")}>
+                  Promote it
+                </button>
+              </div>
+            </>
           ) : keyStillBroken(healed) ? (
             <>
               <div className="pulse-line">

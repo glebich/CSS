@@ -270,6 +270,11 @@ check("heal raises vitality to 69", (await page.locator(".instrument").innerText
 
 /* No dead ends: home offers the next door after healing */
 check("home offers the next step", await page.getByText("See what changed").isVisible());
+check("the healed work is shown, not implied", await page.getByText("What Heal changed").isVisible());
+check(
+  "promote stands beside the reveal as a next door",
+  await page.getByText("Promote it").isVisible(),
+);
 await page.getByText("See what changed").click();
 await page.getByText("Keep the right one").click();
 check("reveal ends in a door", await page.getByText("See the findings desk").isVisible());

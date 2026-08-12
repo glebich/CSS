@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { useStore } from "../store";
-import { FlowSteps, Icon, Sparkle } from "../components/chrome";
+import { FlowSteps, GitHubMark, Icon, Sparkle } from "../components/chrome";
 
 /**
  * The place state: a real intake. Dropped files and zips are actually
@@ -235,7 +235,7 @@ export function Place() {
           title="Connect a GitHub repository"
           aria-label="Connect a GitHub repository"
         >
-          <Icon name="repo" size={19} />
+          <GitHubMark size={19} />
         </button>
         <button className="pill" onClick={() => beginUpload()}>
           See the example

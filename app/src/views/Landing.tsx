@@ -316,7 +316,6 @@ export function Landing() {
       </section>
 
       <footer className="land-close">
-        <div className="brand-glow" style={{ transform: "translateX(-190px)" }} />
         <h2>A billion apps are about to be generated. None of them have a home.</h2>
         <p className="land-close-sub">Yours can, today.</p>
         <div className="brand-promises">Safe. Designed. Usable. Tested. Evolving. Shared.</div>

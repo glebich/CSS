@@ -2860,8 +2860,9 @@ input {
   overflow: hidden;
   background: var(--brand-black);
   color: var(--brand-white);
-  /* a compact band: the image is a backdrop, not a destination */
-  padding: 60px 28px 64px;
+  /* the film still is the backdrop; the words hold the center */
+  min-height: 72vh;
+  padding: 48px 28px;
   display: flex;
   flex-direction: column;
   align-items: center;

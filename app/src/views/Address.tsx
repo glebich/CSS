@@ -65,7 +65,7 @@ export function Address() {
     return (
       <Page>
         <FlowSteps current="address" />
-        <div style={{ textAlign: "center", padding: "10px 0 8px" }}>
+        <div style={{ textAlign: "left", padding: "10px 0 8px" }}>
           <h1 className="statement statement-page">
             It lives <span className="quiet">here now.</span>
           </h1>
@@ -80,7 +80,7 @@ export function Address() {
           >
             {realSlug}.osyle.app
           </div>
-          <div style={{ display: "flex", gap: 10, justifyContent: "center", marginTop: 18 }}>
+          <div style={{ display: "flex", gap: 10, marginTop: 18 }}>
             <button
               className="pill pill-sm"
               onClick={() => {
@@ -124,7 +124,7 @@ export function Address() {
           </p>
         </div>
 
-        <div style={{ display: "flex", gap: 10, justifyContent: "center", marginTop: 40, flexWrap: "wrap" }}>
+        <div style={{ display: "flex", gap: 10, marginTop: 40, flexWrap: "wrap" }}>
           <button className="pill" onClick={() => exportReal(realSlug, project)}>
             Export everything
           </button>
@@ -156,7 +156,7 @@ export function Address() {
         </div>
         {/* Real Mode: the stack, spoken to honestly */}
         {stack.on && stack.up === false && (
-          <p style={{ textAlign: "center", fontSize: 12.5, color: "var(--gray-small)", marginTop: 22 }}>
+          <p style={{ textAlign: "left", fontSize: 12.5, color: "var(--gray-small)", marginTop: 22 }}>
             Real Mode is on, but the stack at {stack.base} is not answering.
             Everything above still works from this machine.
           </p>
@@ -207,7 +207,7 @@ export function Address() {
         )}
         <p
           style={{
-            textAlign: "center",
+            textAlign: "left",
             fontSize: 12.5,
             color: "var(--gray-small)",
             marginTop: 26,
@@ -246,7 +246,7 @@ export function Address() {
 
   return (
     <Page>
-      <div style={{ textAlign: "center", padding: "10px 0 8px" }}>
+      <div style={{ textAlign: "left", padding: "10px 0 8px" }}>
         <h1 className="statement statement-page">
           It lives <span className="quiet">here now.</span>
         </h1>
@@ -261,7 +261,7 @@ export function Address() {
         >
           {resident.address}
         </div>
-        <div style={{ display: "flex", gap: 10, justifyContent: "center", marginTop: 18 }}>
+        <div style={{ display: "flex", gap: 10, marginTop: 18 }}>
           <button
             className="pill pill-sm"
             onClick={() => {

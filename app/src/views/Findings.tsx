@@ -48,7 +48,12 @@ function FindingCard({ issue }: { issue: Issue }) {
         )}
         {decision === "accepted" && !issue.healable && (
           <>
-            <span className="issue-state recurring">waiting on your key</span>
+            <span
+              className="issue-state recurring"
+              title="The app calls its weather provider with an API key that answers 401. Only you can mint a fresh one."
+            >
+              waiting on your key
+            </span>
             <button className="pill pill-sm" onClick={() => setPromptOpen(!promptOpen)}>
               {promptOpen ? "Close the Fix Prompt" : "Fix Prompt"}
             </button>
@@ -63,6 +68,12 @@ function FindingCard({ issue }: { issue: Issue }) {
 
       {promptOpen && decision === "accepted" && !issue.healable && (
         <div className="fade-in" style={{ marginTop: 14 }}>
+          <p style={{ fontSize: 12.5, color: "var(--gray-meta)", marginBottom: 8, lineHeight: 1.6 }}>
+            The key is the app's own weather API credential, minted in the
+            weather provider's dashboard where the app was first registered.
+            Get a fresh one there, then follow the prompt below: it names the
+            exact file and line where the key goes.
+          </p>
           <pre
             className="mono"
             style={{
