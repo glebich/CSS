@@ -595,6 +595,11 @@ input {
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+  /* the gradient paints only the box; the tight line box ends below
+     the digits' tops, so the paint area grows and the margin gives
+     the room back, leaving the layout exactly where it was */
+  padding: 0.12em 0.06em;
+  margin: -0.12em -0.06em;
 }
 
 .instrument-label {
