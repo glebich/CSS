@@ -4739,3 +4739,30 @@ input {
   line-height: 1.6;
   color: var(--gray-secondary);
 }
+
+/* the top bar on a phone: the reset steps aside, the panel door
+   stays, the device pill keeps only its glyph, nothing wraps or clips */
+@media (max-width: 480px) {
+  .topbar {
+    padding-left: 12px;
+    padding-right: 12px;
+    gap: 8px;
+  }
+  .topbar .topbar-quiet {
+    white-space: nowrap;
+  }
+  .topbar .topbar-quiet:not(.topbar-keep) {
+    display: none;
+  }
+  .topbar .device-pill {
+    font-size: 0;
+    gap: 4px;
+    padding: 0 10px;
+  }
+  .topbar .device-pill svg {
+    font-size: initial;
+  }
+  .wordmark {
+    font-size: 22px;
+  }
+}
