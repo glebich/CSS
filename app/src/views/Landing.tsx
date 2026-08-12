@@ -71,36 +71,33 @@ const LOOP: Array<{ n: string; title: string; body: string }> = [
 ];
 
 /* The three problems the whole industry agrees are unsolved. */
-const PROBLEMS: Array<{ title: string; pain: string; answer: string }> = [
+const PROBLEMS: Array<{ n: string; title: string; pain: string; answer: string }> = [
   {
+    n: "01",
     title: "Nobody knows if it works",
-    pain: "The bottleneck moved from writing code to verifying behavior, and a third of generated apps ship with no testing at all.",
-    answer: "Osyle examines every arrival across eight lenses with file and line evidence, and never lets a report end in a dead end.",
+    pain: "A third of generated apps ship with no testing at all.",
+    answer: "Eight lenses. File and line evidence. No dead ends.",
   },
   {
+    n: "02",
     title: "Everything looks the same",
-    pain: "Identical prompts yield identical results. Generated software converges to the statistical average, and users can feel it.",
-    answer: "A taste system calibrated on a real design corpus reshapes the same app into futures that feel authored, not averaged.",
+    pain: "Identical prompts, identical apps. Users can feel it.",
+    answer: "A taste system that makes the same app feel authored.",
   },
   {
+    n: "03",
     title: "Nobody owns it after it ships",
-    pain: "Vulnerabilities enter generated code at many times the human rate, and the person who prompted it cannot self-assess any of it.",
-    answer: "Residency means the app keeps being worked on: versioned, watched, healed, and improved after the tab closes.",
+    pain: "Vulnerabilities land at many times the human rate.",
+    answer: "Residency: versioned, watched, healed after the tab closes.",
   },
 ];
 
 const LAWS: Array<{ title: string; body: string }> = [
-  {
-    title: "Estimates say so",
-    body: "Every number that is a guess is labeled a guess, with the reasoning waiting under the cursor. Measured numbers carry their evidence.",
-  },
-  {
-    title: "Examples say so",
-    body: "Seeded rows wear the word Example. Your own rows say live, because they are. The two never dress alike.",
-  },
+  { title: "Estimates say so", body: "Every guess is labeled a guess, with its reasoning." },
+  { title: "Examples say so", body: "Seeded rows wear the word Example. Yours say live." },
   {
     title: "Unbuilt stages name themselves",
-    body: "A feature that has not arrived tells you the stage it arrives with, instead of pretending. Demo Mode never dies in a room.",
+    body: "What has not arrived names the stage it arrives with.",
   },
 ];
 
@@ -127,6 +124,8 @@ export function Landing() {
   });
   const [anthropicKey, setAnthropicKey] = useState("");
   const [geminiKey, setGeminiKey] = useState("");
+  /* the concept film plays when its host answers; the live render steps in when it cannot */
+  const [videoAlive, setVideoAlive] = useState(true);
   const presses = useRef<number[]>([]);
 
   useEffect(() => {
@@ -196,10 +195,26 @@ export function Landing() {
         <figure className="land-hero-render">
           <div className="phone-frame land-phone">
             <div className="phone-screen">
-              <MiniApp variant="live" />
+              {videoAlive ? (
+                <video
+                  className="land-hero-video"
+                  src="https://dl.dropboxusercontent.com/scl/fi/me20l4e9nwo59wsuexjes/0519-concept.mp4?rlkey=4k7tppfpbjf5cg54qwn941phl"
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  onError={() => setVideoAlive(false)}
+                />
+              ) : (
+                <MiniApp variant="live" />
+              )}
             </div>
           </div>
-          <figcaption>A live render, not a screenshot. It follows every dial inside.</figcaption>
+          <figcaption>
+            {videoAlive
+              ? "The concept film. The live product is one drop away."
+              : "A live render, not a screenshot. It follows every dial inside."}
+          </figcaption>
         </figure>
       </header>
 
@@ -265,7 +280,8 @@ export function Landing() {
         <h2>Everyone generates. Nobody holds the seam.</h2>
         <div className="land-laws-row">
           {PROBLEMS.map((p) => (
-            <div key={p.title} className="land-law">
+            <div key={p.title} className="land-problem card card-pad">
+              <span className="land-problem-n">{p.n}</span>
               <h3>{p.title}</h3>
               <p>{p.pain}</p>
               <p className="land-answer">{p.answer}</p>
@@ -273,11 +289,8 @@ export function Landing() {
           ))}
         </div>
         <p className="land-makers">
-          And for the people who build software for others: designers,
-          freelancers, and agencies run their clients' residents here, and the
-          managed layer turns every shipped app into a lasting relationship
-          instead of a handoff. The revenue share arrives with the store
-          stage.
+          Designers and agencies run their clients' residents here; every
+          shipped app becomes a lasting relationship, not a handoff.
         </p>
       </section>
 
@@ -297,13 +310,7 @@ export function Landing() {
       <footer className="land-close">
         <div className="brand-glow" style={{ transform: "translateX(-190px)" }} />
         <h2>A billion apps are about to be generated. None of them have a home.</h2>
-        <p className="land-close-sub">
-          Shopify's moat was never the themes; it was running the store.
-          Ours is not generation; it is running the software. GitHub gave
-          code a home and became the front door of an industry. Osyle is
-          that home for generated apps, and homes are where the value
-          settles.
-        </p>
+        <p className="land-close-sub">Yours can, today.</p>
         <div className="brand-promises">Safe. Designed. Usable. Tested. Evolving. Shared.</div>
         <button className="brand-enter" onClick={() => go("place")}>
           <Sparkle size={13} />

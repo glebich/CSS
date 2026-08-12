@@ -35,6 +35,98 @@ function SectionLabel({ children }: { children: string }) {
   );
 }
 
+
+/** One file, workable in place: replace it, or edit it as text. */
+function FileRowView({
+  f,
+  editingPath,
+  setEditingPath,
+  draftText,
+  setDraftText,
+  onReplace,
+  onSave,
+}: {
+  f: { path: string; bytes: number; text: string | null; dataUri?: string };
+  editingPath: string | null;
+  setEditingPath: (p: string | null) => void;
+  draftText: string;
+  setDraftText: (t: string) => void;
+  onReplace: (file: File, path: string) => void;
+  onSave: (path: string, text: string) => void;
+}) {
+  return (
+    <div className="file-row">
+      <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+        {f.dataUri && /\.(png|jpe?g|gif|webp|svg)$/i.test(f.path) && (
+          <img className="file-thumb" src={f.dataUri} alt="" />
+        )}
+        <span
+          className="mono"
+          style={{ flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontSize: 12.5 }}
+        >
+          {f.path}
+        </span>
+        <span style={{ color: "var(--gray-small)", flex: "none", fontSize: 12 }}>
+          {(f.bytes / 1024).toFixed(1)} KB
+        </span>
+      </div>
+      <div className="file-acts">
+        <label className="file-act">
+          Replace
+          <input
+            type="file"
+            style={{ display: "none" }}
+            onChange={(e) => {
+              const picked = e.target.files?.[0];
+              e.target.value = "";
+              if (picked) onReplace(picked, f.path);
+            }}
+          />
+        </label>
+        {f.text !== null && (
+          <button
+            className="file-act"
+            onClick={() => {
+              if (editingPath === f.path) {
+                setEditingPath(null);
+              } else {
+                setEditingPath(f.path);
+                setDraftText(f.text ?? "");
+              }
+            }}
+          >
+            {editingPath === f.path ? "Close" : "Edit"}
+          </button>
+        )}
+      </div>
+      {editingPath === f.path && (
+        <div style={{ marginTop: 6 }}>
+          <textarea
+            className="file-editor mono"
+            value={draftText}
+            onChange={(e) => setDraftText(e.target.value)}
+            spellCheck={false}
+          />
+          <div style={{ display: "flex", gap: 8, marginTop: 6 }}>
+            <button
+              className="pill pill-sm pill-dark"
+              onClick={() => {
+                onSave(f.path, draftText);
+                setEditingPath(null);
+              }}
+            >
+              Save the file
+            </button>
+            <button className="pill pill-sm" onClick={() => setEditingPath(null)}>
+              Discard
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function ResidentPanel() {
   const { project, realSlug, stack, go, togglePanel, mergeFiles, saveFileText } = useStore();
   const slug = project ? realSlug : resident.slug;
@@ -70,6 +162,15 @@ export function ResidentPanel() {
   const files = project ? [...project.files.values()] : null;
   const [editingPath, setEditingPath] = useState<string | null>(null);
   const [draftText, setDraftText] = useState("");
+  /* the files live in folders, every folder open until closed */
+  const [closedFolders, setClosedFolders] = useState<Set<string>>(new Set());
+  const folders = files
+    ? [...files.reduce((m, f) => {
+        const seg = f.path.includes("/") ? f.path.split("/")[0] : "loose files";
+        m.set(seg, [...(m.get(seg) ?? []), f]);
+        return m;
+      }, new Map<string, typeof files>())]
+    : null;
 
   return (
     <>
@@ -101,7 +202,9 @@ export function ResidentPanel() {
 
         <SectionLabel>The files it holds</SectionLabel>
         {files ? (
-          <div style={{ display: "grid", gap: 2 }}>
+          /* flex, not grid: a grid row can refuse to grow around an
+             opened editor, and the cards then overlap */
+          <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
             {/* the file room: every file visible and workable in place */}
             <label className="pill pill-sm file-add">
               Add files
@@ -116,75 +219,39 @@ export function ResidentPanel() {
                 }}
               />
             </label>
-            {files.map((f) => (
-              <div key={f.path} className="file-row">
-                <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-                  {f.dataUri && /\.(png|jpe?g|gif|webp|svg)$/i.test(f.path) && (
-                    <img className="file-thumb" src={f.dataUri} alt="" />
-                  )}
-                  <span
-                    className="mono"
-                    style={{ flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontSize: 12.5 }}
-                  >
-                    {f.path}
+            {(folders ?? []).map(([folder, inside]) => (
+              <div key={folder} className="folder-group">
+                <button
+                  className="folder-head"
+                  onClick={() =>
+                    setClosedFolders((prev) => {
+                      const next = new Set(prev);
+                      if (next.has(folder)) next.delete(folder);
+                      else next.add(folder);
+                      return next;
+                    })
+                  }
+                  aria-label={`${folder}, ${inside.length} file${inside.length === 1 ? "" : "s"}`}
+                >
+                  <span className="folder-shape" aria-hidden />
+                  <span style={{ flex: 1, minWidth: 0, textAlign: "left" }}>{folder}</span>
+                  <span style={{ color: "var(--gray-small)", fontSize: 11.5 }}>
+                    {inside.length} file{inside.length === 1 ? "" : "s"}
                   </span>
-                  <span style={{ color: "var(--gray-small)", flex: "none", fontSize: 12 }}>
-                    {(f.bytes / 1024).toFixed(1)} KB
-                  </span>
-                </div>
-                <div className="file-acts">
-                  <label className="file-act">
-                    Replace
-                    <input
-                      type="file"
-                      style={{ display: "none" }}
-                      onChange={(e) => {
-                        const picked = e.target.files?.[0];
-                        e.target.value = "";
-                        if (picked) void mergeFiles([picked], f.path);
-                      }}
+                </button>
+                {!closedFolders.has(folder) &&
+                  inside.map((f) => (
+                    <FileRowView
+                      key={f.path}
+                      f={f}
+                      editingPath={editingPath}
+                      setEditingPath={setEditingPath}
+                      draftText={draftText}
+                      setDraftText={setDraftText}
+                      onReplace={(file, path) => void mergeFiles([file], path)}
+                      onSave={(path, text) => void saveFileText(path, text)}
                     />
-                  </label>
-                  {f.text !== null && (
-                    <button
-                      className="file-act"
-                      onClick={() => {
-                        if (editingPath === f.path) {
-                          setEditingPath(null);
-                        } else {
-                          setEditingPath(f.path);
-                          setDraftText(f.text ?? "");
-                        }
-                      }}
-                    >
-                      {editingPath === f.path ? "Close" : "Edit"}
-                    </button>
-                  )}
-                </div>
-                {editingPath === f.path && (
-                  <div style={{ marginTop: 6 }}>
-                    <textarea
-                      className="file-editor mono"
-                      value={draftText}
-                      onChange={(e) => setDraftText(e.target.value)}
-                      spellCheck={false}
-                    />
-                    <div style={{ display: "flex", gap: 8, marginTop: 6 }}>
-                      <button
-                        className="pill pill-sm pill-dark"
-                        onClick={() => {
-                          void saveFileText(f.path, draftText);
-                          setEditingPath(null);
-                        }}
-                      >
-                        Save the file
-                      </button>
-                      <button className="pill pill-sm" onClick={() => setEditingPath(null)}>
-                        Discard
-                      </button>
-                    </div>
-                  </div>
-                )}
+                  ))}
               </div>
             ))}
           </div>

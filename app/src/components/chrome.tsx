@@ -307,6 +307,76 @@ function AskInput() {
   );
 }
 
+/** The score in one honest word. */
+export function gradeWord(score: number): string {
+  if (score < 40) return "fragile";
+  if (score < 60) return "fair";
+  if (score < 75) return "steady";
+  if (score < 90) return "strong";
+  return "rare";
+}
+
+/**
+ * The instrument, worn as a burst: a ring of rays around the number,
+ * one ray lit for every point of the hundred earned, the grade said
+ * in a word beneath. The lit count is the score; nothing decorative
+ * lies.
+ */
+export function InstrumentBurst({
+  score,
+  size = 300,
+  fontSize = "clamp(56px, 8vw, 84px)",
+  onClick,
+  title,
+}: {
+  score: number;
+  size?: number;
+  fontSize?: string;
+  onClick?: () => void;
+  title?: string;
+}) {
+  const rays = 50;
+  const lit = Math.round((score / 100) * rays);
+  return (
+    <div className="burst" style={{ width: size, height: size }}>
+      <svg viewBox="0 0 300 300" width="100%" height="100%" aria-hidden>
+        {Array.from({ length: rays }, (_, i) => {
+          const a = (i / rays) * Math.PI * 2 - Math.PI / 2;
+          const on = i < lit;
+          const dot = (r: number) => ({ cx: 150 + Math.cos(a) * r, cy: 150 + Math.sin(a) * r });
+          const inner = dot(104);
+          const mid = dot(122);
+          const far = dot(140);
+          return (
+            <g key={i}>
+              <line
+                x1={inner.cx}
+                y1={inner.cy}
+                x2={far.cx}
+                y2={far.cy}
+                stroke="rgba(12, 12, 14, 0.07)"
+                strokeWidth="1"
+              />
+              <circle {...mid} r={3.2} fill={on ? "#7b6bff" : "rgba(12, 12, 14, 0.1)"} />
+              <circle
+                {...far}
+                r={2.3}
+                fill={on ? "rgba(123, 107, 255, 0.45)" : "rgba(12, 12, 14, 0.05)"}
+              />
+            </g>
+          );
+        })}
+      </svg>
+      <div className="burst-core">
+        <button className="instrument" style={{ fontSize }} onClick={onClick} title={title}>
+          {score}
+        </button>
+        <span className="burst-word">{gradeWord(score)}</span>
+      </div>
+    </div>
+  );
+}
+
 /** One row in the sidebar: an icon, its name, and honest state. */
 function SideRow({
   icon,

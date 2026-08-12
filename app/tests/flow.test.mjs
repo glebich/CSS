@@ -49,9 +49,16 @@ const page = await browser.newPage({ viewport: { width: 1440, height: 810 } });
 const errors = [];
 page.on("pageerror", (e) => errors.push(`pageerror: ${e}`));
 page.on("console", (m) => {
-  /* the repo test intentionally answers one fetch with 404 */
-  if (m.type() === "error" && !m.text().includes("status of 404")) {
-    errors.push(`console: ${m.text()}`);
+  /* the repo test intentionally answers one fetch with 404, and the
+     hero's concept film cannot leave this sandbox; both are expected */
+  const text = m.text();
+  if (
+    m.type() === "error" &&
+    !text.includes("status of 404") &&
+    !text.includes("dropboxusercontent") &&
+    !text.includes("ERR_TUNNEL_CONNECTION_FAILED")
+  ) {
+    errors.push(`console: ${text}`);
   }
 });
 
@@ -93,8 +100,10 @@ check(
   await page.getByText("Unbuilt stages name themselves").isVisible(),
 );
 check(
-  "the hero render is the live app, said plainly",
-  await page.getByText("A live render, not a screenshot", { exact: false }).isVisible(),
+  "the hero wears the phone mask and says what plays in it",
+  (await page.locator(".land-phone").isVisible()) &&
+    ((await page.getByText("The concept film", { exact: false }).isVisible()) ||
+      (await page.getByText("A live render, not a screenshot", { exact: false }).isVisible())),
 );
 check(
   "every mark says what its integration does",
@@ -903,11 +912,18 @@ check(
   (await page.locator(".file-row").count()) === fileCountBefore + 1 &&
     (await page.locator(".notice", { hasText: "Adding files" }).isVisible()),
 );
+/* folders fold like folders; folding the loose one also clears the bench */
+await page.locator(".folder-head", { hasText: "loose files" }).click();
+check(
+  "a folder folds its files away",
+  !(await page.locator(".file-row", { hasText: "notes.txt" }).isVisible()),
+);
 const cssRow = page.locator(".file-row", { hasText: "styles.css" }).first();
 await cssRow.getByText("Edit", { exact: true }).click();
 check("a text file opens in the editor", await page.locator(".file-editor").isVisible());
 const cssText = await page.locator(".file-editor").inputValue();
 await page.locator(".file-editor").fill(`${cssText}\n.file-room-proof { color: green; }`);
+await page.getByText("Save the file").scrollIntoViewIfNeeded();
 await page.getByText("Save the file").click();
 await page.waitForTimeout(900);
 check(

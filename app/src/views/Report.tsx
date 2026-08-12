@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useStore } from "../store";
-import { FlowSteps, Icon, Page, Sparkle } from "../components/chrome";
+import { FlowSteps, Icon, InstrumentBurst, Page, Sparkle } from "../components/chrome";
 import { bumpGrowth, drawReportCard } from "../engine/reportcard";
 import { motionFor, styleCatalog } from "../data/seed";
 import { buildSrcDoc, transformCss } from "../engine/analyze";
@@ -183,9 +183,7 @@ export function Report() {
       {/* 1. The number, and how it was made */}
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", paddingTop: 10 }}>
         <span className="instrument-label">Vitality</span>
-        <div className="instrument" style={{ fontSize: "clamp(110px, 15vw, 190px)" }}>
-          {project.vitality}
-        </div>
+        <InstrumentBurst score={project.vitality} size={320} fontSize="clamp(64px, 9vw, 96px)" />
         <p
           style={{
             fontStyle: "italic",

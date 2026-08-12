@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { currentState, useStore } from "../store";
-import { Icon, Page, Sparkle } from "../components/chrome";
+import { Icon, InstrumentBurst, Page, Sparkle } from "../components/chrome";
 import { artDirector, issues, pulseLineAfterHeal, pulseLineAtRest } from "../data/seed";
 
 function keyStillBroken(healed: Set<string>): boolean {
@@ -160,17 +160,15 @@ export function Home() {
           )}
         </div>
 
-        <span className="instrument-label" style={{ marginTop: 26 }}>
+        <span className="instrument-label" style={{ marginTop: 14 }}>
           Vitality
         </span>
-        <button
-          className="instrument"
-          style={{ fontSize: "clamp(96px, 13vw, 170px)" }}
+        <InstrumentBurst
+          score={shown}
+          size={288}
           onClick={() => go(project ? "report" : "exam")}
           title={project ? "See the report" : "See the ten lenses"}
-        >
-          {shown}
-        </button>
+        />
         <p
           style={{
             fontSize: 13,
