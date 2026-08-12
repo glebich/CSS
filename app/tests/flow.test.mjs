@@ -817,6 +817,10 @@ check(
   "the ceremony stands alone, no breadcrumb competing",
   (await page.locator(".flow-steps").count()) === 0,
 );
+check(
+  "the ceremony ends with a road, never a wall",
+  await page.getByText("Go to its home").isVisible(),
+);
 const kitDownload = page.waitForEvent("download", { timeout: 8000 }).catch(() => null);
 await page.getByText("Download the store kit").click();
 const kit = await kitDownload;

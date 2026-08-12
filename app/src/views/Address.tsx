@@ -52,7 +52,7 @@ function exportReal(slug: string, project: AnalyzedProject) {
 
 /** Serving: the address holding files, media, and users. The home, literal. */
 export function Address() {
-  const { vitality, ledgerCount, realSlug, project, styleId, stack, stackClaim, claimOnStack } =
+  const { vitality, ledgerCount, realSlug, project, styleId, stack, stackClaim, claimOnStack, go } =
     useStore();
   const [copied, setCopied] = useState(false);
   const [invited, setInvited] = useState(false);
@@ -136,7 +136,22 @@ export function Address() {
           </p>
         </div>
 
+        {/* the ceremony ends with a road, never a wall: the home is
+            where the resident's life continues */}
         <div style={{ display: "flex", gap: 10, marginTop: 40, flexWrap: "wrap" }}>
+          <button className="pill pill-dark" onClick={() => go("home")}>
+            Go to its home
+            <Sparkle size={13} />
+          </button>
+          <a
+            className="pill"
+            href={`#/r/${realSlug}`}
+            target="_blank"
+            rel="noreferrer"
+            style={{ textDecoration: "none" }}
+          >
+            Visit it at its address
+          </a>
           <button className="pill" onClick={() => exportReal(realSlug, project)}>
             Export everything
           </button>
@@ -155,16 +170,6 @@ export function Address() {
           >
             {invited ? "Invite copied" : "Invite a builder"}
           </button>
-          <a
-            className="pill pill-dark"
-            href={`#/r/${realSlug}`}
-            target="_blank"
-            rel="noreferrer"
-            style={{ textDecoration: "none" }}
-          >
-            Visit it at its address
-            <Sparkle size={13} />
-          </a>
         </div>
         {/* Real Mode: the stack, spoken to honestly */}
         {stack.on && stack.up === false && (
