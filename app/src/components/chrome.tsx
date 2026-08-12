@@ -179,7 +179,7 @@ function TitleChip({ name }: { name: string }) {
     );
   }
   return (
-    <span className="tab is-active">
+    <span className="tab is-active tab-renameable">
       <button
         title="Click to rename"
         onClick={() => {
@@ -188,6 +188,10 @@ function TitleChip({ name }: { name: string }) {
         }}
       >
         {name}
+        {/* the pencil shows itself on approach; the door was invisible before */}
+        <span className="tab-rename-hint" aria-hidden>
+          <Icon name="edit" size={11} />
+        </span>
       </button>
     </span>
   );

@@ -60,6 +60,27 @@ export function Home() {
   const healedSomething = healed.size > 1; // the guilt banner starts healed in the seed
   const unread = inbox.filter((e) => !e.read).length;
   const healables = issues.filter((i) => healableOpen.includes(i.id));
+
+  /* the receipt of healed work stays on the surface; leaving the room
+     and coming back never erases what was done */
+  const healReceipt =
+    !project && healedSomething && !healing && healableOpen.length === 0 ? (
+      <div style={{ textAlign: "left", width: "100%" }}>
+        <div style={{ fontSize: 15, fontWeight: 550 }}>What Heal changed</div>
+        <div className="receipt" style={{ maxWidth: "none" }}>
+          {issues
+            .filter((i) => healed.has(i.id))
+            .map((i) => (
+              <div key={i.id} className="receipt-row">
+                <Icon name="check" size={12} />
+                {i.title}
+                <span className="topbar-spacer" />
+                <span className="chip">{i.lens}</span>
+              </div>
+            ))}
+        </div>
+      </div>
+    ) : null;
   /* the address this home serves: the example's, or the real one */
   const homeSlug = project ? realSlug : "skyrecall";
 
@@ -106,13 +127,11 @@ export function Home() {
           style={{
             display: "flex",
             alignItems: "center",
-            gap: 12,
-            padding: "12px 18px",
             flexWrap: "wrap",
           }}
         >
           <span className="pulse-dot" />
-          <span style={{ fontWeight: 550, fontSize: 15 }}>
+          <span style={{ fontWeight: 550, fontSize: 14 }}>
             {project ? project.inventory.name : "SkyRecall"}
           </span>
           {/* the address is a door: the domain changes in the panel it opens */}
@@ -221,11 +240,28 @@ export function Home() {
                 uptime, 30 days
               </span>
               <span>
+                <strong style={{ color: "var(--ink)", fontWeight: 510 }}>9</strong>{" "}
+                sessions today
+              </span>
+              <span>
                 <strong style={{ color: "var(--ink)", fontWeight: 510 }}>61st</strong>{" "}
                 percentile, aviation training
               </span>
             </>
           )}
+        </div>
+
+        {/* the rooms this number lives in, one step away */}
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 8 }}>
+          <button className="pill pill-sm" onClick={() => go("monitor")}>
+            Watch the traffic
+          </button>
+          <button className="pill pill-sm" onClick={() => go("sdk")}>
+            The journeys
+          </button>
+          <button className="pill pill-sm" onClick={() => go("inbox")}>
+            Inbox{unread > 0 ? `, ${unread} new` : ""}
+          </button>
         </div>
 
         </section>
@@ -284,24 +320,6 @@ export function Home() {
             </div>
           ) : !transformAccepted ? (
             <>
-              {/* the work is shown, not implied: what Heal changed, then the doors */}
-              {healed.size > 0 && (
-                <div style={{ textAlign: "left", width: "100%" }}>
-                  <div style={{ fontSize: 15, fontWeight: 550 }}>What Heal changed</div>
-                  <div className="receipt" style={{ maxWidth: "none" }}>
-                    {issues
-                      .filter((i) => healed.has(i.id))
-                      .map((i) => (
-                        <div key={i.id} className="receipt-row">
-                          <Icon name="check" size={12} />
-                          {i.title}
-                          <span className="topbar-spacer" />
-                          <span className="chip">{i.lens}</span>
-                        </div>
-                      ))}
-                  </div>
-                </div>
-              )}
               <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
                 <button className="pill pill-dark" onClick={() => go("transform")}>
                   See what changed
@@ -311,6 +329,7 @@ export function Home() {
                   Promote it
                 </button>
               </div>
+              {healReceipt}
             </>
           ) : keyStillBroken(healed) ? (
             <>
@@ -321,6 +340,7 @@ export function Home() {
                 Open the Fix Prompt
                 <Sparkle size={13} />
               </button>
+              {healReceipt}
             </>
           ) : (
             <>
@@ -330,6 +350,7 @@ export function Home() {
               <button className="pill" onClick={() => go("exam")}>
                 See the report
               </button>
+              {healReceipt}
             </>
           )}
         </section>

@@ -304,14 +304,22 @@ export function Address() {
         </p>
       </div>
 
-      <div className="section-label" style={{ marginTop: 34 }}>
+      <div
+        className="section-label"
+        style={{ marginTop: 34, display: "flex", alignItems: "center", gap: 8 }}
+      >
         Quotas, generous and visible
+        <span className="chip">Example</span>
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14 }}>
         <QuotaCard label="Storage" used={quotas.storage.used} total={quotas.storage.total} frac={0.04} />
         <QuotaCard label="Bandwidth" used={quotas.bandwidth.used} total={quotas.bandwidth.total} frac={0.018} />
         <QuotaCard label="Database rows" used={quotas.dbRows.used} total={quotas.dbRows.total} frac={0.0024} />
       </div>
+      <p style={{ fontSize: 12.5, color: "var(--gray-small)", marginTop: 10 }}>
+        The numbers above belong to the seeded resident. Your own quotas are
+        measured once your app claims its address.
+      </p>
 
       <div style={{ display: "flex", justifyContent: "center", marginTop: 40 }}>
         <button className="pill pill-dark" onClick={exportEverything}>

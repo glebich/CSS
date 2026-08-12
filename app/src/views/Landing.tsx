@@ -126,6 +126,7 @@ export function Landing() {
   const [geminiKey, setGeminiKey] = useState("");
   /* the concept film plays when its host answers; the live render steps in when it cannot */
   const [videoAlive, setVideoAlive] = useState(true);
+  const [videoReady, setVideoReady] = useState(false);
   const presses = useRef<number[]>([]);
 
   useEffect(() => {
@@ -202,24 +203,32 @@ export function Landing() {
         </div>
         <figure className="land-hero-render">
           <div className="phone-frame land-phone">
-            <div className="phone-screen">
-              {videoAlive ? (
+            <div className="phone-screen" style={{ position: "relative" }}>
+              {/* the live render holds the frame; the film fades in only
+                  once it has buffered enough to play without stutter */}
+              {(!videoAlive || !videoReady) && <MiniApp variant="live" />}
+              {videoAlive && (
                 <video
                   className="land-hero-video"
+                  style={
+                    videoReady
+                      ? undefined
+                      : { position: "absolute", inset: 0, opacity: 0, pointerEvents: "none" }
+                  }
                   src="https://dl.dropboxusercontent.com/scl/fi/me20l4e9nwo59wsuexjes/0519-concept.mp4?rlkey=4k7tppfpbjf5cg54qwn941phl"
+                  preload="auto"
                   autoPlay
                   muted
                   loop
                   playsInline
+                  onCanPlayThrough={() => setVideoReady(true)}
                   onError={() => setVideoAlive(false)}
                 />
-              ) : (
-                <MiniApp variant="live" />
               )}
             </div>
           </div>
           <figcaption>
-            {videoAlive
+            {videoAlive && videoReady
               ? "The concept film. The live product is one drop away."
               : "A live render, not a screenshot. It follows every dial inside."}
           </figcaption>
@@ -260,6 +269,10 @@ export function Landing() {
             </span>
           ))}
         </div>
+        <button className="pill pill-dark" style={{ marginTop: 18 }} onClick={() => go("place")}>
+          Drop your app
+          <Sparkle size={13} />
+        </button>
       </section>
 
       <section id="address" className="land-loop">

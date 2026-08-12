@@ -130,7 +130,7 @@ check("reading sweep is on", (await page.locator(".is-reading").count()) > 0);
 
 /* the analysis theater streams its phases, earns its panel, and skips */
 await page.waitForTimeout(2200);
-check("the theater streams the feed", await page.getByText("Reconstructing the application").isVisible());
+check("the theater streams the feed", await page.getByText("Reconstructing the application").first().isVisible());
 check("the understanding panel is live", await page.getByText("What it understands so far").isVisible());
 await page.getByText("Skip", { exact: true }).click();
 await page.waitForTimeout(400);

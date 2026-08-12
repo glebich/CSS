@@ -895,17 +895,18 @@ input {
   color: rgba(245, 244, 255, 0.35);
 }
 
+/* the marks read on the light page; a dark band flips them itself */
 .works-mark {
   font-size: 13px;
   font-weight: 510;
   letter-spacing: 0.02em;
-  color: rgba(245, 244, 255, 0.48);
+  color: var(--gray-tertiary);
   cursor: default;
   transition: color 0.2s ease-out;
 }
 
 .works-mark:hover {
-  color: rgba(245, 244, 255, 0.8);
+  color: var(--ink-body);
 }
 
 /* the six promises, one quiet line above the foot */
@@ -1697,6 +1698,15 @@ input {
   width: 300px;
   z-index: 28;
   padding: 22px;
+  /* the panel never outgrows the screen; it scrolls inside itself */
+  max-height: calc(100dvh - 140px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+}
+
+.floating-panel::-webkit-scrollbar {
+  display: none;
 }
 
 .panel-title {
@@ -2324,12 +2334,13 @@ input {
 
 /* ---------------------------------------------------- analysis theater */
 
+/* the theater stands in the row beside the folder, same height,
+   same corners, same gap */
 .theater {
   display: flex;
-  gap: 20px;
-  max-width: 880px;
-  margin: 24px auto 0;
-  flex-basis: 100%;
+  gap: 24px;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .theater-feed {
@@ -2376,8 +2387,9 @@ input {
 .theater-panel {
   flex: 1;
   min-width: 0;
-  padding: 20px 24px;
-  border-radius: 20px;
+  min-height: 380px;
+  padding: 24px 26px;
+  border-radius: 28px;
   background: var(--card-solid);
   box-shadow: var(--shadow-card);
   position: relative;
@@ -3593,14 +3605,22 @@ input {
 
 /* the theater as a checklist: done, now with its clock, next by number */
 .theater-list {
-  flex: 1;
+  flex: 1.4;
   min-width: 300px;
-  border-radius: 22px;
-  padding: 18px 22px 14px;
-  background: rgba(255, 255, 255, 0.55);
+  min-height: 380px;
+  border-radius: 28px;
+  padding: 24px 26px 18px;
+  background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(22px);
   -webkit-backdrop-filter: blur(22px);
   box-shadow: var(--shadow-float);
+  display: flex;
+  flex-direction: column;
+}
+
+.theater-list .theater-feed-mini {
+  margin-top: auto;
+  padding-top: 12px;
 }
 
 .theater-row {
@@ -3662,62 +3682,92 @@ input {
   color: var(--gray-secondary);
 }
 
-/* the materials rest in one folder until opened */
+/* the folder, per the reference: a crisp frosted front card, real
+   preview sheets standing out past its right edge, a white rim behind */
 .asset-folder {
   position: relative;
   width: 300px;
   min-height: 380px;
-  border-radius: 26px;
-  background:
-    radial-gradient(circle at 78% 34%, rgba(123, 107, 255, 0.18), transparent 55%),
-    radial-gradient(circle at 60% 62%, rgba(232, 176, 106, 0.16), transparent 50%),
-    rgba(255, 255, 255, 0.6);
-  backdrop-filter: blur(26px);
-  -webkit-backdrop-filter: blur(26px);
-  box-shadow: var(--shadow-float);
+  border-radius: 28px;
+  background: none;
+  border: none;
+  padding: 0;
   text-align: left;
-  padding: 22px;
   transition: transform var(--t-fast);
+  overflow: visible;
+  flex: none;
+  cursor: pointer;
 }
 
 .asset-folder:hover {
   transform: translateY(-2px);
 }
 
-.asset-folder-name {
-  font-size: 19px;
-  font-weight: 560;
-  color: var(--ink-strong);
+/* the folder's back, a pale rim standing wider than the front */
+.asset-back {
+  position: absolute;
+  top: 12px;
+  bottom: 12px;
+  left: 16px;
+  right: -60px;
+  border-radius: 26px;
+  background: rgba(255, 255, 255, 0.55);
+  box-shadow: var(--shadow-card);
 }
 
-.asset-folder-peek {
+.asset-folder-name {
   position: absolute;
-  right: -10px;
-  top: 26px;
-  width: 46px;
-  height: 210px;
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.85);
-  box-shadow: var(--shadow-card);
-  z-index: -1;
+  left: 26px;
+  top: 24px;
+  z-index: 3;
+  font-size: 21px;
+  font-weight: 590;
+  letter-spacing: -0.01em;
+  color: var(--ink-strong);
 }
 
 .asset-folder-count {
   position: absolute;
-  left: 22px;
-  bottom: 18px;
-  font-size: 15px;
+  left: 26px;
+  bottom: 22px;
+  z-index: 3;
+  font-size: 17px;
   color: var(--gray-tertiary);
   font-variant-numeric: tabular-nums;
 }
 
-/* the X rides the folder's own edge, the way the reference draws it */
+/* the rename door shows its pencil, quietly, all the time */
+.tab-renameable button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tab-rename-hint {
+  display: inline-flex;
+  color: var(--gray-tertiary);
+  opacity: 0.65;
+}
+
+.tab-renameable:hover .tab-rename-hint {
+  opacity: 1;
+}
+
+/* the seeded folder says so, quietly, in its own corner */
+.asset-folder-chip {
+  position: absolute;
+  right: 22px;
+  bottom: 22px;
+  z-index: 3;
+}
+
+/* the X nests into the open folder's right edge */
 .asset-folder-x {
   position: absolute;
-  right: -14px;
-  top: 22px;
-  width: 40px;
-  height: 40px;
+  right: -20px;
+  top: calc(45% - 22px);
+  width: 44px;
+  height: 44px;
   z-index: 3;
   background: #fff;
   box-shadow: var(--shadow-pill);
@@ -3898,39 +3948,50 @@ input {
   z-index: 1;
 }
 
-/* previews peek out of the folder like sheets in a real one */
+/* the previews: sheets that look like real files, standing out past
+   the folder's right edge, crisp outside, frosted where they pass
+   behind the front */
 .asset-peek {
   position: absolute;
-  border-radius: 12px;
-  box-shadow: var(--shadow-card);
-  z-index: -1;
+  border-radius: 18px;
+  box-shadow: 0 12px 28px rgba(20, 18, 16, 0.16);
+  z-index: 1;
 }
 
 .asset-peek-1 {
-  right: -14px;
-  top: 30px;
-  width: 52px;
-  height: 150px;
-  background: linear-gradient(160deg, #b9a5ff 0%, #8f7bf2 100%);
-  transform: rotate(5deg);
+  right: -48px;
+  top: 16px;
+  width: 118px;
+  height: 152px;
+  background: radial-gradient(130% 130% at 18% 16%, #2f5fe0 0%, #6d95f5 44%, #cfe0ff 74%, #eef4ff 100%);
 }
 
 .asset-peek-2 {
-  right: -8px;
-  top: 196px;
-  width: 44px;
-  height: 110px;
-  background: linear-gradient(160deg, #f2d16b 0%, #e8b93d 100%);
-  transform: rotate(-3deg);
+  right: -56px;
+  top: 152px;
+  width: 112px;
+  height: 140px;
+  background: linear-gradient(170deg, #f2efe9 0%, #e2ded6 100%);
+  overflow: hidden;
+}
+
+.asset-peek-2::after {
+  content: "";
+  position: absolute;
+  left: 20%;
+  top: 15%;
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #f8853f 0%, #ef5f16 75%);
 }
 
 .asset-peek-3 {
-  right: -11px;
-  top: 318px;
-  width: 48px;
-  height: 84px;
-  background: linear-gradient(160deg, #1c222c 0%, #39445a 100%);
-  transform: rotate(4deg);
+  right: -40px;
+  top: 272px;
+  width: 100px;
+  height: 96px;
+  background: linear-gradient(165deg, #b9b6bd 0%, #77747c 100%);
 }
 
 /* the files leave the folder with weight: a small throw, an overshoot,
@@ -3953,7 +4014,8 @@ input {
   animation: fly-in 0.55s cubic-bezier(0.22, 0.9, 0.32, 1.14) both;
 }
 
-/* home on one visible system: a header rail, then cards on a grid */
+/* home on one visible system: a header rail, then cards on a grid;
+   the floor clears the floating ask so no door hides behind it */
 .home-wrap {
   width: 100%;
   max-width: 980px;
@@ -3961,14 +4023,33 @@ input {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  padding-bottom: 84px;
 }
 
+/* the header rides the same grid as the cards below it */
 .home-head {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(330px, 400px) 1fr;
+  gap: 16px;
   align-items: center;
-  justify-content: space-between;
-  gap: 18px;
-  flex-wrap: wrap;
+}
+
+/* the address card wears smaller type so it sits inside the rhythm */
+.home-head .card {
+  padding: 10px 14px;
+  gap: 10px;
+}
+
+.home-head .pill-sm {
+  height: 30px;
+  font-size: 12.5px;
+  padding: 0 12px;
+}
+
+@media (max-width: 1080px) {
+  .home-head {
+    grid-template-columns: 1fr;
+  }
 }
 
 .home-statement {
@@ -4082,59 +4163,34 @@ input {
   }
 }
 
-/* the folder front: frosted glass over the previews sliding behind it */
+/* the folder front: crisp white on the left, frosted toward the edge
+   the sheets pass behind */
 .asset-front {
   position: absolute;
   inset: 0;
-  border-radius: 26px;
-  background: rgba(255, 255, 255, 0.42);
-  backdrop-filter: blur(26px);
-  -webkit-backdrop-filter: blur(26px);
-  z-index: 1;
-}
-
-.asset-folder {
-  overflow: visible;
-  background:
-    radial-gradient(circle at 70% 30%, rgba(123, 107, 255, 0.14), transparent 55%),
-    radial-gradient(circle at 55% 68%, rgba(232, 176, 106, 0.12), transparent 50%),
-    rgba(255, 255, 255, 0.5);
-  backdrop-filter: none;
-}
-
-.asset-folder-name,
-.asset-folder-count {
-  position: relative;
+  border-radius: 28px;
+  background: linear-gradient(115deg, rgba(255, 255, 255, 0.94) 45%, rgba(255, 255, 255, 0.55) 100%);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+  box-shadow: var(--shadow-float);
   z-index: 2;
 }
 
-.asset-folder-count {
-  position: absolute;
+/* the open folder: one clean card, the X nested into its right edge */
+.asset-folder.is-open {
+  cursor: default;
 }
 
-.asset-peek {
-  z-index: 0;
+.asset-folder.is-open:hover {
+  transform: none;
 }
 
-.asset-peek-1 {
-  right: -22px;
-  top: 26px;
-  width: 96px;
-  height: 160px;
-}
-
-.asset-peek-2 {
-  right: -16px;
-  top: 196px;
-  width: 84px;
-  height: 100px;
-}
-
-.asset-peek-3 {
-  right: -19px;
-  top: 306px;
-  width: 90px;
-  height: 62px;
+.asset-folder.is-open .asset-front {
+  background: linear-gradient(115deg, #ffffff 0%, #f5f3ef 100%);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  -webkit-mask: radial-gradient(circle 32px at calc(100% + 2px) 45%, transparent 31px, #000 32px);
+  mask: radial-gradient(circle 32px at calc(100% + 2px) 45%, transparent 31px, #000 32px);
 }
 
 /* the files return to the folder with the same weight, reversed */

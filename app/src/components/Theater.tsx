@@ -12,6 +12,7 @@ import { Icon } from "./chrome";
  */
 
 const PHASES = [
+  { key: "Upload", label: "Uploading the files" },
   { key: "Reassemble", label: "Reassemble the app" },
   { key: "Strategy", label: "Read the strategy" },
   { key: "Design", label: "Judge the design" },

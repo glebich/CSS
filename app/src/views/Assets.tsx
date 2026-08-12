@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useStore } from "../store";
 import { FlowSteps, Sparkle } from "../components/chrome";
 import { Theater } from "../components/Theater";
@@ -131,13 +131,17 @@ function ExampleVisual({ m, understood }: { m: Material; understood: boolean }) 
  * For the example, the seeded cards say Example out loud.
  */
 export function Assets() {
-  const { uploadPhase, go, project, progress, pendingDrop } = useStore();
+  const { uploadPhase, go, project, pendingDrop } = useStore();
   const reading = uploadPhase === "reading";
   const understood = uploadPhase === "understood";
-  const realRun = pendingDrop !== null || progress.length > 0 || project !== null;
-  /* the files rest in a folder between visits; work opens it */
-  const [assetsOpen, setAssetsOpen] = useState(reading || realRun);
+  /* while the examination runs, the files stay inside the closed folder
+     and the checklist stands beside it; understanding opens the folder */
+  const busy = reading || (pendingDrop !== null && project === null);
+  const [assetsOpen, setAssetsOpen] = useState(project !== null && !reading);
   const [closing, setClosing] = useState(false);
+  useEffect(() => {
+    if (!busy && (understood || project !== null)) setAssetsOpen(true);
+  }, [busy, understood, project]);
 
   return (
     <main className="canvas canvas-dotted" style={{ position: "relative" }}>
@@ -153,71 +157,19 @@ export function Assets() {
           flexWrap: "wrap",
         }}
       >
-        {!realRun && (
-          <p
-            className="fade-in"
-            style={{ flexBasis: "100%", textAlign: "center", fontSize: 13, color: "var(--gray-small)" }}
-          >
-            Example resident. Drop your own files on the Place step for a real
-            examination of your bytes.
-          </p>
-        )}
-
-        {/* The inventory: what this project actually is. */}
-        <div
-          className={`card card-solid card-pad${reading ? " is-reading" : ""}`}
-          style={{ width: 300, flex: "none", position: "relative", overflow: "hidden" }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <span style={{ fontSize: 18, fontWeight: 510 }}>
-              {project ? project.inventory.name : (pendingDrop ?? "SkyRecall")}
-            </span>
-            {!project && !pendingDrop && <span className="chip">Example</span>}
-          </div>
-          {!project && pendingDrop ? (
-            <div style={{ marginTop: 10, fontSize: 13, color: "var(--gray-secondary)", lineHeight: 1.8 }}>
-              Your drop, being read
-              <br />
-              The inventory arrives as the bytes do
-            </div>
-          ) : project ? (
-            <div style={{ marginTop: 10, fontSize: 13, color: "var(--gray-secondary)", lineHeight: 1.8 }}>
-              {project.inventory.framework}
-              <br />
-              {project.inventory.fileCount} files, {Math.round(project.inventory.totalBytes / 1024)} KB
-              <br />
-              {project.inventory.screens.length} screen{project.inventory.screens.length === 1 ? "" : "s"},{" "}
-              {project.inventory.componentCount} component{project.inventory.componentCount === 1 ? "" : "s"}
-              {project.inventory.truncated && (
-                <>
-                  <br />
-                  <span style={{ color: "var(--warn)" }}>Read the first 40 files, honestly capped</span>
-                </>
-              )}
-            </div>
-          ) : (
-            <div style={{ marginTop: 10, fontSize: 13, color: "var(--gray-secondary)", lineHeight: 1.8 }}>
-              The seeded resident
-              <br />
-              {materials.length} materials, 3 screens
-              <br />A recall instrument for pilots
-            </div>
-          )}
-          {understood && (
-            <p style={{ marginTop: 12, fontSize: 12.5, fontStyle: "italic", color: "var(--gray-small)", lineHeight: 1.6 }}>
-              {project ? project.understanding : "A confidence instrument for pilots who fly rarely."}
-            </p>
-          )}
-        </div>
+        {/* one surface, no waiting room: the checklist does the work in
+            the open, and the folder holds the files beside it */}
+        {busy && <Theater />}
 
         {/* the folder never leaves the table; open, it stands emptied
             beside its files, and the X rides its own edge */}
         {!assetsOpen ? (
           <button
-            className="asset-folder"
+            className={`asset-folder${busy ? " is-reading" : ""}`}
             onClick={() => setAssetsOpen(true)}
             aria-label="Open the materials"
           >
+            <span className="asset-back" aria-hidden />
             <span className="asset-peek asset-peek-1" aria-hidden />
             <span className="asset-peek asset-peek-2" aria-hidden />
             <span className="asset-peek asset-peek-3" aria-hidden />
@@ -226,6 +178,9 @@ export function Assets() {
             <span className="asset-folder-count">
               {project ? project.files.size : pendingDrop ? "reading" : materials.length}
             </span>
+            {!project && !pendingDrop && (
+              <span className="chip asset-folder-chip">Example</span>
+            )}
           </button>
         ) : (
           <div className={`asset-folder is-open${closing ? " is-refilling" : ""}`}>
@@ -234,6 +189,9 @@ export function Assets() {
             <span className="asset-folder-count">
               {project ? project.files.size : pendingDrop ? "reading" : materials.length}
             </span>
+            {!project && !pendingDrop && (
+              <span className="chip asset-folder-chip">Example</span>
+            )}
             {!reading && (
               <button
                 className="circle asset-folder-x"
@@ -298,8 +256,6 @@ export function Assets() {
                 ))}
         </div>
         )}
-
-        {reading && <Theater />}
       </div>
 
       <div

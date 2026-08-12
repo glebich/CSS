@@ -663,7 +663,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     /* the room knows a real app is being read from the first instant,
        so the example never speaks over someone's own drop */
     setPendingDrop(name);
-    setProgress([{ phase: "Reassemble", text: `Reading ${name}` }]);
+    setProgress([{ phase: "Upload", text: `Reading ${name}` }]);
     setView("assets");
     setUploadPhase("reading");
     try {
