@@ -284,6 +284,35 @@ check(
   await page.getByText("The student aviator").first().isVisible(),
 );
 
+/* the proposals go deeper: five themes, each opening narrower readings */
+check(
+  "the evidence proposes five themes",
+  (await page.getByText("Not quite it?", { exact: false }).count()) === 5,
+);
+await page.getByText("Not quite it?", { exact: false }).first().click();
+check(
+  "a theme opens its narrower readings",
+  await page.getByText("The instrument returner").isVisible(),
+);
+await page
+  .locator("div", { hasText: /^The instrument returner/ })
+  .last()
+  .getByText("Adopt", { exact: true })
+  .click();
+await page.waitForTimeout(400);
+check(
+  "a narrower reading adopts with its evidence",
+  await page.getByText("The instrument returner").first().isVisible() &&
+    (await page.locator(".notice", { hasText: "Adopting The instrument returner" }).isVisible()),
+);
+/* hand the primary back to the student so the adaptation checks hold */
+await page
+  .locator(".card", { hasText: "The student aviator" })
+  .first()
+  .getByText("Make primary")
+  .click();
+await page.waitForTimeout(300);
+
 /* the primary archetype changes how the resident renders */
 await page.goto("http://localhost:5197/#/r/skyrecall");
 await page.waitForTimeout(500);

@@ -417,22 +417,173 @@ export function composeArchetype(text: string): Archetype {
   };
 }
 
-/** Discovery: ranked audiences the evidence points to, each with its why. */
-export const discoveryProposals: Array<{ archetype: Archetype; rationale: string }> = [
+/** A narrower reading of a theme: the base archetype, re-cut. */
+function vary(base: Archetype, patch: Partial<Archetype>): Archetype {
+  return { ...base, ...patch };
+}
+
+export interface Proposal {
+  archetype: Archetype;
+  rationale: string;
+  /** narrower readings of the same evidence, for when the first cut does not fit */
+  deeper: Array<{ archetype: Archetype; rationale: string }>;
+}
+
+/** Discovery: ranked audiences the evidence points to, each with its
+ * why, and each theme opening into narrower readings of the same
+ * evidence so disliking the first cut leads somewhere. */
+export const discoveryProposals: Proposal[] = [
   {
     archetype: seedArchetype,
     rationale:
       "Your completion rate among returning users fits the professional refresher pattern, not the student pattern.",
+    deeper: [
+      {
+        archetype: vary(seedArchetype, {
+          id: "a-ifr-returner",
+          name: "The instrument returner",
+          portrait: "Current on paper, rusty on approach calls",
+          motivation: "Sound current before the next IPC",
+          perYear: 54_000,
+        }),
+        rationale:
+          "Tower and approach calls are replayed in sequence, the narrower shape of instrument currency work.",
+      },
+      {
+        archetype: vary(seedArchetype, {
+          id: "a-club-renter",
+          name: "The club renter",
+          portrait: "Flies someone else's plane, books by the hour",
+          motivation: "Arrive at the rental already warmed up",
+          perYear: 88_000,
+        }),
+        rationale:
+          "Practice bunches in the two days before weekend sessions, the pattern of a pilot warming up for a booking.",
+      },
+    ],
   },
   {
     archetype: ARCHETYPE_LIBRARY[1].make,
     rationale:
       "Session starts cluster on Saturday mornings, the shape of leisure practice, not commute drilling.",
+    deeper: [
+      {
+        archetype: vary(ARCHETYPE_LIBRARY[1].make, {
+          id: "a-flyin",
+          name: "The fly-in socializer",
+          portrait: "Flies for the destination and the company",
+          motivation: "Sound at home on a busy towered frequency",
+          perYear: 33_000,
+        }),
+        rationale:
+          "Towered-field calls get rehearsed ahead of weekends, flying for the destination rather than the drill.",
+      },
+      {
+        archetype: vary(ARCHETYPE_LIBRARY[1].make, {
+          id: "a-restarter",
+          name: "The long-lapsed restarter",
+          portrait: "Coming back after years away from the left seat",
+          motivation: "Rebuild the radio voice before the flight review",
+          perYear: 45_000,
+        }),
+        rationale:
+          "First sessions start at the basics and repeat them, the shape of returning after years, not months.",
+      },
+    ],
   },
   {
     archetype: ARCHETYPE_LIBRARY[0].make,
     rationale:
       "Short streaks with long gaps read as exam-driven bursts, a smaller fit than the refresher pattern.",
+    deeper: [
+      {
+        archetype: vary(ARCHETYPE_LIBRARY[0].make, {
+          id: "a-ground-school",
+          name: "The ground school starter",
+          portrait: "Learning the words before the wheels move",
+          motivation: "Walk into lesson one already speaking the language",
+          perYear: 61_000,
+        }),
+        rationale:
+          "Phraseology is drilled before any live-pattern work appears, the order ground school teaches it.",
+      },
+      {
+        archetype: vary(ARCHETYPE_LIBRARY[0].make, {
+          id: "a-retaker",
+          name: "The checkride re-taker",
+          portrait: "One busted ride, one targeted comeback",
+          motivation: "Close the two gaps the examiner heard",
+          perYear: 14_000,
+        }),
+        rationale:
+          "Drills concentrate on the two call types most missed on first attempts, the pattern of a targeted retry.",
+      },
+    ],
+  },
+  {
+    archetype: ARCHETYPE_LIBRARY[2].make,
+    rationale:
+      "A second voice pattern shares the machine on lesson days, someone drilling alongside a student, not alone.",
+    deeper: [
+      {
+        archetype: vary(ARCHETYPE_LIBRARY[2].make, {
+          id: "a-cfii",
+          name: "The instrument instructor",
+          portrait: "Teaches the clearances, not just the pattern",
+          motivation: "Students who copy a clearance clean the first time",
+          perYear: 9_000,
+        }),
+        rationale:
+          "The shared sessions lean on clearances and approach calls, the material of instrument teaching.",
+      },
+      {
+        archetype: vary(ARCHETYPE_LIBRARY[2].make, {
+          id: "a-syllabus-lead",
+          name: "The flight school lead",
+          portrait: "Runs a syllabus and assigns the homework",
+          motivation: "A drill worth putting in every student's week",
+          perYear: 4_000,
+        }),
+        rationale:
+          "Drills are assigned in batches at the start of each week, the cadence of a syllabus, not a whim.",
+      },
+    ],
+  },
+  {
+    archetype: {
+      id: "a-controller",
+      name: "The controller hopeful",
+      portrait: "Practicing the other side of the frequency",
+      context: "Preparing for the ATC entrance path",
+      motivation: "Hear a call once and speak it back clean",
+      fear: "Washing out on phraseology",
+      ageRange: [18, 31],
+      traits: ["Listens to live ATC", "Practices daily"],
+      perYear: 27_000,
+      category: "exam preparation tools",
+      caption: null,
+    },
+    rationale:
+      "Long listen-first sessions with late mic use read as someone learning the rhythm before speaking.",
+    deeper: [
+      {
+        archetype: {
+          id: "a-sim-tower",
+          name: "The sim tower player",
+          portrait: "Controls virtual traffic on network evenings",
+          context: "Flies and controls on online sim networks",
+          motivation: "Sound indistinguishable from the real frequency",
+          fear: "Being the weak voice on a busy net",
+          ageRange: [16, 40],
+          traits: ["Active on sim networks", "Plays scheduled events"],
+          perYear: 52_000,
+          category: "simulation tools",
+          caption: null,
+        },
+        rationale:
+          "Session times line up with online network events in the evenings, practice that reads like virtual controlling.",
+      },
+    ],
   },
 ];
 

@@ -153,6 +153,7 @@ function ArchetypeCard({ archetype, primary }: { archetype: StoredArchetype; pri
 export function Audience() {
   const { audience, describeAudience, adoptArchetype } = useStore();
   const [text, setText] = useState("");
+  const [openTheme, setOpenTheme] = useState<string | null>(null);
   const primary = audience.archetypes.find((a) => a.id === audience.primaryId);
 
   return (
@@ -215,23 +216,73 @@ export function Audience() {
         Or let the evidence propose them
       </div>
       <div style={{ display: "grid", gap: 12 }}>
-        {discoveryProposals.map(({ archetype, rationale }, i) => {
+        {discoveryProposals.map(({ archetype, rationale, deeper }, i) => {
           const adopted = audience.archetypes.some((a) => a.id === archetype.id);
+          const open = openTheme === archetype.id;
           return (
-            <div key={archetype.id} className="card card-pad" style={{ display: "flex", gap: 14, alignItems: "center" }}>
-              <span style={{ fontSize: 13, color: "var(--gray-small)", fontVariantNumeric: "tabular-nums" }}>
-                {i + 1}
-              </span>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <span style={{ fontWeight: 550 }}>{archetype.name}</span>
-                <p style={{ fontSize: 13, color: "var(--gray-meta)", marginTop: 4 }}>{rationale}</p>
+            <div key={archetype.id} className="card card-pad">
+              <div style={{ display: "flex", gap: 14, alignItems: "center" }}>
+                <span style={{ fontSize: 13, color: "var(--gray-small)", fontVariantNumeric: "tabular-nums" }}>
+                  {i + 1}
+                </span>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <span style={{ fontWeight: 550 }}>{archetype.name}</span>
+                  <p style={{ fontSize: 13, color: "var(--gray-meta)", marginTop: 4 }}>{rationale}</p>
+                </div>
+                {adopted ? (
+                  <span className="chip">Adopted</span>
+                ) : (
+                  <button className="pill pill-sm" onClick={() => adoptArchetype(archetype, rationale)}>
+                    Adopt
+                  </button>
+                )}
               </div>
-              {adopted ? (
-                <span className="chip">Adopted</span>
-              ) : (
-                <button className="pill pill-sm" onClick={() => adoptArchetype(archetype, rationale)}>
-                  Adopt
+              {deeper.length > 0 && (
+                <button
+                  className="file-act"
+                  style={{ marginTop: 10 }}
+                  onClick={() => setOpenTheme(open ? null : archetype.id)}
+                >
+                  {open
+                    ? "Close the readings"
+                    : `Not quite it? ${deeper.length} narrower reading${deeper.length === 1 ? "" : "s"} of the same evidence`}
                 </button>
+              )}
+              {open && (
+                <div style={{ marginTop: 10, display: "grid", gap: 10 }}>
+                  {deeper.map((d) => {
+                    const dAdopted = audience.archetypes.some((a) => a.id === d.archetype.id);
+                    return (
+                      <div
+                        key={d.archetype.id}
+                        style={{
+                          display: "flex",
+                          gap: 12,
+                          alignItems: "center",
+                          paddingLeft: 26,
+                          borderLeft: "2px solid var(--hairline)",
+                        }}
+                      >
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <span style={{ fontWeight: 550, fontSize: 13.5 }}>{d.archetype.name}</span>
+                          <p style={{ fontSize: 12.5, color: "var(--gray-meta)", marginTop: 3 }}>
+                            {d.rationale}
+                          </p>
+                        </div>
+                        {dAdopted ? (
+                          <span className="chip">Adopted</span>
+                        ) : (
+                          <button
+                            className="pill pill-sm"
+                            onClick={() => adoptArchetype(d.archetype, d.rationale)}
+                          >
+                            Adopt
+                          </button>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
               )}
             </div>
           );

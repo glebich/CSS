@@ -822,6 +822,21 @@ the residency registry so the address serves the new bytes, and
 the ledger records each one. The engine gained a quick mode so
 silent re-examinations skip the theater pacing.
 
+### Increment AA. The proposals go deeper. DELIVERED
+
+The evidence now proposes five audience themes instead of three,
+and disliking a proposal leads somewhere: every theme opens into
+narrower readings of the same evidence, each with its own why and
+its own Adopt, indented under the theme it re-cuts. The instrument
+returner and the club renter under the refresher, the fly-in
+socializer and the long-lapsed restarter under the weekend pilot,
+the ground school starter and the checkride re-taker under the
+student, the instrument instructor and the flight school lead
+under the instructor, and the sim tower player under the
+controller hopeful. All deterministic, all seeded from the same
+demo evidence, adopted readings joining the bench like any other
+archetype.
+
 ### Increment I. What remains, in spec order
 
 The Redis-backed limiter and the Postgres and MinIO drivers when
