@@ -1618,19 +1618,22 @@ input {
   padding: 20px 60px 26px;
 }
 
+/* the categories speak in the same quiet voice as the topbar links:
+   13px, gray, regular weight, ink only on attention */
 .cat {
-  font-size: 15px;
-  font-weight: 510;
-  letter-spacing: -0.01em;
-  color: var(--ink);
-  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0;
+  color: var(--gray-secondary);
+  padding: 7px 12px;
   border-radius: 14px;
-  transition: background var(--t-fast), transform var(--t-fast);
+  transition: background var(--t-fast), color var(--t-fast), transform var(--t-fast);
   position: relative;
 }
 
 .cat:hover {
   background: rgba(255, 255, 255, 0.7);
+  color: var(--ink);
   transform: translateY(-1px);
 }
 
@@ -4189,6 +4192,14 @@ input {
   text-align: center;
 }
 
+/* the dial rides 30px higher in its cell, and the label rides with
+   it so the ring never climbs into its own name */
+.home-cell-score .burst,
+.home-cell-score .instrument-label {
+  position: relative;
+  top: -30px;
+}
+
 .home-cell-act {
   display: flex;
   flex-direction: column;
@@ -5012,6 +5023,39 @@ input {
   gap: 18px;
   flex-wrap: wrap;
   padding: 0 24px 26px;
+}
+
+/* the explore CTA's glass seat: the pill lands on a surface that
+   belongs to the page instead of hanging in the open air */
+.explore-continue {
+  position: fixed;
+  bottom: 22px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 26;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 12px 10px 20px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.55);
+  -webkit-backdrop-filter: blur(24px) saturate(170%);
+  backdrop-filter: blur(24px) saturate(170%);
+  box-shadow:
+    0 12px 40px rgba(12, 12, 14, 0.14),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.6);
+}
+
+.explore-continue-note {
+  font-size: 13px;
+  color: var(--gray-secondary);
+  white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  .explore-continue-note {
+    display: none;
+  }
 }
 
 .sort-pill {

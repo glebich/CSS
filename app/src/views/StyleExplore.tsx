@@ -211,15 +211,11 @@ export function StyleExplore() {
         )}
       </div>
 
-      <div
-        style={{
-          position: "fixed",
-          bottom: 22,
-          left: "50%",
-          transform: "translateX(-50%)",
-          zIndex: 26,
-        }}
-      >
+      {/* the one action sits on a glass seat, not in the open air */}
+      <div className="explore-continue">
+        <span className="explore-continue-note">
+          {chosen ? `${chosen.name} is yours to wear` : "Pick a style to wear"}
+        </span>
         <button className="pill pill-dark" onClick={() => go("launch")}>
           Continue with {chosen ? chosen.name : "your style"}
           <Sparkle size={13} />
