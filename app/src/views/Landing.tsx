@@ -112,6 +112,29 @@ function validKey(kind: "anthropic" | "gemini", value: string): boolean | null {
  * MiniApp, live, not a screenshot. The demo's hidden controls stay:
  * R three times resets, period opens the settings sheet.
  */
+/** One cell of the credential wall: the mark if it loads, the name if not. */
+function LogoCell({ name, src }: { name: string; src: string }) {
+  const [broken, setBroken] = useState(false);
+  return (
+    <span
+      className="land-mark"
+      title="Named for the design career behind the taste system, nothing implied beyond it"
+    >
+      {broken ? (
+        name
+      ) : (
+        <img
+          className="land-mark-img"
+          src={src}
+          alt={name}
+          loading="lazy"
+          onError={() => setBroken(true)}
+        />
+      )}
+    </span>
+  );
+}
+
 export function Landing() {
   const { go, resetDemo } = useStore();
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -227,21 +250,21 @@ export function Landing() {
         </figure>
       </header>
 
-      {/* the credential band runs the full width of the hero above it */}
+      {/* the credential band runs the full width of the hero above it;
+          each cell tries the real mark and falls back to the name */}
       <section className="land-marks">
         <p className="land-marks-lede">
           <strong>Design led by 25 years building products</strong> for the
           companies whose work set the bar.
         </p>
         <div className="land-marks-row">
-          {["Apple", "Google", "OpenAI", "Samsung"].map((n) => (
-            <span
-              key={n}
-              className="land-mark"
-              title="Named for the design career behind the taste system, nothing implied beyond it"
-            >
-              {n}
-            </span>
+          {[
+            { n: "Apple", src: "https://1000logos.net/wp-content/uploads/2016/10/Apple-Logo.png" },
+            { n: "Google", src: "https://cdn.mos.cms.futurecdn.net/rjqJEKv6P9Yjy9d3KMGvp8.jpg" },
+            { n: "OpenAI", src: "https://1000logos.net/wp-content/uploads/2024/07/OpenAI-Logo-2022.png" },
+            { n: "Samsung", src: "https://logos-world.net/wp-content/uploads/2020/06/Samsung-Logo.png" },
+          ].map((m) => (
+            <LogoCell key={m.n} name={m.n} src={m.src} />
           ))}
         </div>
       </section>

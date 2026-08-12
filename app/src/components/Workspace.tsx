@@ -1,5 +1,7 @@
+import { useState } from "react";
 import { readLedger, useStore } from "../store";
 import { MiniApp, previewDevice } from "./MiniApp";
+import { Icon } from "./chrome";
 
 /**
  * The workspace rail: the app you are shaping, always visible and
@@ -41,27 +43,63 @@ export function WorkspacePreview() {
   /* ledgerCount keys the reread so new decisions appear as they land */
   void ledgerCount;
   const history = readLedger().slice(-5).reverse();
+  const [folded, setFolded] = useState(false);
+  /* the bench wears the chosen device: a phone, a watch, or a wide
+     desktop frame, and the render composes for it */
+  const shown = previewDevice(device);
+  const frame =
+    device === "watch"
+      ? "watch-frame workspace-watch"
+      : shown === "mobile"
+        ? "phone-frame workspace-phone"
+        : "desktop-frame workspace-desktop";
+
+  if (folded) {
+    return (
+      <button
+        className="workspace-fold-tab"
+        onClick={() => setFolded(false)}
+        aria-label="Show the live preview"
+        title="Show the live preview"
+      >
+        <Icon name="eye" size={15} />
+        <span>Preview</span>
+      </button>
+    );
+  }
 
   return (
     <aside className="workspace-preview" aria-label="Your app, live">
       <div className="workspace-preview-caption">
         <span className="pulse-dot" />
         Your app, live. It follows every dial.
+        <span className="topbar-spacer" />
+        {/* the clear way out, and the clear way back */}
+        <button
+          className="circle workspace-fold"
+          onClick={() => setFolded(true)}
+          aria-label="Hide the live preview"
+          title="Hide the live preview"
+        >
+          <svg width="10" height="10" viewBox="0 0 8 8" fill="none" aria-hidden>
+            <path d="M1 1l6 6M7 1L1 7" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+          </svg>
+        </button>
       </div>
-      <div className="phone-frame workspace-phone">
-        <div className="phone-screen">
+      <div className={frame}>
+        <div className={device === "watch" ? "watch-screen" : shown === "mobile" ? "phone-screen" : "desktop-screen"}>
           <MiniApp
             variant="live"
             styleId={styleId}
             mood={mood}
             personaId={personaId}
-            device={previewDevice(device)}
+            device={device === "watch" ? "watch" : shown}
             comfort={comfort}
           />
         </div>
       </div>
       <a
-        className="pill pill-sm"
+        className="pill"
         href="#/r/skyrecall"
         target="_blank"
         rel="noreferrer"

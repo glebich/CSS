@@ -56,6 +56,9 @@ page.on("console", (m) => {
     m.type() === "error" &&
     !text.includes("status of 404") &&
     !text.includes("dropboxusercontent") &&
+    !text.includes("1000logos") &&
+    !text.includes("logos-world") &&
+    !text.includes("futurecdn") &&
     !text.includes("ERR_TUNNEL_CONNECTION_FAILED")
   ) {
     errors.push(`console: ${text}`);
@@ -87,8 +90,18 @@ check(
   await page.getByText("You built it with AI. We make it ready for the world.").isVisible(),
 );
 check(
-  "the expertise band names its houses",
-  await page.locator(".land-marks").getByText("OpenAI").isVisible(),
+  "the expertise band names its houses, as mark or as name",
+  await page.evaluate(() => {
+    const cells = [...document.querySelectorAll(".land-marks .land-mark")];
+    return (
+      cells.length === 4 &&
+      cells.some(
+        (c) =>
+          (c.textContent || "").includes("OpenAI") ||
+          c.querySelector('img[alt="OpenAI"]') !== null,
+      )
+    );
+  }),
 );
 check(
   "the expertise band runs the hero's full width",

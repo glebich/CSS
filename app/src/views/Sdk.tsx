@@ -129,7 +129,7 @@ export function Sdk() {
               )}
               {s.stuck && <p className="journey-stuck">{s.stuck}</p>}
               {s.act && s.actLabel && (
-                <button className="pill pill-sm" style={{ marginTop: 8 }} onClick={s.act}>
+                <button className="pill pill-sm" onClick={s.act}>
                   {s.actLabel}
                 </button>
               )}

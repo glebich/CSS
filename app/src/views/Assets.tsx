@@ -273,10 +273,11 @@ export function Assets() {
           style={{
             display: "grid",
             gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))",
+            gridAutoRows: "1fr",
             gap: 18,
             flex: 1,
             minWidth: 280,
-            alignContent: "flex-start",
+            height: 460,
           }}
         >
           {project
@@ -350,15 +351,24 @@ export function Assets() {
         }}
       >
         {!reading && (
-          <button
-            className="pill pill-dark fade-in"
-            onClick={() => go(project ? "report" : "style")}
-          >
-            {project
-              ? `Vitality ${project.vitality}. See the report`
-              : "Everything understood. Explore a style"}
-            <Sparkle size={13} />
-          </button>
+          <>
+            {/* the file system's door stands beside the next step: add,
+                replace, or edit any file of the drop */}
+            {project && (
+              <button className="pill fade-in" onClick={() => togglePanel("resident")}>
+                Add or edit the files
+              </button>
+            )}
+            <button
+              className="pill pill-dark fade-in"
+              onClick={() => go(project ? "report" : "style")}
+            >
+              {project
+                ? `Vitality ${project.vitality}. See the report`
+                : "Everything understood. Explore a style"}
+              <Sparkle size={13} />
+            </button>
+          </>
         )}
       </div>
     </main>
