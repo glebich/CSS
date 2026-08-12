@@ -11,7 +11,7 @@ function moodWords(energy: number, style: number, tone: number): string {
 
 /** Ready to launch: everything chosen, reviewed in one card, one action. */
 export function Launch() {
-  const { goHomeFromLaunch, mood, personaId, styleId, device, project } = useStore();
+  const { goHomeFromLaunch, mood, personaId, styleId, device, project, togglePanel } = useStore();
   const persona = personas.find((p) => p.id === personaId) ?? personas[0];
   const style = styleCatalog.find((s) => s.id === styleId) ?? styleCatalog[0];
 
@@ -40,6 +40,14 @@ export function Launch() {
           <span className="review-value">
             {persona.name}, {persona.age}, {persona.role.toLowerCase()}. {persona.line}.
           </span>
+          {/* the audience is changeable right here, not a fait accompli */}
+          <button
+            className="pill pill-sm"
+            style={{ flex: "none" }}
+            onClick={() => togglePanel("personas")}
+          >
+            Change the personas
+          </button>
         </div>
         <div className="review-row">
           <span className="review-label">Success</span>

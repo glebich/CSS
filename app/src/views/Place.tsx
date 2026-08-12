@@ -61,6 +61,7 @@ export function Place() {
   const { beginUpload, analyzeFiles, analyzeRepo } = useStore();
   const [dragging, setDragging] = useState(false);
   const [repoText, setRepoText] = useState("");
+  const [repoOpen, setRepoOpen] = useState(false);
   const [repoError, setRepoError] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const folderRef = useRef<HTMLInputElement>(null);
@@ -166,24 +167,27 @@ export function Place() {
           zIndex: 2,
         }}
       >
-        {/* the repo door: name the repository, the examination follows */}
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div className="ask-pill" style={{ minWidth: 300, boxShadow: "var(--shadow-pill)" }}>
-            <input
-              placeholder="github.com/you/your-app"
-              value={repoText}
-              onChange={(e) => setRepoText(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && void connectRepo()}
-            />
+        {/* the repo door: a quiet icon until asked, then the line */}
+        {repoOpen && (
+          <div className="fade-in" style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <div className="ask-pill" style={{ minWidth: 300, boxShadow: "var(--shadow-pill)" }}>
+              <input
+                placeholder="github.com/you/your-app"
+                value={repoText}
+                onChange={(e) => setRepoText(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && void connectRepo()}
+                autoFocus
+              />
+            </div>
+            <button
+              className="pill"
+              onClick={() => void connectRepo()}
+              title="GitHub serves the repository zip; Osyle reads it in your browser, nothing in between"
+            >
+              {reaching ? "Reaching the repository" : "Connect the repo"}
+            </button>
           </div>
-          <button
-            className="pill"
-            onClick={() => void connectRepo()}
-            title="GitHub serves the repository zip; Osyle reads it in your browser, nothing in between"
-          >
-            {reaching ? "Reaching the repository" : "Connect the repo"}
-          </button>
-        </div>
+        )}
         {repoError && (
           <span className="fade-in" style={{ fontSize: 12.5, color: "var(--gray-meta)" }}>
             {repoError}
@@ -223,6 +227,15 @@ export function Place() {
           aria-label="Just files"
         >
           <Icon name="clip" size={19} />
+        </button>
+        <button
+          className="circle"
+          style={{ width: 48, height: 48 }}
+          onClick={() => setRepoOpen((v) => !v)}
+          title="Connect a GitHub repository"
+          aria-label="Connect a GitHub repository"
+        >
+          <Icon name="repo" size={19} />
         </button>
         <button className="pill" onClick={() => beginUpload()}>
           See the example

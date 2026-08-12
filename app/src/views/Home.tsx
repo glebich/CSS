@@ -95,17 +95,10 @@ export function Home() {
         </div>
       )}
 
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          gap: 8,
-          paddingTop: returned ? 0 : 18,
-        }}
-      >
-        {/* the arrival: this is the home, and the app is reachable */}
-        <h1 className="statement statement-page" style={{ textAlign: "center" }}>
+      <div className="home-wrap" style={{ paddingTop: returned ? 0 : 12 }}>
+        {/* the header rail: the claim on the left, the address on the right */}
+        <div className="home-head">
+        <h1 className="statement home-statement">
           It lives <span className="quiet">here now.</span>
         </h1>
         <div
@@ -115,9 +108,7 @@ export function Home() {
             alignItems: "center",
             gap: 12,
             padding: "12px 18px",
-            marginTop: 10,
             flexWrap: "wrap",
-            justifyContent: "center",
           }}
         >
           <span className="pulse-dot" />
@@ -159,9 +150,10 @@ export function Home() {
             </button>
           )}
         </div>
+        </div>
 
         <div className="home-grid">
-        <div className="home-cell home-cell-score">
+        <section className="card card-pad home-cell home-cell-score">
         <span className="instrument-label">
           Vitality
         </span>
@@ -183,8 +175,10 @@ export function Home() {
           <span>{pulseLine}</span>
         </div>
 
-        </div>
+        </section>
         <div className="home-cell home-cell-act">
+        {/* the watch: the numbers and the note, one card */}
+        <section className="card card-pad home-watch">
         {/* the unprompted note: the director spoke, the door is quiet */}
         {!project && inbox.some((e) => !e.read && e.director) && (
           <button
@@ -234,7 +228,8 @@ export function Home() {
           )}
         </div>
 
-        <div style={{ marginTop: 14, display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
+        </section>
+        <section className="card card-pad home-act">
           {project ? (
             realUndecided.length > 0 ? (
               <button className="pill pill-dark" onClick={() => go("report")}>
@@ -255,10 +250,7 @@ export function Home() {
             )
           ) : healableOpen.length > 0 || healing ? (
             /* what Heal will touch is shown first, never behind a link */
-            <div
-              className="card card-solid card-pad"
-              style={{ maxWidth: 480, textAlign: "left", marginBottom: 70 }}
-            >
+            <div style={{ textAlign: "left" }}>
               <div style={{ fontSize: 16.5, fontWeight: 550 }}>
                 {numberWord(healableOpen.length)} issue
                 {healableOpen.length === 1 ? "" : "s"} can heal{" "}
@@ -315,7 +307,7 @@ export function Home() {
               </button>
             </>
           )}
-        </div>
+        </section>
         </div>
         </div>
       </div>

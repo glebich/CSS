@@ -41,7 +41,8 @@ export type IconName =
   | "exam"
   | "list"
   | "eye"
-  | "gauge";
+  | "gauge"
+  | "repo";
 
 /** 24px stroke icons drawn to match the Osyle_N icon sheet: 1.6 stroke, round caps. */
 export function Icon({ name, size = 22 }: { name: IconName; size?: number }) {
@@ -70,6 +71,9 @@ export function Icon({ name, size = 22 }: { name: IconName; size?: number }) {
     exam: <path d="M11 17.5a6.5 6.5 0 1 0 0-13 6.5 6.5 0 0 0 0 13Zm4.6-1.9L20 20" />,
     list: <path d="M5 6.5h14M5 12h14M5 17.5h8" />,
     gauge: <path d="M12 21a9 9 0 1 1 0-18 9 9 0 0 1 0 18Zm0-9 3.6-3.6" />,
+    repo: (
+      <path d="M6 3v12m0 0a3 3 0 1 0 0 6 3 3 0 0 0 0-6Zm12-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm0 0a9 9 0 0 1-9 9" />
+    ),
     eye: (
       <path d="M2.8 12C5.3 7.7 8.6 5.5 12 5.5S18.7 7.7 21.2 12c-2.5 4.3-5.8 6.5-9.2 6.5S5.3 16.3 2.8 12Zm9.2 2.6a2.6 2.6 0 1 0 0-5.2 2.6 2.6 0 0 0 0 5.2Z" />
     ),

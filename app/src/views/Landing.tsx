@@ -51,22 +51,22 @@ const LOOP: Array<{ n: string; title: string; body: string }> = [
   {
     n: "1",
     title: "Import",
-    body: "Drop a zip, a folder, or connect the repository. Output from any builder walks in the same door and becomes a resident with its own address.",
+    body: "Drop a zip, a folder, or a repo. It becomes a resident with its own address.",
   },
   {
     n: "2",
     title: "Examine",
-    body: "Eight real lenses read the app and roll into one Vitality score. Every finding carries its file and line, a cited standard, and what fixing it is worth, labeled an estimate.",
+    body: "Eight lenses, one Vitality score, evidence on every finding.",
   },
   {
     n: "3",
     title: "Heal and transform",
-    body: "One tap repairs what can be repaired, with a receipt for each fix. Plain-language edits arrive as diffs and nothing applies without you. Styles, mood, and personas reshape the same app live.",
+    body: "One-tap repairs with receipts. Nothing applies without you.",
   },
   {
     n: "4",
     title: "Run, watch, promote",
-    body: "The app serves at its address, versioned in the Vault. The Monitor watches uptime and stalls, the people inside show where they drop off, and Promote carries it to the audience it was built to win.",
+    body: "Served at its address, watched, and carried to the audience it was built to win.",
   },
 ];
 

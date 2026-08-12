@@ -2860,10 +2860,12 @@ input {
   overflow: hidden;
   background: var(--brand-black);
   color: var(--brand-white);
-  padding: 96px 28px 100px;
+  /* a compact band: the image is a backdrop, not a destination */
+  padding: 60px 28px 64px;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   text-align: center;
 }
 
@@ -2883,12 +2885,12 @@ input {
 
 .land-close .brand-enter {
   position: relative;
-  margin-top: 34px;
+  margin-top: 26px;
 }
 
 .land-close .brand-foot {
   position: static;
-  margin-top: 44px;
+  margin-top: 30px;
 }
 
 .land-close-link {
@@ -3830,4 +3832,204 @@ input {
 
 .file-card.fly-in {
   animation: fly-in 0.55s cubic-bezier(0.22, 0.9, 0.32, 1.14) both;
+}
+
+/* home on one visible system: a header rail, then cards on a grid */
+.home-wrap {
+  width: 100%;
+  max-width: 980px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.home-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+
+.home-statement {
+  font-size: clamp(28px, 3.2vw, 38px);
+  margin: 0;
+}
+
+.home-grid {
+  display: grid;
+  grid-template-columns: minmax(330px, 400px) 1fr;
+  gap: 16px;
+  align-items: stretch;
+  margin-top: 0;
+  justify-content: stretch;
+}
+
+.home-cell {
+  gap: 8px;
+}
+
+.home-cell-score {
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+}
+
+.home-cell-act {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-top: 0;
+  align-items: stretch;
+}
+
+.home-watch {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.home-act {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+@media (max-width: 1080px) {
+  .home-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* the loop reads as steps: an arrow walks the eye card to card */
+.land-loop-step {
+  position: relative;
+}
+
+.land-loop-step:not(:last-child)::after {
+  content: "\2192";
+  position: absolute;
+  right: -15px;
+  top: 44%;
+  font-size: 17px;
+  color: var(--gray-tertiary);
+  z-index: 1;
+}
+
+/* the lenses as a quiet grid, not a pile of pills */
+.land-lens-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0 26px;
+  max-width: 860px;
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+}
+
+.land-lens {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 11px 2px;
+  border-top: 1px solid var(--hairline);
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  font-size: 12.5px;
+  color: var(--gray-secondary);
+}
+
+.land-lens::before {
+  content: "";
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #7b6bff;
+  flex: none;
+}
+
+@media (max-width: 900px) {
+  .land-lens-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .land-loop-step:not(:last-child)::after {
+    content: "";
+  }
+}
+
+/* the folder front: frosted glass over the previews sliding behind it */
+.asset-front {
+  position: absolute;
+  inset: 0;
+  border-radius: 26px;
+  background: rgba(255, 255, 255, 0.42);
+  backdrop-filter: blur(26px);
+  -webkit-backdrop-filter: blur(26px);
+  z-index: 1;
+}
+
+.asset-folder {
+  overflow: visible;
+  background:
+    radial-gradient(circle at 70% 30%, rgba(123, 107, 255, 0.14), transparent 55%),
+    radial-gradient(circle at 55% 68%, rgba(232, 176, 106, 0.12), transparent 50%),
+    rgba(255, 255, 255, 0.5);
+  backdrop-filter: none;
+}
+
+.asset-folder-name,
+.asset-folder-count {
+  position: relative;
+  z-index: 2;
+}
+
+.asset-folder-count {
+  position: absolute;
+}
+
+.asset-peek {
+  z-index: 0;
+}
+
+.asset-peek-1 {
+  right: -22px;
+  top: 24px;
+  width: 96px;
+  height: 190px;
+}
+
+.asset-peek-2 {
+  right: -16px;
+  top: 228px;
+  width: 84px;
+  height: 120px;
+}
+
+.asset-peek-3 {
+  right: -19px;
+  top: 362px;
+  width: 90px;
+  height: 90px;
+}
+
+/* the files return to the folder with the same weight, reversed */
+@keyframes fly-out {
+  from {
+    transform: none;
+    opacity: 1;
+  }
+  to {
+    transform: translate(-300px, 70px) rotate(-7deg) scale(0.55);
+    opacity: 0;
+  }
+}
+
+.file-card.fly-out {
+  animation: fly-out 0.4s cubic-bezier(0.5, 0, 0.75, 0.4) both;
 }

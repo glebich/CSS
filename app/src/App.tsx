@@ -119,7 +119,7 @@ function Shell() {
           {inResident && <AskFloat />}
           <NoticeStack />
           {inResident && panel === "mood" && <MoodPanel />}
-          {inResident && panel === "personas" && <PersonasPanel />}
+          {panel === "personas" && <PersonasPanel />}
           {panel === "resident" && <ResidentPanel />}
           {panel === "run" && <RunOverlay />}
         </div>

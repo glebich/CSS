@@ -592,7 +592,7 @@ await page.locator('input[type="file"]:not([webkitdirectory])').setInputFiles([
 check(
   "the real theater speaks measurements",
   await page
-    .getByText("Measuring your files, line by line.")
+    .getByText("Measured so far")
     .waitFor({ timeout: 15000 })
     .then(() => true)
     .catch(() => false),
@@ -836,6 +836,7 @@ await page.route("**/api.github.com/repos/osyle/sunrise/zipball", (route) =>
 await page.route("**/api.github.com/repos/osyle/nowhere/zipball", (route) =>
   route.fulfill({ status: 404, contentType: "application/json", body: "{}" }),
 );
+await page.getByLabel("Connect a GitHub repository").click();
 await page.getByPlaceholder("github.com/you/your-app").fill("github.com/osyle/nowhere");
 await page.getByText("Connect the repo").click();
 await page.waitForTimeout(800);
@@ -851,7 +852,7 @@ await page.getByText("Connect the repo").click();
 check(
   "the connected repo is measured for real",
   await page
-    .getByText("Measuring your files, line by line.")
+    .getByText("Measured so far")
     .waitFor({ timeout: 15000 })
     .then(() => true)
     .catch(() => false),

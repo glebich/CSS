@@ -135,8 +135,9 @@ export function Assets() {
   const reading = uploadPhase === "reading";
   const understood = uploadPhase === "understood";
   const realRun = pendingDrop !== null || progress.length > 0 || project !== null;
-  /* the materials rest in a folder between visits; work opens it */
+  /* the files rest in a folder between visits; work opens it */
   const [assetsOpen, setAssetsOpen] = useState(reading || realRun);
+  const [closing, setClosing] = useState(false);
 
   return (
     <main className="canvas canvas-dotted" style={{ position: "relative" }}>
@@ -215,10 +216,11 @@ export function Assets() {
             onClick={() => setAssetsOpen(true)}
             aria-label="Open the materials"
           >
-            <span className="asset-folder-name">Materials</span>
             <span className="asset-peek asset-peek-1" aria-hidden />
             <span className="asset-peek asset-peek-2" aria-hidden />
             <span className="asset-peek asset-peek-3" aria-hidden />
+            <span className="asset-front" aria-hidden />
+            <span className="asset-folder-name">App files</span>
             <span className="asset-folder-count">
               {project ? project.files.size : pendingDrop ? "reading" : materials.length}
             </span>
@@ -228,7 +230,13 @@ export function Assets() {
           {!reading && (
             <button
               className="circle asset-folder-x"
-              onClick={() => setAssetsOpen(false)}
+              onClick={() => {
+                setClosing(true);
+                window.setTimeout(() => {
+                  setAssetsOpen(false);
+                  setClosing(false);
+                }, 420);
+              }}
               aria-label="Close the materials"
             >
               <svg width="11" height="11" viewBox="0 0 8 8" fill="none" aria-hidden>
@@ -247,7 +255,7 @@ export function Assets() {
             ? [...project.files.values()].slice(0, 12).map((f, i) => (
                 <div
                   key={f.path}
-                  className={`file-card${reading ? " is-reading" : ""}${understood ? " is-understood" : ""}${!reading ? " fly-in" : ""}`}
+                  className={`file-card${reading ? " is-reading" : ""}${understood ? " is-understood" : ""}${!reading ? (closing ? " fly-out" : " fly-in") : ""}`}
                   style={{ animationDelay: `${i * (reading ? 90 : 45)}ms` }}
                 >
                   <div className="file-name">{f.path.split("/").pop()}</div>
@@ -269,7 +277,7 @@ export function Assets() {
               : materials.map((m, i) => (
                   <div
                     key={m.id}
-                    className={`file-card${reading ? " is-reading" : ""}${understood ? " is-understood" : ""}${!reading ? " fly-in" : ""}`}
+                    className={`file-card${reading ? " is-reading" : ""}${understood ? " is-understood" : ""}${!reading ? (closing ? " fly-out" : " fly-in") : ""}`}
                     style={{ animationDelay: `${i * (reading ? 90 : 45)}ms` }}
                   >
                     <ExampleVisual m={m} understood={understood} />
@@ -293,16 +301,7 @@ export function Assets() {
           gap: 12,
         }}
       >
-        {reading ? (
-          <div className="pulse-line glass" style={{ padding: "14px 24px", borderRadius: 30 }}>
-            <span className="pulse-dot" />
-            <span>
-              {realRun
-                ? "Measuring your files, line by line."
-                : "Reading the example. Under a minute."}
-            </span>
-          </div>
-        ) : (
+        {!reading && (
           <button
             className="pill pill-dark fade-in"
             onClick={() => go(project ? "report" : "style")}
