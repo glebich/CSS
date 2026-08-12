@@ -3585,3 +3585,134 @@ input {
     text-align: center;
   }
 }
+
+/* the theater as a checklist: done, now with its clock, next by number */
+.theater-list {
+  flex: 1;
+  min-width: 300px;
+  border-radius: 22px;
+  padding: 18px 22px 14px;
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+  box-shadow: var(--shadow-float);
+}
+
+.theater-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 11px 2px;
+  border-bottom: 1px solid var(--hairline);
+  font-size: 15px;
+  color: var(--gray-tertiary);
+}
+
+.theater-row.is-done {
+  color: var(--gray-secondary);
+}
+
+.theater-row.is-now {
+  color: var(--ink-strong);
+  font-weight: 560;
+}
+
+.theater-row-mark {
+  width: 22px;
+  display: inline-flex;
+  justify-content: center;
+  flex: none;
+}
+
+.theater-num {
+  font-size: 12.5px;
+  font-variant-numeric: tabular-nums;
+}
+
+.theater-row-time {
+  margin-left: auto;
+  font-size: 13px;
+  color: var(--gray-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.theater-row-sub {
+  padding: 6px 2px 10px 38px;
+  font-size: 12.5px;
+  color: var(--gray-secondary);
+  border-bottom: 1px solid var(--hairline);
+}
+
+.theater-feed-mini {
+  margin-top: 12px;
+  max-height: 84px;
+  overflow-y: auto;
+  font-size: 11px;
+  line-height: 1.7;
+  color: var(--gray-tertiary);
+}
+
+.theater-feed-mini .is-strategy {
+  font-style: italic;
+  color: var(--gray-secondary);
+}
+
+/* the materials rest in one folder until opened */
+.asset-folder {
+  position: relative;
+  width: 300px;
+  min-height: 380px;
+  border-radius: 26px;
+  background:
+    radial-gradient(circle at 78% 34%, rgba(123, 107, 255, 0.18), transparent 55%),
+    radial-gradient(circle at 60% 62%, rgba(232, 176, 106, 0.16), transparent 50%),
+    rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(26px);
+  -webkit-backdrop-filter: blur(26px);
+  box-shadow: var(--shadow-float);
+  text-align: left;
+  padding: 22px;
+  transition: transform var(--t-fast);
+}
+
+.asset-folder:hover {
+  transform: translateY(-2px);
+}
+
+.asset-folder-name {
+  font-size: 19px;
+  font-weight: 560;
+  color: var(--ink-strong);
+}
+
+.asset-folder-peek {
+  position: absolute;
+  right: -10px;
+  top: 26px;
+  width: 46px;
+  height: 210px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: var(--shadow-card);
+  z-index: -1;
+}
+
+.asset-folder-count {
+  position: absolute;
+  left: 22px;
+  bottom: 18px;
+  font-size: 15px;
+  color: var(--gray-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+.asset-folder-x {
+  position: absolute;
+  left: -14px;
+  top: 42%;
+  width: 40px;
+  height: 40px;
+  z-index: 3;
+  background: #fff;
+  box-shadow: var(--shadow-pill);
+}

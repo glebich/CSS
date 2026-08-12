@@ -127,7 +127,11 @@ check("the theater streams the feed", await page.getByText("Reconstructing the a
 check("the understanding panel is live", await page.getByText("What it understands so far").isVisible());
 await page.getByText("Skip", { exact: true }).click();
 await page.waitForTimeout(400);
+/* the materials rest in one folder; a click opens the grid */
+check("the materials rest in a folder", await page.locator(".asset-folder").isVisible());
+await page.getByLabel("Open the materials").click();
 check("materials become understood", (await page.locator(".file-card.is-understood").count()) >= 6);
+await page.getByLabel("Close the materials").click();
 await page.getByText("Explore a style", { exact: false }).last().click();
 check("style flow step is current", await page.locator(".flow-step.is-current", { hasText: "Style" }).isVisible());
 

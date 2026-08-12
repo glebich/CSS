@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useStore } from "../store";
 import { FlowSteps, Sparkle } from "../components/chrome";
 import { Theater } from "../components/Theater";
@@ -134,6 +135,8 @@ export function Assets() {
   const reading = uploadPhase === "reading";
   const understood = uploadPhase === "understood";
   const realRun = pendingDrop !== null || progress.length > 0 || project !== null;
+  /* the materials rest inside one folder; a click opens the grid */
+  const [assetsOpen, setAssetsOpen] = useState(false);
 
   return (
     <main className="canvas canvas-dotted" style={{ position: "relative" }}>
@@ -206,13 +209,34 @@ export function Assets() {
           )}
         </div>
 
+        {!assetsOpen ? (
+          <button
+            className="asset-folder"
+            onClick={() => setAssetsOpen(true)}
+            aria-label="Open the materials"
+          >
+            <span className="asset-folder-name">Materials</span>
+            <span className="asset-folder-peek" aria-hidden />
+            <span className="asset-folder-count">
+              {project ? project.files.size : pendingDrop ? "reading" : materials.length}
+            </span>
+          </button>
+        ) : (
+        <div style={{ position: "relative", flex: 1, minWidth: 280 }}>
+          <button
+            className="circle asset-folder-x"
+            onClick={() => setAssetsOpen(false)}
+            aria-label="Close the materials"
+          >
+            <svg width="11" height="11" viewBox="0 0 8 8" fill="none" aria-hidden>
+              <path d="M1 1l6 6M7 1L1 7" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+            </svg>
+          </button>
         <div
           style={{
             display: "grid",
             gridTemplateColumns: "repeat(auto-fill, minmax(148px, 1fr))",
             gap: 12,
-            flex: 1,
-            minWidth: 280,
           }}
         >
           {project
@@ -248,6 +272,8 @@ export function Assets() {
                   </div>
                 ))}
         </div>
+        </div>
+        )}
 
         {reading && <Theater />}
       </div>

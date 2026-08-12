@@ -1,42 +1,86 @@
 import { useEffect, useRef, useState } from "react";
 import { useStore } from "../store";
 import { theaterScript } from "../data/seed";
+import { Icon } from "./chrome";
 
 /**
  * The Analysis Theater. Two modes, one honesty rule. For a real dropped
- * project the feed renders the engine's actual progress lines as they
- * happen; nothing is scripted. For the example resident the seeded
- * script streams, and the surface says Example.
+ * project the checklist tracks the engine's actual phases and the raw
+ * lines beneath are its real measurements; nothing is scripted. For the
+ * example resident the seeded script streams, and the surface says
+ * Example.
  */
 
-function Feed({
-  lines,
-  strategyPhase,
-}: {
-  lines: Array<{ phase: string; text: string }>;
-  strategyPhase: string;
-}) {
+const PHASES = [
+  { key: "Reassemble", label: "Reassemble the app" },
+  { key: "Strategy", label: "Read the strategy" },
+  { key: "Design", label: "Judge the design" },
+  { key: "UX", label: "Walk the journeys" },
+  { key: "Errors", label: "Check for breakage" },
+];
+
+/** The phases as a checklist: done, now with its clock, next by number. */
+function PhaseList({ lines }: { lines: Array<{ phase: string; text: string }> }) {
+  const currentKey = lines.length ? lines[lines.length - 1].phase : PHASES[0].key;
+  const currentIdx = Math.max(
+    0,
+    PHASES.findIndex((p) => p.key === currentKey),
+  );
+  const lastText = lines.length ? lines[lines.length - 1].text : "Opening the drop";
+
+  /* the active phase wears a real clock */
+  const [, setTick] = useState(0);
+  const startRef = useRef(Date.now());
+  useEffect(() => {
+    startRef.current = Date.now();
+  }, [currentIdx]);
+  useEffect(() => {
+    const t = window.setInterval(() => setTick((x) => x + 1), 1000);
+    return () => window.clearInterval(t);
+  }, []);
+  const secs = Math.max(0, Math.floor((Date.now() - startRef.current) / 1000));
+  const clock = `${String(Math.floor(secs / 60)).padStart(2, "0")}:${String(secs % 60).padStart(2, "0")}`;
+
   const feedRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     feedRef.current?.scrollTo({ top: feedRef.current.scrollHeight });
   }, [lines.length]);
-  let lastPhase = "";
+
   return (
-    <div className="theater-feed" ref={feedRef}>
-      {lines.map((line, i) => {
-        const phaseHeader = line.phase !== lastPhase;
-        lastPhase = line.phase;
+    <div className="theater-list">
+      {PHASES.map((p, i) => {
+        const state = i < currentIdx ? "done" : i === currentIdx ? "now" : "next";
         return (
-          <div key={i} className="fade-in">
-            {phaseHeader && <div className="theater-phase">{line.phase}</div>}
-            <div className={`theater-line${line.phase === strategyPhase ? " is-strategy" : ""}`}>
-              {line.text}
+          <div key={p.key}>
+            <div className={`theater-row is-${state}`}>
+              <span className="theater-row-mark">
+                {state === "done" ? (
+                  <Icon name="check" size={13} />
+                ) : state === "now" ? (
+                  <span className="pulse-dot" />
+                ) : (
+                  <span className="theater-num">{String(i + 1).padStart(2, "0")}</span>
+                )}
+              </span>
+              <span className="theater-row-label">{p.label}</span>
+              {state === "now" && <span className="theater-row-time mono">{clock}</span>}
             </div>
+            {state === "now" && (
+              <div className="theater-row-sub fade-in" key={lastText}>
+                {lastText}
+              </div>
+            )}
           </div>
         );
       })}
-      <div className="theater-line" style={{ opacity: 0.4 }}>
-        <span className="pulse-dot" style={{ width: 6, height: 6 }} />
+      {/* the raw lines: every measurement as it lands, never a script
+          for a real drop */}
+      <div className="theater-feed-mini" ref={feedRef}>
+        {lines.map((l, i) => (
+          <div key={i} className={l.phase === "Strategy" ? "is-strategy" : undefined}>
+            {l.text}
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -51,7 +95,7 @@ function RealTheater() {
   const phase = progress.length ? progress[progress.length - 1].phase : "Reassemble";
   return (
     <div className="theater fade-in">
-      <Feed lines={progress} strategyPhase="Strategy" />
+      <PhaseList lines={progress} />
       <div className="theater-panel">
         <div className="section-label">Measured so far</div>
         {project ? (
@@ -72,7 +116,7 @@ function RealTheater() {
           </span>
         </div>
         <p style={{ fontSize: 11, color: "var(--gray-tertiary)", marginTop: 12, lineHeight: 1.5 }}>
-          Every line above is a measurement of your files, not a script.
+          Every line in the list is a measurement of your files, not a script.
         </p>
         <button className="topbar-quiet theater-skip" onClick={finishReading}>
           Skip
@@ -104,7 +148,7 @@ function ExampleTheater() {
 
   return (
     <div className="theater fade-in">
-      <Feed lines={shown} strategyPhase="Strategy" />
+      <PhaseList lines={shown} />
       <div className="theater-panel">
         <div className="section-label">What it understands so far</div>
         <div style={{ display: "flex", gap: 8 }}>
