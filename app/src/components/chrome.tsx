@@ -94,9 +94,25 @@ export function GitHubMark({ size = 18 }: { size?: number }) {
   );
 }
 
+/**
+ * The avatar mark, rebuilt from the Figma file's own values (node
+ * 2106:4): a black tile, a screen-blended glow running white into
+ * #7b6bff into black, flipped and blurred, the name beside it. The
+ * asset bytes cannot leave Figma from this machine, so the recipe is
+ * carried in code and scales with the size it is asked for.
+ */
+export function BrandMark({ size = 26 }: { size?: number }) {
+  return (
+    <span className="brandmark" style={{ width: size, height: size }} aria-hidden>
+      <span className="brandmark-glow" style={{ filter: `blur(${size * 0.23}px)` }} />
+    </span>
+  );
+}
+
 export function Wordmark() {
   return (
     <span className="wordmark">
+      <BrandMark />
       Osyle<sup>&reg;</sup>
     </span>
   );

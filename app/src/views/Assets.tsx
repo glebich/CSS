@@ -271,8 +271,8 @@ export function Assets() {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(148px, 1fr))",
-            gap: 12,
+            gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))",
+            gap: 18,
             flex: 1,
             minWidth: 280,
             alignContent: "flex-start",

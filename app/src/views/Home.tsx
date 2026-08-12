@@ -97,26 +97,33 @@ export function Home() {
 
   return (
     <Page>
+      {/* the return note arrives the way work notices do: quiet glass
+          in the corner, never a block pushing the room down */}
       {returned && !project && (
-        <div className="card card-solid since-card fade-in">
-          <div className="since-label">Since you left</div>
-          <p style={{ fontSize: 15, lineHeight: 1.6, marginTop: 10, color: "var(--ink-body)" }}>
-            SkyRecall stayed up and served its pilots. Nine sessions today,
-            four stalled at the weather briefing, the broken key is still the
-            likely cause. Vitality held at {vitality}.
-          </p>
-          <div style={{ display: "flex", gap: 12, marginTop: 16, alignItems: "center" }}>
-            <button className="pill pill-sm" onClick={() => { dismissReturn(); go("inbox"); }}>
-              Catch up in the Inbox{unread > 0 ? `, ${unread} new` : ""}
-            </button>
-            <button className="topbar-quiet" onClick={dismissReturn} style={{ padding: 0 }}>
-              Skip
-            </button>
+        <div className="notice-stack notice-stack-since">
+          <div className="notice">
+            <div className="notice-head">
+              <span className="pulse-dot" />
+              <span className="notice-title">Since you left</span>
+            </div>
+            <p className="notice-detail">
+              SkyRecall stayed up and served its pilots. Nine sessions today,
+              four stalled at the weather briefing, the broken key is still
+              the likely cause. Vitality held at {vitality}.
+            </p>
+            <div style={{ display: "flex", gap: 12, marginTop: 10, alignItems: "center" }}>
+              <button className="pill pill-sm" onClick={() => { dismissReturn(); go("inbox"); }}>
+                Catch up in the Inbox{unread > 0 ? `, ${unread} new` : ""}
+              </button>
+              <button className="topbar-quiet" onClick={dismissReturn} style={{ padding: 0 }}>
+                Skip
+              </button>
+            </div>
           </div>
         </div>
       )}
 
-      <div className="home-wrap" style={{ paddingTop: returned ? 0 : 12 }}>
+      <div className="home-wrap" style={{ paddingTop: 12 }}>
         {/* the header rail: the claim on the left, the address on the right */}
         <div className="home-head">
         <h1 className="statement home-statement">

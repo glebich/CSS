@@ -579,9 +579,20 @@ await page.addInitScript(() => {
 });
 await page.reload();
 await page.waitForTimeout(600);
-check("since-you-left card appears", await page.locator(".since-card").isVisible());
+check(
+  "since-you-left arrives as corner glass",
+  await page.locator(".notice-stack-since .notice").isVisible(),
+);
+check(
+  "the return note wears the blur",
+  (
+    await page
+      .locator(".notice-stack-since .notice")
+      .evaluate((el) => getComputedStyle(el).backdropFilter)
+  ).includes("blur"),
+);
 await page.getByText("Skip").click();
-check("since-you-left dismisses", (await page.locator(".since-card").count()) === 0);
+check("since-you-left dismisses", (await page.locator(".notice-stack-since").count()) === 0);
 
 /* the living address: a real app at #/r/skyrecall, wearing the identity */
 await page.goto("http://localhost:5197/#/r/skyrecall");

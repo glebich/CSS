@@ -153,8 +153,34 @@ input {
   color: var(--ink);
   text-shadow: 0 0.42px 0 rgba(255, 255, 255, 0.55);
   display: inline-flex;
-  align-items: baseline;
+  align-items: center;
+  gap: 9px;
   line-height: 1;
+}
+
+/* the avatar mark, from the Figma file's own numbers: a black tile,
+   the glow at 18% in from the left, 30% down, screen-blended, its
+   gradient running white into the brand violet into black */
+.brandmark {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+  border-radius: 24%;
+  background: #000;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.brandmark-glow {
+  position: absolute;
+  left: 18%;
+  top: 30%;
+  width: 42%;
+  height: 41%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #ffffff 0%, #7b6bff 51%, #000000 100%);
+  mix-blend-mode: screen;
+  transform: scaleY(-1);
 }
 
 .wordmark sup {
@@ -4517,4 +4543,145 @@ input {
 
 .theater-list {
   background: rgba(255, 255, 255, 0.88);
+}
+
+/* the notices are glass again: milk pulled back until the blur shows */
+.notice {
+  background: rgba(255, 255, 255, 0.62);
+}
+
+/* the return note stacks in the same corner and answers the hand */
+.notice-stack-since {
+  pointer-events: none;
+}
+
+.notice-stack-since .notice {
+  pointer-events: auto;
+}
+
+/* ================================================== the folder, exact
+   The reference's proportions, taken as law: a taller folder with
+   wide corners, the sheets peeking are the same files that fly out,
+   and the third one hangs a little past the bottom lip. */
+
+.asset-folder {
+  width: 320px;
+  height: 460px;
+  min-height: 460px;
+  border-radius: 40px;
+}
+
+.asset-front {
+  border-radius: 40px;
+}
+
+.asset-back {
+  top: 14px;
+  bottom: 14px;
+  left: 18px;
+  right: -58px;
+  border-radius: 36px;
+}
+
+.asset-folder-name {
+  left: 40px;
+  top: 34px;
+  font-size: 25px;
+}
+
+.asset-folder-count {
+  left: 40px;
+  bottom: 32px;
+  font-size: 22px;
+}
+
+.asset-folder-chip {
+  right: 36px;
+  bottom: 34px;
+}
+
+/* the sheets wear the exact skins of the files in the grid: the
+   moodboard's violet, the cockpit shots, the walkthrough's dark */
+.asset-goo {
+  filter: none;
+}
+
+.asset-peek {
+  border-radius: 24px;
+}
+
+.asset-peek-1 {
+  right: -44px;
+  top: 34px;
+  width: 100px;
+  height: 148px;
+  background: linear-gradient(140deg, #b9a5ff 0%, #8f7bf2 100%);
+}
+
+.asset-peek-2 {
+  right: -50px;
+  top: 206px;
+  width: 100px;
+  height: 148px;
+  background: linear-gradient(140deg, #cfd9e6 0%, #8fa5bd 55%, #e8b06a 100%);
+}
+
+.asset-peek-2::after {
+  content: none;
+}
+
+.asset-peek-3 {
+  right: -40px;
+  top: 378px;
+  width: 96px;
+  height: 120px;
+  background: linear-gradient(140deg, #1c222c 0%, #39445a 100%);
+}
+
+/* the reading and done cards match the folder's stature */
+.theater-list,
+.theater-panel {
+  min-height: 460px;
+  border-radius: 40px;
+}
+
+.theater-list {
+  padding: 38px 42px 26px;
+}
+
+/* the flight, restored to the approved arc: a throw from the folder,
+   an overshoot, a settle. No shapeshifting on the way. */
+@keyframes fly-in {
+  from {
+    transform: translate(-320px, 80px) rotate(-7deg) scale(0.55);
+    opacity: 0;
+  }
+  55% {
+    opacity: 1;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+.file-card.fly-in {
+  animation: fly-in 0.55s cubic-bezier(0.22, 0.9, 0.32, 1.14) both;
+  border-radius: 16px;
+}
+
+@keyframes fly-out {
+  from {
+    transform: none;
+    opacity: 1;
+  }
+  to {
+    transform: translate(-320px, 80px) rotate(-7deg) scale(0.55);
+    opacity: 0;
+  }
+}
+
+.file-card.fly-out {
+  animation: fly-out 0.4s cubic-bezier(0.5, 0, 0.75, 0.4) both;
+  border-radius: 16px;
 }
