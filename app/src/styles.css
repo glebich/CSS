@@ -27,9 +27,10 @@
 
   /* Hairlines and shadow: the design is nearly flat, paper on paper */
   --hairline: rgba(20, 18, 16, 0.07);
-  --shadow-card: 0 1px 2px rgba(20, 18, 16, 0.02), 0 10px 30px rgba(20, 18, 16, 0.05);
-  --shadow-pill: 0 1px 2px rgba(20, 18, 16, 0.03), 0 4px 14px rgba(20, 18, 16, 0.05);
-  --shadow-float: 0 2px 6px rgba(20, 18, 16, 0.04), 0 18px 48px rgba(20, 18, 16, 0.08);
+  /* depth turned up toward the desktop look: crisp near edge, deep soft falloff */
+  --shadow-card: 0 1px 2px rgba(20, 18, 16, 0.04), 0 12px 34px rgba(20, 18, 16, 0.08);
+  --shadow-pill: 0 1px 2px rgba(20, 18, 16, 0.05), 0 6px 18px rgba(20, 18, 16, 0.08);
+  --shadow-float: 0 2px 8px rgba(20, 18, 16, 0.07), 0 24px 64px rgba(20, 18, 16, 0.16);
 
   /* Brand surfaces: near-black with the violet-white glow */
   --brand-black: #0a0a0c;
@@ -3210,5 +3211,147 @@ input {
   .land-stats-row,
   .land-loop-row {
     grid-template-columns: 1fr;
+  }
+}
+
+/* ------------------- the sidebar: the rooms in one floating rail */
+
+.sidebar {
+  flex: none;
+  width: 208px;
+  margin: 6px 0 14px 14px;
+  padding: 12px 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow-y: auto;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(26px);
+  -webkit-backdrop-filter: blur(26px);
+  box-shadow: var(--shadow-float);
+}
+
+.side-row {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 8px 11px;
+  border-radius: 12px;
+  font-size: 13px;
+  color: var(--ink-body);
+  text-align: left;
+  flex: none;
+  transition: background var(--t-fast), box-shadow var(--t-fast);
+}
+
+.side-row:hover {
+  background: rgba(255, 255, 255, 0.75);
+}
+
+.side-row.is-active {
+  background: #fff;
+  box-shadow: var(--shadow-pill);
+  color: var(--ink-strong);
+  font-weight: 560;
+}
+
+.side-row-icon {
+  position: relative;
+  display: inline-flex;
+  width: 20px;
+  justify-content: center;
+  color: inherit;
+  flex: none;
+}
+
+.side-row-sheet {
+  color: var(--gray-secondary);
+}
+
+.side-row-sheet.is-active {
+  background: var(--ink-strong);
+  color: var(--paper);
+  box-shadow: var(--shadow-pill);
+}
+
+.side-label {
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gray-tertiary);
+  padding: 8px 11px 3px;
+}
+
+.side-divide {
+  height: 1px;
+  background: var(--hairline);
+  margin: 8px 8px 4px;
+  flex: none;
+}
+
+/* the ask, floating over the work like a spotlight */
+.ask-float {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 16px;
+  display: flex;
+  justify-content: center;
+  padding: 0 16px;
+  pointer-events: none;
+  z-index: 20;
+}
+
+.ask-float .ask-pill {
+  pointer-events: auto;
+  width: min(560px, 100%);
+  height: 52px;
+  background: rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 0.5px solid var(--hairline);
+  box-shadow: var(--shadow-float);
+}
+
+.workspace + .ask-float {
+  right: 330px;
+}
+
+@media (max-width: 1360px) {
+  .workspace + .ask-float {
+    right: 0;
+  }
+}
+
+/* on phones the rail lies down along the bottom and scrolls */
+@media (max-width: 700px) {
+  .sidebar {
+    position: fixed;
+    left: 8px;
+    right: 8px;
+    bottom: 8px;
+    top: auto;
+    width: auto;
+    margin: 0;
+    padding: 8px;
+    flex-direction: row;
+    overflow-x: auto;
+    overflow-y: hidden;
+    gap: 4px;
+    z-index: 25;
+  }
+  .side-row {
+    flex-direction: column;
+    gap: 3px;
+    padding: 6px 9px;
+    font-size: 10px;
+  }
+  .side-label,
+  .side-divide {
+    display: none;
+  }
+  .ask-float {
+    bottom: 96px;
   }
 }

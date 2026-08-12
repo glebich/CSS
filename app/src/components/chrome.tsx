@@ -307,7 +307,43 @@ function AskInput() {
   );
 }
 
-export function BottomBar() {
+/** One row in the sidebar: an icon, its name, and honest state. */
+function SideRow({
+  icon,
+  label,
+  active,
+  sheet,
+  badge,
+  onClick,
+}: {
+  icon: IconName;
+  label: string;
+  active: boolean;
+  sheet?: boolean;
+  badge?: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      className={`side-row${active ? " is-active" : ""}${sheet ? " side-row-sheet" : ""}`}
+      onClick={onClick}
+      aria-label={label}
+    >
+      <span className="side-row-icon">
+        <Icon name={icon} size={17} />
+        {badge && <span className="badge" />}
+      </span>
+      <span className="side-row-label">{label}</span>
+    </button>
+  );
+}
+
+/**
+ * The sidebar: every room and every dial in one floating glass rail,
+ * macOS style. Rooms navigate; Run, Mood, and People open sheets over
+ * the work and wear a quiet tint to say so.
+ */
+export function SideBar() {
   const { view, go, inbox, panel, togglePanel, project } = useStore();
   const unread = inbox.filter((e) => !e.read).length;
   /* A real project lives on one Report; navigation would only dilute it. */
@@ -315,78 +351,67 @@ export function BottomBar() {
   const active = (v: View) =>
     v === view ||
     (v === "transform" && view === "reveal") ||
-    (v === "findings" && view === "issues")
-      ? " is-active"
-      : "";
+    (v === "findings" && view === "issues");
   return (
-    <nav className="bottombar">
-      <div className="bar-shell">
-        {/* run opens a sheet over the room, so it wears the dial look */}
-        <button
-          className={`nav-stack nav-stack-sheet${panel === "run" ? " is-active" : ""}`}
-          onClick={() => togglePanel("run")}
-          aria-label="Run"
-        >
-          <span className="nav-stack-icon">
-            <Icon name="play" size={19} />
-          </span>
-          <span className="nav-stack-label">Run</span>
-        </button>
-        <span className="bar-divide" aria-hidden />
-        {NAV.map((item) => (
-          <button
-            key={item.view}
-            className={`nav-stack${active(item.view)}`}
-            onClick={() => go(item.view)}
-            aria-label={item.label}
-          >
-            <span className="nav-stack-icon">
-              <Icon name={item.icon} size={19} />
-            </span>
-            <span className="nav-stack-label">{item.label}</span>
-          </button>
-        ))}
-        <AskInput />
-        {/* every icon says its name; a bar nobody has to decode.
-            Mood and People open sheets, so they wear the dial look
-            and stand apart from the rooms. */}
-        <button
-          className={`nav-stack nav-stack-sheet${panel === "mood" ? " is-active" : ""}`}
-          onClick={() => togglePanel("mood")}
-          aria-label="Mood"
-        >
-          <span className="nav-stack-icon">
-            <Icon name="mood" size={19} />
-          </span>
-          <span className="nav-stack-label">Mood</span>
-        </button>
-        <button
-          className={`nav-stack nav-stack-sheet${panel === "personas" ? " is-active" : ""}`}
-          onClick={() => togglePanel("personas")}
-          aria-label="Personas"
-        >
-          <span className="nav-stack-icon">
-            <Icon name="persona" size={19} />
-          </span>
-          <span className="nav-stack-label">People</span>
-        </button>
-        <span className="bar-divide" aria-hidden />
-        {LIFE_NAV.map((item) => (
-          <button
-            key={item.view}
-            className={`nav-stack${active(item.view)}`}
-            onClick={() => go(item.view)}
-            aria-label={item.label}
-          >
-            <span className="nav-stack-icon">
-              <Icon name={item.icon} size={19} />
-              {item.view === "inbox" && unread > 0 && <span className="badge" />}
-            </span>
-            <span className="nav-stack-label">{item.label}</span>
-          </button>
-        ))}
-      </div>
+    <nav className="sidebar" aria-label="The rooms">
+      <SideRow
+        icon="play"
+        label="Run"
+        sheet
+        active={panel === "run"}
+        onClick={() => togglePanel("run")}
+      />
+      <span className="side-divide" aria-hidden />
+      <span className="side-label">The report</span>
+      {NAV.map((item) => (
+        <SideRow
+          key={item.view}
+          icon={item.icon}
+          label={item.label}
+          active={active(item.view)}
+          onClick={() => go(item.view)}
+        />
+      ))}
+      <span className="side-divide" aria-hidden />
+      <span className="side-label">The life</span>
+      {LIFE_NAV.map((item) => (
+        <SideRow
+          key={item.view}
+          icon={item.icon}
+          label={item.label}
+          active={active(item.view)}
+          badge={item.view === "inbox" && unread > 0}
+          onClick={() => go(item.view)}
+        />
+      ))}
+      <span className="side-divide" aria-hidden />
+      <span className="side-label">The dials</span>
+      <SideRow
+        icon="mood"
+        label="Mood"
+        sheet
+        active={panel === "mood"}
+        onClick={() => togglePanel("mood")}
+      />
+      <SideRow
+        icon="persona"
+        label="People"
+        sheet
+        active={panel === "personas"}
+        onClick={() => togglePanel("personas")}
+      />
     </nav>
+  );
+}
+
+/** The ask, floating over the work like a spotlight. */
+export function AskFloat() {
+  const { project } = useStore();
+  if (project) return null;
+  return (
+    <div className="ask-float">
+      <AskInput />
+    </div>
   );
 }
 

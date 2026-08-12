@@ -155,8 +155,8 @@ check(
   await page.getByText("Vitality is your app", { exact: false }).isVisible(),
 );
 check(
-  "the bar's icons say their names",
-  await page.locator(".nav-stack-label", { hasText: "Studio" }).isVisible(),
+  "the sidebar's icons say their names",
+  await page.locator(".side-row-label", { hasText: "Studio" }).isVisible(),
 );
 
 /* the ask acts: typed words route the room and land in history */
@@ -189,23 +189,24 @@ check(
   await page.locator(".workspace-preview").getByText("History").isVisible(),
 );
 {
-  /* the bar centers within the main column and never sits on the rail */
-  const bar = await page.locator(".bar-shell").boundingBox();
+  /* the sidebar holds the rooms and the floating ask never sits on the rail */
+  check("the sidebar carries the rooms", await page.locator(".sidebar").isVisible());
+  const ask = await page.locator(".ask-float .ask-pill").boundingBox();
   const rail = await page.locator(".workspace-preview").boundingBox();
-  check("the bar never overlaps the bench", !!bar && !!rail && bar.x + bar.width <= rail.x);
+  check("the ask never overlaps the bench", !!ask && !!rail && ask.x + ask.width <= rail.x);
 }
 check(
   "run, mood, and people wear the sheet look, split from the rooms",
-  (await page.locator(".nav-stack-sheet").count()) === 3 &&
-    (await page.locator(".bar-divide").count()) === 2,
+  (await page.locator(".side-row-sheet").count()) === 3 &&
+    (await page.locator(".side-divide").count()) === 3,
 );
-/* between the floor and the bench: the rail steps aside, the bar stays */
+/* between the floor and the bench: the rail steps aside, the rooms stay */
 await page.setViewportSize({ width: 1300, height: 810 });
 check(
   "the rail steps aside when the room narrows",
   !(await page.locator(".workspace-preview").isVisible()),
 );
-check("the bar keeps the room at 1300", await page.locator(".bar-shell").isVisible());
+check("the sidebar keeps the room at 1300", await page.locator(".sidebar").isVisible());
 await page.setViewportSize({ width: 1440, height: 810 });
 
 /* Heal: what it will touch is shown first, never behind a link */
@@ -566,7 +567,7 @@ await page.getByText("See the report", { exact: false }).click({ timeout: 25000 
 await page.waitForTimeout(600);
 
 /* one Report, the whole truth, no other chrome competing with it */
-check("the bar steps aside for the report", (await page.locator(".bar-shell").count()) === 0);
+check("the chrome steps aside for the report", (await page.locator(".sidebar").count()) === 0);
 check("the report opens on the number", await page.locator(".instrument").isVisible());
 check("the examination reads as ten lenses", (await page.locator(".lens-cell").count()) === 10);
 check(

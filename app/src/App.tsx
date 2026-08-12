@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { StoreProvider, useStore } from "./store";
-import { BottomBar, TopBar } from "./components/chrome";
+import { AskFloat, SideBar, TopBar } from "./components/chrome";
 import { MoodPanel, PersonasPanel, RunOverlay } from "./components/panels";
 import { ResidentPanel } from "./components/ResidentPanel";
 import { WorkspacePreview } from "./components/Workspace";
@@ -99,24 +99,30 @@ function Shell() {
   return (
     <div className="shell">
       <TopBar inResident={inResident} />
-      <div style={{ position: "relative", flex: 1, minHeight: 0, display: "flex", flexDirection: "column" }}>
-        {inResident && !project ? (
-          /* the workspace: the live app on the bench beside every screen */
-          <div className="workspace">
-            <div className="workspace-main">
-              <Screen />
+      <div style={{ display: "flex", flex: 1, minHeight: 0 }}>
+        {/* the rooms live in a sidebar now, macOS style, floating glass */}
+        {inResident && <SideBar />}
+        <div
+          style={{ position: "relative", flex: 1, minWidth: 0, display: "flex", flexDirection: "column" }}
+        >
+          {inResident && !project ? (
+            /* the workspace: the live app on the bench beside every screen */
+            <div className="workspace">
+              <div className="workspace-main">
+                <Screen />
+              </div>
+              <WorkspacePreview />
             </div>
-            <WorkspacePreview />
-          </div>
-        ) : (
-          <Screen />
-        )}
-        {inResident && <BottomBar />}
-        <NoticeStack />
-        {inResident && panel === "mood" && <MoodPanel />}
-        {inResident && panel === "personas" && <PersonasPanel />}
-        {panel === "resident" && <ResidentPanel />}
-        {panel === "run" && <RunOverlay />}
+          ) : (
+            <Screen />
+          )}
+          {inResident && <AskFloat />}
+          <NoticeStack />
+          {inResident && panel === "mood" && <MoodPanel />}
+          {inResident && panel === "personas" && <PersonasPanel />}
+          {panel === "resident" && <ResidentPanel />}
+          {panel === "run" && <RunOverlay />}
+        </div>
       </div>
     </div>
   );

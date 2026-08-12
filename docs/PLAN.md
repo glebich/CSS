@@ -837,6 +837,18 @@ controller hopeful. All deterministic, all seeded from the same
 demo evidence, adopted readings joining the bench like any other
 archetype.
 
+### Increment AB. The sidebar chrome. DELIVERED
+
+The bottom bar retired. The rooms live in a floating glass sidebar
+on the left, macOS style: Run first, then the report rooms, the
+life rooms, and the dials, each an icon and its name, the active
+row white and raised, the sheet doors tinted. The ask became a
+spotlight pill floating over the work, confined off the bench.
+Shadow tokens deepened toward the desktop look, crisp near edge
+and soft deep falloff, and the glass surfaces blur harder. On
+phones the rail lies down along the bottom and scrolls. The suite
+moved its chrome checks to the sidebar and passes whole.
+
 ### Increment I. What remains, in spec order
 
 The Redis-backed limiter and the Postgres and MinIO drivers when
