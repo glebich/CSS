@@ -119,8 +119,8 @@ check(
   await page.getByText("Safe. Designed. Usable. Tested. Evolving. Shared.").isVisible(),
 );
 check(
-  "the rail wears nine marks",
-  (await page.locator(".land-works .works-mark").count()) === 9,
+  "the rail wears eight marks",
+  (await page.locator(".land-works .works-mark").count()) === 8,
 );
 check(
   "the landing doors to discover",

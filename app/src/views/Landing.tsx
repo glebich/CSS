@@ -6,7 +6,7 @@ import { Sparkle, Wordmark } from "../components/chrome";
 /** Nominative marks only: we integrate with these, nothing implied.
     A mark with a logo wears it; one without wears its name until its
     logo arrives, and never a placeholder pretending to be a logo. */
-const WORKS_WITH: Array<{ name: string; does: string; logo?: string; invert?: boolean }> = [
+const WORKS_WITH: Array<{ name: string; does: string; logo?: string }> = [
   {
     name: "GitHub",
     does: "Connect a repository and Osyle reads the app from it",
@@ -32,7 +32,6 @@ const WORKS_WITH: Array<{ name: string; does: string; logo?: string; invert?: bo
     does: "Code built with ChatGPT imports as files, a zip, or a repo",
     logo: "https://1000logos.net/wp-content/uploads/2024/07/OpenAI-Logo-2022.png",
   },
-  { name: "v0", does: "v0 output imports as files, a zip, or a repo" },
   {
     name: "Bolt",
     does: "Bolt projects import as files, a zip, or a repo",
@@ -41,10 +40,7 @@ const WORKS_WITH: Array<{ name: string; does: string; logo?: string; invert?: bo
   {
     name: "Replit",
     does: "Replit projects import as files, a zip, or a repo",
-    /* the light logotype is drawn for dark ground; this page is paper,
-       so it is turned over to be seen at all */
     logo: "https://replit-creators.replit.app/logos/Logotype-Transparent-Light@512h.png",
-    invert: true,
   },
   {
     name: "Figma",
@@ -53,19 +49,44 @@ const WORKS_WITH: Array<{ name: string; does: string; logo?: string; invert?: bo
   },
 ];
 
+/**
+ * The page arrives rather than appearing. Anything wearing `rise`
+ * waits just below where it belongs and settles into place as it comes
+ * into view, once, on the same curve the rest of the product moves on.
+ * A person who asked for less motion gets none: everything is simply
+ * already there.
+ */
+function useRise(): void {
+  useEffect(() => {
+    const marked = [...document.querySelectorAll<HTMLElement>(".rise")];
+    if (marked.length === 0) return;
+    const settle = (el: HTMLElement) => el.classList.add("is-in");
+    const still =
+      window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ||
+      typeof IntersectionObserver === "undefined";
+    if (still) {
+      marked.forEach(settle);
+      return;
+    }
+    const seen = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (!e.isIntersecting) return;
+          settle(e.target as HTMLElement);
+          seen.unobserve(e.target);
+        });
+      },
+      /* a little before the fold, so nothing animates under the thumb */
+      { rootMargin: "0px 0px -8% 0px", threshold: 0.06 },
+    );
+    marked.forEach((el) => seen.observe(el));
+    return () => seen.disconnect();
+  }, []);
+}
+
 /** One mark: the logo when there is one and it loads, the name when
     there is not, and the name again if the logo refuses to arrive. */
-function WorksMark({
-  name,
-  does,
-  logo,
-  invert,
-}: {
-  name: string;
-  does: string;
-  logo?: string;
-  invert?: boolean;
-}) {
+function WorksMark({ name, does, logo }: { name: string; does: string; logo?: string }) {
   const [shown, setShown] = useState(!!logo);
   return (
     /* the mark is found by its name whether it wears a logo or the
@@ -73,7 +94,7 @@ function WorksMark({
     <span className="works-mark" data-mark={name} title={does}>
       {shown && logo ? (
         <img
-          className={`works-logo${invert ? " is-inverted" : ""}`}
+          className="works-logo"
           src={logo}
           alt={name}
           loading="lazy"
@@ -307,6 +328,7 @@ function LogoCell({ name, src }: { name: string; src: string }) {
 }
 
 export function Landing() {
+  useRise();
   const { go, resetDemo } = useStore();
   const [sheetOpen, setSheetOpen] = useState(false);
   const [realMode, setRealMode] = useState(() => {
@@ -365,16 +387,16 @@ export function Landing() {
 
       <header className="land-hero">
         <div className="land-hero-copy">
-          <span className="section-label">The last mile for generated apps</span>
-          <h1>You built it with AI. We make it ready for the world.</h1>
-          <p>
+          <span className="section-label rise-load">The last mile for generated apps</span>
+          <h1 className="rise-load rise-1">You built it with AI. We make it ready for the world.</h1>
+          <p className="rise-load rise-2">
             Osyle is the last mile between a vibe-coded app and a
             professional product. Drop what you built, from any tool; it
             gets examined across eight real lenses, healed with receipts,
             dressed by a taste system built on twenty-five years of product
             design, and given an address where it keeps living.
           </p>
-          <div className="land-hero-ctas">
+          <div className="land-hero-ctas rise-load rise-3">
             <button className="pill pill-dark" onClick={() => go("place")}>
               <Sparkle size={13} />
               Drop your app
@@ -388,7 +410,7 @@ export function Landing() {
           </span>
         </div>
         <figure className="land-hero-render">
-          <div className="phone-frame land-phone">
+          <div className="phone-frame land-phone rise-load rise-2">
             <div className="phone-screen" style={{ position: "relative" }}>
               {/* the live render holds the frame; the film fades in only
                   once it has buffered enough to play without stutter */}
@@ -428,7 +450,7 @@ export function Landing() {
           <strong>Design led by 25 years building products</strong> for the
           companies whose work set the bar.
         </p>
-        <div className="land-marks-row">
+        <div className="land-marks-row rise rise-2">
           {[
             { n: "Apple", src: "https://1000logos.net/wp-content/uploads/2016/10/Apple-Logo.png" },
             { n: "Google", src: "https://cdn.freebiesupply.com/images/large/2x/google-logo-black-transparent.png" },
@@ -445,7 +467,7 @@ export function Landing() {
           The market flipped. Generating software became easy; trusting it did
           not.
         </p>
-        <div className="land-stats-row">
+        <div className="land-stats-row rise rise-1">
           {STATS.map((s) => (
             <div key={s.figure} className="land-stat card">
               <div className="land-stat-figure">{s.figure}</div>
@@ -460,16 +482,16 @@ export function Landing() {
       </section>
 
       <section id="examination" className="land-now-what">
-        <span className="section-label">The moment we own</span>
-        <h2>I built it. Now what?</h2>
+        <span className="section-label rise">The moment we own</span>
+        <h2 className="rise rise-1">I built it. Now what?</h2>
         <p>
           Every builder ends at the same cliff: a working-looking app and no
           idea whether it holds. That moment is Osyle's front door. Output
           from any of these walks in and becomes a resident.
         </p>
-        <div className="land-works" style={{ padding: "18px 0 0" }}>
+        <div className="land-works rise rise-2" style={{ padding: "18px 0 0" }}>
           {WORKS_WITH.map((w) => (
-            <WorksMark key={w.name} name={w.name} does={w.does} logo={w.logo} invert={w.invert} />
+            <WorksMark key={w.name} name={w.name} does={w.does} logo={w.logo} />
           ))}
         </div>
         <button className="pill pill-dark" style={{ marginTop: 18 }} onClick={() => go("place")}>
@@ -480,16 +502,16 @@ export function Landing() {
 
       <section id="address" className="land-loop">
         {/* the words hold one side, the loop turns on the other */}
-        <div className="loop-grid">
+        <div className="loop-grid rise rise-2">
           <div className="loop-say">
-            <span className="section-label">The loop</span>
-            <h2>Import. Examine. Heal. Run.</h2>
+            <span className="section-label rise">The loop</span>
+            <h2 className="rise rise-1">Import. Examine. Heal. Run.</h2>
             <p className="land-loop-lede">
               It does not end at Run. What the app does in the world becomes
               the next examination, which is why this is a loop and not a
               launch.
             </p>
-            <div className="section-label" style={{ marginTop: 26 }}>
+            <div className="section-label rise" style={{ marginTop: 26 }}>
               The eight lenses
             </div>
             <div className="land-lens-grid">
@@ -505,11 +527,11 @@ export function Landing() {
       </section>
 
       <section id="life" className="land-problems">
-        <span className="section-label">The three unsolved problems</span>
-        <h2>Everyone generates. Nobody holds the seam.</h2>
+        <span className="section-label rise">The three unsolved problems</span>
+        <h2 className="rise rise-1">Everyone generates. Nobody holds the seam.</h2>
         {/* the seam itself: what the industry leaves open on one side,
             what Osyle holds on the other, one line running through */}
-        <div className="seam">
+        <div className="seam rise rise-2">
           {PROBLEMS.map((p) => (
             <div key={p.title} className="seam-row">
               <div className="seam-open">
@@ -532,9 +554,9 @@ export function Landing() {
       </section>
 
       <section id="laws" className="land-laws">
-        <span className="section-label">The laws we keep</span>
-        <h2>Honesty is the interface.</h2>
-        <div className="land-laws-row">
+        <span className="section-label rise">The laws we keep</span>
+        <h2 className="rise rise-1">Honesty is the interface.</h2>
+        <div className="land-laws-row rise rise-2">
           {LAWS.map((law) => (
             <div key={law.title} className="land-law">
               <h3>{law.title}</h3>
@@ -545,7 +567,7 @@ export function Landing() {
       </section>
 
       <footer className="land-close">
-        <h2>A billion apps are about to be generated. None of them have a home.</h2>
+        <h2 className="rise rise-1">A billion apps are about to be generated. None of them have a home.</h2>
         <p className="land-close-sub">Yours can, today.</p>
         <div className="brand-promises">Safe. Designed. Usable. Tested. Evolving. Shared.</div>
         <button className="brand-enter" onClick={() => go("place")}>

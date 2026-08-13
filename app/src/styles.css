@@ -943,16 +943,18 @@ input {
   color: var(--ink-body);
 }
 
-/* the logos sit at one optical weight beside the names still waiting
-   for theirs: grayed and quiet, their own color on approach */
+/* every logo arrives in a different colour, weight, and ground: some
+   drawn dark, one drawn white for dark screens. Blackening them all
+   makes one row out of nine sources, and hovering returns the mark to
+   its own colour. */
 .works-logo {
-  height: 19px;
+  height: 20px;
   width: auto;
-  max-width: 108px;
+  max-width: 120px;
   object-fit: contain;
   display: block;
-  filter: grayscale(1);
-  opacity: 0.62;
+  filter: grayscale(1) brightness(0);
+  opacity: 0.55;
   transition: filter var(--t-liquid), opacity var(--t-liquid);
 }
 
@@ -961,15 +963,40 @@ input {
   opacity: 1;
 }
 
-/* a logotype drawn light, for dark ground, is turned over so it can be
-   seen on paper at all */
-.works-logo.is-inverted {
-  filter: grayscale(1) invert(1);
+/* each asset carries its own padding and proportions, so the row is
+   levelled by eye rather than by a single number */
+.works-mark[data-mark="Lovable"] .works-logo {
+  height: 13px;
 }
 
-.works-mark:hover .works-logo.is-inverted {
-  filter: invert(1);
+.works-mark[data-mark="Cursor"] .works-logo {
+  height: 16px;
 }
+
+.works-mark[data-mark="Claude"] .works-logo {
+  height: 17px;
+}
+
+.works-mark[data-mark="GitHub"] .works-logo {
+  height: 19px;
+}
+
+.works-mark[data-mark="OpenAI"] .works-logo {
+  height: 26px;
+}
+
+.works-mark[data-mark="Bolt"] .works-logo {
+  height: 30px;
+}
+
+.works-mark[data-mark="Replit"] .works-logo {
+  height: 30px;
+}
+
+.works-mark[data-mark="Figma"] .works-logo {
+  height: 24px;
+}
+
 
 /* the six promises, one quiet line above the foot */
 .brand-promises {
@@ -4967,6 +4994,76 @@ input {
 
 .home-wrap {
   padding-bottom: 24px;
+}
+
+/* ------------------------------------------- the landing's arrival */
+
+/* everything that rises waits a little below where it belongs, then
+   settles on the product's own curve. Two properties only, so the
+   compositor carries it and nothing reflows. */
+.rise {
+  opacity: 0;
+  transform: translate3d(0, 18px, 0);
+  transition:
+    opacity 680ms cubic-bezier(0.32, 0.72, 0, 1),
+    transform 680ms cubic-bezier(0.32, 0.72, 0, 1);
+  transition-delay: calc(var(--rise-i, 0) * 90ms);
+  will-change: opacity, transform;
+}
+
+.rise.is-in {
+  opacity: 1;
+  transform: none;
+  will-change: auto;
+}
+
+.rise-1 {
+  --rise-i: 1;
+}
+
+.rise-2 {
+  --rise-i: 2;
+}
+
+.rise-3 {
+  --rise-i: 3;
+}
+
+/* the hero does not wait for a script to be seen: it arrives on its
+   own, and ends visible whatever happens after */
+.rise-load {
+  animation: rise-in 760ms cubic-bezier(0.32, 0.72, 0, 1) both;
+  animation-delay: calc(var(--rise-i, 0) * 90ms);
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 18px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* the anchors in the landing's nav walk the page instead of jumping */
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .rise {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .rise-load {
+    animation: none;
+  }
 }
 
 /* -------------------------------------------- choosing the address */
