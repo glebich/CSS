@@ -21,23 +21,37 @@ Ruby App**, and no Node entry. That is not quite a verdict:
 cPanel's **Application Manager**, in the same section, is where newer
 builds register Node applications, under the same Passenger mechanism.
 
-**SSH Access** is in the Security section, and one command settles it:
+**SSH Access** appears in the Security section, but the account cannot
+use it. The password authenticates and the server then answers:
 
-```bash
-ssh <cpanel-user>@<host> node --version
+```
+Shell access is not enabled on your account!
 ```
 
-- **v22.5 or newer.** The host can run the stack. Follow "On a plain
-  box" below, with the application root outside `public_html` and
-  `api.osyle.xyz` pointed at it through Application Manager.
-- **v18 or v20.** Node is there but too old for `node:sqlite`. The
-  storage driver would have to change to `better-sqlite3`, which is a
-  native module that shared hosts often refuse to build. Possible;
-  not a good first move.
-- **`command not found`.** That plan has no Node at all, and the api
-  cannot run on it whatever we do. Put the api on a box that offers a
-  current Node and keep the domain where it is; the DNS below is the
-  only thing that has to change.
+So the version cannot be read directly. What is left is one click and
+one question. **Application Manager** in the Software section lists
+the runtimes the plan offers; if it names only Python and Ruby, the
+answer is no. And support can be asked outright:
+
+> Does this plan support Node.js applications, and which versions?
+> I need Node 22.5 or newer. Can shell access be enabled?
+
+The three answers and what each means:
+
+- **Node 22.5 or newer, through Application Manager.** The host can
+  run the stack. Follow "On a plain box" below, with the application
+  root outside `public_html` and `api.osyle.xyz` pointed at it.
+- **Node 18 or 20.** Too old for `node:sqlite`. The storage driver
+  would have to become `better-sqlite3`, a native module that shared
+  hosts often refuse to build. Possible; a poor first move.
+- **No Node.** The api cannot live on that plan whatever we do. Put
+  it on a box with a current Node and leave the domain where it is:
+  the single DNS record below is all that changes.
+
+The panel offering Setup Python App and Setup Ruby App while offering
+no Node entry points at the third answer. This is written down so the
+decision rests on what support actually says rather than on that
+inference.
 
 Whatever the answer, shared hosting has two shapes worth knowing. The
 process must stay alive, and a shared plan may recycle it; every
@@ -113,3 +127,11 @@ still works.
 
 `ops/backup.sh` copies `OSYLE_DATA`. It wants a cron entry, and
 without one there is no restore.
+
+The chosen order is to stand the stack up first and add the cron
+after, which trades a window of risk for a working sign-in sooner.
+The window is real: from the first deploy until the cron exists, a
+lost disk is a lost set of residents with no way back. It is an
+acceptable trade while nobody but us has an app on it, and it stops
+being acceptable the day a stranger claims an address. Adding the
+cron is one line and belongs in the same week.
