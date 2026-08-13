@@ -158,7 +158,11 @@ restarts; if tests fail, nothing ships.
   it, and every local reference followed to see that it lands. Each
   look is one pulse row (the last 30 kept) and one ledger line in the
   jobs table; the owner reads the latest pulse in the panel or asks
-  for a fresh look. `OSYLE_ROUNDS=off` stops the clock;
+  for a fresh look, and the Monitor shows a claimed app the whole
+  record: the door knocked on live, the Vault's weight, the reference
+  health, and every look the caretaker took. An app that has not
+  moved onto the stack is told so plainly instead of being shown
+  invented numbers. `OSYLE_ROUNDS=off` stops the clock;
   `OSYLE_ROUND_EVERY_MS` and `OSYLE_ROUND_SWEEP_MS` tune how stale a
   pulse may grow and how often the sweep walks. The client's ten
   lenses stay in the client; the round is the caretaker's flashlight,

@@ -1204,6 +1204,34 @@ check(
   "the resident's key is in the owner's hands",
   await page.locator(".resident-panel").getByText("Copy the SDK key").isVisible(),
 );
+
+/* the Monitor for a real app: measurements only, never the example's
+   invented day */
+await page.locator(".resident-panel").getByLabel("Close the panel").click();
+await page.waitForTimeout(300);
+await page.getByText("Go to its home").click();
+await page.waitForTimeout(500);
+await page.getByText("Watch the traffic").click();
+await page.waitForTimeout(1200);
+check(
+  "a real app is watched for real",
+  await page.getByText("Watched, for real.", { exact: false }).isVisible(),
+);
+check(
+  "the invented day belongs to the example alone",
+  (await page.getByText("uptime, 30 days").count()) === 0 &&
+    (await page.getByText("stalled at the weather briefing").count()) === 0,
+);
+check(
+  "the monitor counts what the Vault actually holds",
+  await page.getByText("What the Vault holds", { exact: false }).isVisible(),
+);
+check(
+  "the caretaker's looks are listed",
+  await page.getByText("What the caretaker saw", { exact: false }).isVisible(),
+);
+await page.getByText("Back to the home").click();
+await page.waitForTimeout(400);
 await page.goto("http://localhost:5197/#/discover");
 await page.waitForTimeout(400);
 check("unlisted stays off discover", (await page.getByText("sunrise.osyle.app").count()) === 0);

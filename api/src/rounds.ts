@@ -150,14 +150,7 @@ interface PulseRow {
   looked_at: string;
 }
 
-export function latestPulse(residentId: string): Pulse | null {
-  const row = platformDb()
-    .prepare(
-      `SELECT files, bytes, index_ok, broken_refs, looked_at FROM pulses
-       WHERE resident_id = ? ORDER BY looked_at DESC, id DESC LIMIT 1`,
-    )
-    .get(residentId) as PulseRow | undefined;
-  if (!row) return null;
+function toPulse(row: PulseRow): Pulse {
   return {
     files: row.files,
     bytes: row.bytes,
@@ -165,6 +158,21 @@ export function latestPulse(residentId: string): Pulse | null {
     brokenRefs: row.broken_refs,
     lookedAt: row.looked_at,
   };
+}
+
+/** Every look the caretaker took, newest first. */
+export function pulseHistory(residentId: string): Pulse[] {
+  const rows = platformDb()
+    .prepare(
+      `SELECT files, bytes, index_ok, broken_refs, looked_at FROM pulses
+       WHERE resident_id = ? ORDER BY looked_at DESC, id DESC LIMIT ?`,
+    )
+    .all(residentId, MAX_PULSES) as unknown as PulseRow[];
+  return rows.map(toPulse);
+}
+
+export function latestPulse(residentId: string): Pulse | null {
+  return pulseHistory(residentId)[0] ?? null;
 }
 
 /** One sweep: look at every resident whose pulse has gone stale.
@@ -203,7 +211,8 @@ export function startRounds(): void {
 export function registerRounds(app: FastifyInstance): void {
   app.get<{ Params: { slug: string } }>("/residents/:slug/pulse", async (req, reply) => {
     const resident = requireOwnedResident(req, req.params.slug);
-    return reply.send({ pulse: latestPulse(resident.id) });
+    const history = pulseHistory(resident.id);
+    return reply.send({ pulse: history[0] ?? null, history });
   });
 
   app.post<{ Params: { slug: string } }>("/residents/:slug/pulse", async (req, reply) => {

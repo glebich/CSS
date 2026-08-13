@@ -552,6 +552,12 @@ check(
     pulseBody.pulse.indexOk === true &&
     pulseBody.pulse.brokenRefs === 0,
 );
+check(
+  "the looks come back as a history",
+  Array.isArray(pulseBody.history) &&
+    pulseBody.history.length >= 1 &&
+    pulseBody.history[0].lookedAt === pulseBody.pulse.lookedAt,
+);
 const ledger = platformDb()
   .prepare("SELECT COUNT(*) AS n FROM jobs WHERE kind = 'round.look' AND status = 'done'")
   .get();
