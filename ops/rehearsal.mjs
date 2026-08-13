@@ -69,7 +69,10 @@ try {
     headers: { "content-type": "application/json" },
     body: JSON.stringify({ email: "rehearsal@osyle.app", name: "SkyRecall", slug: "skyrecall" }),
   });
-  const claim = await fetch(`${BASE}${(await door.json()).claimLink}`);
+  const born = await door.json();
+  /* the resident's key opens its database, before the fire and after */
+  const rdbKey = { "x-osyle-key": born.resident.apiKey };
+  const claim = await fetch(`${BASE}${born.claimLink}`);
   const cookie = claim.headers.get("set-cookie").split(";")[0];
   const wrote = await fetch(`${BASE}/residents/skyrecall/files/index.html`, {
     method: "PUT",
@@ -79,7 +82,7 @@ try {
   check("a real file lands before the backup", wrote.status === 201);
   await fetch(`${BASE}/rdb/skyrecall/kv/streak`, {
     method: "PUT",
-    headers: { "content-type": "application/json" },
+    headers: { "content-type": "application/json", ...rdbKey },
     body: JSON.stringify({ value: 7 }),
   });
   await stop(api);
@@ -103,7 +106,7 @@ try {
   const secondCold = await waitForHealth();
   check(`the restored volume boots cold in ${secondCold.toFixed(1)} s`, secondCold < 5);
 
-  const back = await fetch(`${BASE}/rdb/skyrecall/kv/streak`);
+  const back = await fetch(`${BASE}/rdb/skyrecall/kv/streak`, { headers: rdbKey });
   check("the resident database survived", (await back.json()).value === 7);
 
   const survival = await fetch(`${BASE}/survival`);

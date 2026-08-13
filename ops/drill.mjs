@@ -54,10 +54,19 @@ async function waitForHealth() {
 const latencies = [];
 const errors = [];
 
+/* the resident's own key, handed over by the partner door. Every rdb
+   call carries it, the way the shipped app would. */
+let KEY = null;
+
+function keyed(init) {
+  if (!KEY) return init;
+  return { ...init, headers: { ...(init?.headers ?? {}), "x-osyle-key": KEY } };
+}
+
 async function call(label, path, init) {
   const started = performance.now();
   try {
-    const res = await fetch(`${BASE}${path}`, init);
+    const res = await fetch(`${BASE}${path}`, keyed(init));
     latencies.push(performance.now() - started);
     if (!res.ok) errors.push(`${label}: ${res.status} ${await res.text()}`);
     return res;
@@ -104,6 +113,8 @@ try {
     body: JSON.stringify({ email: "drill@osyle.app", name: "SkyRecall", slug: "skyrecall" }),
   });
   if (door.status !== 201) throw new Error(`the partner door refused: ${door.status}`);
+  KEY = (await door.json()).resident?.apiKey ?? null;
+  if (!KEY) throw new Error("the partner door handed over no key");
 
   const drillStarted = performance.now();
   for (let batch = 0; batch < PEOPLE; batch += AT_ONCE) {
@@ -113,7 +124,9 @@ try {
   }
   const wallSeconds = (performance.now() - drillStarted) / 1000;
 
-  const count = await (await fetch(`${BASE}/rdb/skyrecall/rows/drills/count`)).json();
+  const count = await (
+    await fetch(`${BASE}/rdb/skyrecall/rows/drills/count`, keyed({}))
+  ).json();
   const survival = await (await fetch(`${BASE}/survival`)).json();
 
   const sorted = [...latencies].sort((a, b) => a - b);
