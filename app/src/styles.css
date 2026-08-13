@@ -4941,6 +4941,292 @@ input {
   padding-bottom: 24px;
 }
 
+/* ------------------------------------------------ the loop, as a loop */
+
+.land-loop-lede {
+  font-size: 14.5px;
+  line-height: 1.65;
+  color: var(--gray-secondary);
+  max-width: 460px;
+  margin-top: 10px;
+}
+
+.loop-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 540px);
+  gap: 48px;
+  align-items: center;
+}
+
+@media (max-width: 1000px) {
+  .loop-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+}
+
+.loop-ring {
+  position: relative;
+  width: min(560px, 100%);
+  aspect-ratio: 1;
+  margin: 22px auto 0;
+}
+
+/* the ring keeps its distance from the seats, so a knot never lands
+   under a word */
+.loop-dial {
+  position: absolute;
+  inset: 96px;
+  width: calc(100% - 192px);
+  height: calc(100% - 192px);
+}
+
+/* the four seats stand outside the ring, at the quarters */
+.loop-seat {
+  position: absolute;
+  width: 152px;
+  display: grid;
+  gap: 2px;
+  justify-items: center;
+  padding: 10px 12px;
+  border-radius: 18px;
+  background: transparent;
+  transition:
+    background var(--t-liquid),
+    transform var(--t-spring),
+    color var(--t-fast);
+}
+
+.loop-seat:hover,
+.loop-seat.is-here {
+  background: rgba(255, 255, 255, 0.62);
+  -webkit-backdrop-filter: blur(24px) saturate(170%);
+  backdrop-filter: blur(24px) saturate(170%);
+  box-shadow: 0 10px 30px rgba(12, 12, 14, 0.08);
+}
+
+.loop-seat-n {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: var(--gray-small);
+}
+
+.loop-seat.is-here .loop-seat-n {
+  color: var(--pulse);
+}
+
+.loop-seat-title {
+  font-size: 15px;
+  font-weight: 550;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  text-align: center;
+}
+
+.loop-seat.at-12 {
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.loop-seat.at-3 {
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.loop-seat.at-6 {
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.loop-seat.at-9 {
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* the middle carries the stage in hand, the way the dial carries the number */
+.loop-core {
+  position: absolute;
+  inset: 25%;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  text-align: center;
+  gap: 7px;
+  animation: fade-in var(--t-liquid) both;
+}
+
+.loop-core h3 {
+  font-size: 24px;
+  font-weight: 550;
+  letter-spacing: -0.02em;
+  color: var(--ink-strong);
+}
+
+.loop-core p {
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--gray-secondary);
+  max-width: 240px;
+}
+
+@media (max-width: 760px) {
+  /* a ring needs width; on a phone the loop straightens into a rail */
+  .loop-ring {
+    aspect-ratio: auto;
+    width: 100%;
+    display: grid;
+    gap: 10px;
+    padding-left: 18px;
+    border-left: 1px solid var(--hairline);
+  }
+  .loop-dial,
+  .loop-core {
+    display: none;
+  }
+  /* the seat classes carry their own offsets, so the rail names them
+     all to take the ring's geometry back off */
+  .loop-seat,
+  .loop-seat.at-12,
+  .loop-seat.at-3,
+  .loop-seat.at-6,
+  .loop-seat.at-9 {
+    position: static;
+    transform: none;
+    inset: auto;
+    width: 100%;
+    justify-items: start;
+    text-align: left;
+  }
+  .loop-seat::after {
+    content: attr(data-body);
+    font-size: 13.5px;
+    line-height: 1.6;
+    font-weight: 400;
+    color: var(--gray-secondary);
+  }
+}
+
+/* ------------------------------------------- the seam, held in the open */
+
+.seam {
+  position: relative;
+  margin-top: 34px;
+}
+
+/* one line runs the whole height: the seam everyone leaves open */
+.seam::before {
+  content: "";
+  position: absolute;
+  top: 6px;
+  bottom: 6px;
+  left: 50%;
+  width: 1px;
+  background: linear-gradient(
+    180deg,
+    transparent,
+    var(--hairline) 8%,
+    var(--hairline) 92%,
+    transparent
+  );
+}
+
+.seam-row {
+  display: grid;
+  grid-template-columns: 1fr 40px 1fr;
+  align-items: center;
+  gap: 0;
+  padding: 30px 0;
+}
+
+.seam-row + .seam-row {
+  border-top: 1px solid rgba(12, 12, 14, 0.05);
+}
+
+.seam-open {
+  padding-right: 34px;
+  text-align: right;
+}
+
+.seam-n {
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  color: var(--gray-faint);
+}
+
+.seam-open h3 {
+  font-size: 19px;
+  font-weight: 550;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  margin-top: 4px;
+}
+
+.seam-open p {
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--gray-secondary);
+  margin-top: 6px;
+}
+
+.seam-knot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--pulse);
+  justify-self: center;
+  box-shadow: 0 0 0 6px var(--paper);
+}
+
+.seam-held {
+  padding-left: 34px;
+}
+
+.seam-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--pulse);
+}
+
+.seam-held p {
+  font-size: 16px;
+  line-height: 1.55;
+  font-weight: 510;
+  letter-spacing: -0.01em;
+  color: var(--ink-strong);
+  margin-top: 6px;
+}
+
+@media (max-width: 820px) {
+  /* the seam moves to the edge and the two sides stack behind it */
+  .seam::before {
+    left: 4px;
+  }
+  .seam-row {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 22px 0 22px 30px;
+  }
+  .seam-open {
+    text-align: left;
+    padding-right: 0;
+  }
+  .seam-knot {
+    position: absolute;
+    left: 0;
+  }
+  .seam-held {
+    padding-left: 0;
+  }
+}
+
 /* the findings ledger: the money in three piles, read at a glance */
 .value-ledger {
   display: grid;

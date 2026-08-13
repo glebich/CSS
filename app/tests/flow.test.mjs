@@ -156,8 +156,14 @@ check(
   await page.getByText("I built it. Now what?").isVisible(),
 );
 check(
-  "the loop is told in four steps",
-  (await page.locator(".land-loop-step").count()) === 4,
+  "the loop is told in four stages, around a ring",
+  (await page.locator(".loop-seat").count()) === 4 &&
+    (await page.locator(".loop-dial").count()) === 1,
+);
+check(
+  "the seam is drawn, not described",
+  (await page.locator(".seam-row").count()) === 3 &&
+    (await page.locator(".seam-knot").count()) === 3,
 );
 check(
   "the landing names the laws it keeps",

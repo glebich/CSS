@@ -70,6 +70,106 @@ const LOOP: Array<{ n: string; title: string; body: string }> = [
   },
 ];
 
+/**
+ * The loop drawn as a loop: the four stages stand around a ring built
+ * from the same ticks as the Vitality instrument, and the ring lights
+ * up to the stage in hand. Standing still is a straight row of cards;
+ * this says the thing the word means, that Run feeds Examine.
+ */
+function LoopRing() {
+  const [at, setAt] = useState(0);
+  const [held, setHeld] = useState(false);
+  const seats = ["at-12", "at-3", "at-6", "at-9"];
+
+  /* the ring walks itself so the whole loop is seen without a click,
+     and stands still the moment a person takes it over */
+  useEffect(() => {
+    if (held) return;
+    const t = window.setInterval(() => setAt((n) => (n + 1) % LOOP.length), 4200);
+    return () => window.clearInterval(t);
+  }, [held]);
+
+  const ticks = 48;
+  const lit = Math.round(((at + 1) / LOOP.length) * ticks);
+
+  return (
+    <div
+      className="loop-ring"
+      onMouseEnter={() => setHeld(true)}
+      onMouseLeave={() => setHeld(false)}
+    >
+      <svg className="loop-dial" viewBox="0 0 200 200" aria-hidden>
+        <circle cx="100" cy="100" r="78" fill="none" stroke="var(--hairline)" strokeWidth="1" />
+        {Array.from({ length: ticks }, (_, i) => {
+          const a = (i / ticks) * Math.PI * 2 - Math.PI / 2;
+          const on = i < lit;
+          /* the same two-radius mark the Vitality instrument wears */
+          return (
+            <g key={i}>
+              <line
+                x1={100 + Math.cos(a) * 72}
+                y1={100 + Math.sin(a) * 72}
+                x2={100 + Math.cos(a) * 84}
+                y2={100 + Math.sin(a) * 84}
+                stroke="rgba(12, 12, 14, 0.06)"
+                strokeWidth="0.7"
+              />
+              <circle
+                cx={100 + Math.cos(a) * 78}
+                cy={100 + Math.sin(a) * 78}
+                r={on ? 1.7 : 1.2}
+                fill={on ? "var(--pulse)" : "rgba(12, 12, 14, 0.12)"}
+              />
+            </g>
+          );
+        })}
+        {/* a knot where each stage stands, so the seats belong to the ring */}
+        {[
+          [100, 22],
+          [178, 100],
+          [100, 178],
+          [22, 100],
+        ].map(([cx, cy], i) => (
+          <circle
+            key={`knot-${cx}-${cy}`}
+            cx={cx}
+            cy={cy}
+            r={i === at ? 4.6 : 3}
+            fill={i === at ? "var(--pulse)" : "var(--paper)"}
+            stroke={i === at ? "var(--pulse)" : "rgba(12, 12, 14, 0.22)"}
+            strokeWidth="1.2"
+          />
+        ))}
+      </svg>
+
+      {LOOP.map((step, i) => (
+        <button
+          key={step.n}
+          className={`loop-seat ${seats[i]}${i === at ? " is-here" : ""}`}
+          /* the phone rail drops the ring and reads the sentence here */
+          data-body={step.body}
+          onMouseEnter={() => setAt(i)}
+          onFocus={() => {
+            setHeld(true);
+            setAt(i);
+          }}
+          onBlur={() => setHeld(false)}
+          onClick={() => setAt(i)}
+        >
+          <span className="loop-seat-n">{step.n}</span>
+          <span className="loop-seat-title">{step.title}</span>
+        </button>
+      ))}
+
+      <div className="loop-core" key={at}>
+        <span className="instrument-label">Stage {LOOP[at].n} of four</span>
+        <h3>{LOOP[at].title}</h3>
+        <p>{LOOP[at].body}</p>
+      </div>
+    </div>
+  );
+}
+
 /* The three problems the whole industry agrees are unsolved. */
 const PROBLEMS: Array<{ n: string; title: string; pain: string; answer: string }> = [
   {
@@ -310,36 +410,49 @@ export function Landing() {
       </section>
 
       <section id="address" className="land-loop">
-        <span className="section-label">The loop</span>
-        <h2>Import. Examine. Heal. Run.</h2>
-        <div className="land-loop-row">
-          {LOOP.map((step) => (
-            <div key={step.n} className="land-loop-step card card-pad">
-              <span className="land-loop-n">{step.n}</span>
-              <h3>{step.title}</h3>
-              <p>{step.body}</p>
+        {/* the words hold one side, the loop turns on the other */}
+        <div className="loop-grid">
+          <div className="loop-say">
+            <span className="section-label">The loop</span>
+            <h2>Import. Examine. Heal. Run.</h2>
+            <p className="land-loop-lede">
+              It does not end at Run. What the app does in the world becomes
+              the next examination, which is why this is a loop and not a
+              launch.
+            </p>
+            <div className="section-label" style={{ marginTop: 26 }}>
+              The eight lenses
             </div>
-          ))}
-        </div>
-        <div className="land-lens-grid" style={{ marginTop: 22, justifyContent: "center" }}>
-          {LENSES.map((l) => (
-            <span key={l} className="land-lens">
-              {l}
-            </span>
-          ))}
+            <div className="land-lens-grid">
+              {LENSES.map((l) => (
+                <span key={l} className="land-lens">
+                  {l}
+                </span>
+              ))}
+            </div>
+          </div>
+          <LoopRing />
         </div>
       </section>
 
       <section id="life" className="land-problems">
         <span className="section-label">The three unsolved problems</span>
         <h2>Everyone generates. Nobody holds the seam.</h2>
-        <div className="land-laws-row">
+        {/* the seam itself: what the industry leaves open on one side,
+            what Osyle holds on the other, one line running through */}
+        <div className="seam">
           {PROBLEMS.map((p) => (
-            <div key={p.title} className="land-problem card card-pad">
-              <span className="land-problem-n">{p.n}</span>
-              <h3>{p.title}</h3>
-              <p>{p.pain}</p>
-              <p className="land-answer">{p.answer}</p>
+            <div key={p.title} className="seam-row">
+              <div className="seam-open">
+                <span className="seam-n">{p.n}</span>
+                <h3>{p.title}</h3>
+                <p>{p.pain}</p>
+              </div>
+              <span className="seam-knot" aria-hidden />
+              <div className="seam-held">
+                <span className="seam-label">Held here</span>
+                <p>{p.answer}</p>
+              </div>
             </div>
           ))}
         </div>
