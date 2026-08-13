@@ -23,8 +23,14 @@ type StoredResident = {
 
 /** A dropped app, served from its address: the files it arrived with. */
 function RealResident({ slug }: { slug: string }) {
-  const registry = readChoice<Record<string, StoredResident>>("osyle.residents", {});
-  const stored = registry[slug];
+  const registry = readChoice<Record<string, StoredResident & { movedTo?: string }>>(
+    "osyle.residents",
+    {},
+  );
+  /* an address the app has left points at where it went, so a link
+     shared before the move still arrives */
+  const here = registry[slug];
+  const stored = here?.movedTo ? registry[here.movedTo] : here;
 
   if (!stored) {
     return (

@@ -32,7 +32,9 @@ function residents(): Row[] {
   const visibility = loadJson<Record<string, string>>("osyle.visibility", {});
   const healed = loadJson<string[]>("osyle.demo.healed", []);
   const rows: Row[] = Object.entries(registry)
-    .filter(([slug]) => visibility[slug] !== "unlisted")
+    /* a signpost is not a resident: only where an app actually lives
+       is listed, never the address it moved out of */
+    .filter(([slug, r]) => visibility[slug] !== "unlisted" && !("movedTo" in r))
     .map(([slug, r]) => ({
       slug,
       name: r.name,

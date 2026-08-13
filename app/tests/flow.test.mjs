@@ -1257,6 +1257,7 @@ check(
   await page.locator(".resident-panel").getByText("Copy the SDK key").isVisible(),
 );
 
+
 /* the Monitor for a real app: measurements only, never the example's
    invented day */
 await page.locator(".resident-panel").getByLabel("Close the panel").click();
@@ -1326,10 +1327,27 @@ check(
 );
 await page.getByText("Back to the home").click();
 await page.waitForTimeout(400);
+/* moving house: the app takes a new address while it is still open,
+   and the address it leaves keeps pointing at it */
+await page.getByText("Your app", { exact: true }).click();
+await page.waitForTimeout(400);
+await page.locator(".resident-panel").getByText("Change the address").click();
+await page.waitForTimeout(200);
+await page.locator(".resident-panel .address-input").fill("sunrise-two");
+await page.locator(".resident-panel").getByText("Move it there").click();
+await page.waitForTimeout(1200);
+check(
+  "the app wears its new address",
+  await page.locator(".resident-panel").getByText("sunrise-two.osyle.app").isVisible(),
+);
+await page.locator(".resident-panel").getByLabel("Close the panel").click();
+await page.waitForTimeout(300);
 await page.goto("http://localhost:5197/#/discover");
 await page.waitForTimeout(400);
 check("unlisted stays off discover", (await page.getByText("sunrise.osyle.app").count()) === 0);
 check("public residents remain seen", await page.getByText("clean.osyle.app").isVisible());
+
+
 /* the knock: the claimed resident's served door earns its chip */
 check(
   "an answering door is seen on discover",
@@ -1340,6 +1358,33 @@ check(
     .then(() => true)
     .catch(() => false),
 );
+
+/* the address it left still carries a visitor home */
+const oldDoor = await new Promise((resolve) => {
+  import("node:http").then(({ request }) => {
+    const r = request({ host: "localhost", port: 8787, path: "/serve/sunrise/" }, (res) =>
+      resolve({ status: res.statusCode, to: res.headers.location ?? "" }),
+    );
+    r.on("error", () => resolve({ status: 0, to: "" }));
+    r.end();
+  });
+});
+check(
+  "the stack forwards the address it left",
+  oldDoor.status === 301 && oldDoor.to.startsWith("/serve/sunrise-two/"),
+);
+await page.goto("http://localhost:5197/#/r/sunrise");
+await page.waitForTimeout(700);
+check(
+  "a link shared before the move still finds the app",
+  (await page.getByText("Nothing lives at", { exact: false }).count()) === 0,
+);
+
+
+await page.goto("http://localhost:5197/");
+await page.waitForTimeout(500);
+await page.getByText("Your app", { exact: true }).click();
+await page.waitForTimeout(400);
 await goToPlace();
 
 /* back to the example for the remaining checks */

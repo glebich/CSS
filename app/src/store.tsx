@@ -238,6 +238,8 @@ interface Store {
   /** the residency: persist the dropped app and serve it at its address */
   realSlug: string | null;
   giveAddress: (chosen?: string) => void;
+  /** move house: a new address, the old one forwarding. Null on success. */
+  changeAddress: (next: string) => Promise<string | null>;
   progress: ProgressLine[];
   realDecisions: Record<string, "accepted" | "aside">;
   decideReal: (findingId: string, decision: "accepted" | "aside") => void;
@@ -919,6 +921,64 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     [project, realSlug, stackBase, record, beginJob, updateJob, endJob],
   );
 
+  /**
+   * Moving house. The app takes a new address and the one it leaves
+   * keeps pointing at it, so a link already shared still arrives.
+   * Returns the trouble in one sentence, or null when it moved.
+   */
+  const changeAddress = useCallback(
+    async (next: string): Promise<string | null> => {
+      const want = next.trim().toLowerCase();
+      if (!realSlug) return "This app has no address to change yet.";
+      if (want === realSlug) return "That is where it already lives.";
+      const trouble = addressTrouble(want);
+      if (trouble) return trouble;
+      const registry = loadJson<Record<string, unknown>>("osyle.residents", {});
+      const home = registry[realSlug];
+      if (!home) return "The address is not on this machine.";
+      registry[want] = home;
+      /* the old address becomes a signpost, never a grave */
+      registry[realSlug] = { movedTo: want, movedAt: new Date().toISOString() };
+      saveJson("osyle.residents", registry);
+      /* everything the owner chose is keyed by address, so it moves
+         with the app: what it is listed as, its domain, its key */
+      for (const key of ["osyle.visibility", "osyle.domains", "osyle.keys"]) {
+        const kept = loadJson<Record<string, unknown>>(key, {});
+        if (kept[realSlug] !== undefined) {
+          kept[want] = kept[realSlug];
+          delete kept[realSlug];
+          saveJson(key, kept);
+        }
+      }
+      const left = realSlug;
+      setRealSlug(want);
+      record("address.moved", { from: left, to: want });
+      const job = beginJob("Moving house", `${left}.osyle.app keeps pointing here.`);
+      /* claimed on the stack: it moves there too, or says why not */
+      if (stackOn && stackUp) {
+        try {
+          const res = await fetch(`${stackBase}/residents/${left}/address`, {
+            method: "PUT",
+            credentials: "include",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({ address: want }),
+          });
+          if (!res.ok) {
+            const body = (await res.json().catch(() => null)) as { error?: string } | null;
+            endJob(job, body?.error ?? `The stack answered ${res.status}.`, true);
+            return body?.error ?? "The stack refused the move; the local address moved.";
+          }
+        } catch {
+          endJob(job, "The stack did not answer; the local address moved.", true);
+          return null;
+        }
+      }
+      endJob(job, `It lives at ${want}.osyle.app now.`);
+      return null;
+    },
+    [realSlug, record, beginJob, endJob, stackOn, stackUp, stackBase],
+  );
+
   /* The registry entry follows every change so the address serves the
      new bytes; same shape giveAddress writes. */
   const writeRegistry = useCallback(
@@ -1364,6 +1424,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     claimOnStack,
     realSlug,
     giveAddress,
+    changeAddress,
     progress,
     realDecisions,
     decideReal,

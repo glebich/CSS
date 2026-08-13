@@ -589,6 +589,59 @@ const strangerPulse = await app.inject({
 });
 check("a stranger cannot read the pulse", strangerPulse.statusCode === 404);
 
+/* moving house: a new address, and the old one still pointing home */
+const moveTaken = await app.inject({
+  method: "PUT",
+  url: "/residents/skyrecall/address",
+  cookies,
+  payload: { address: "second-home" },
+});
+check("a taken address refuses the move", moveTaken.statusCode === 409);
+const moveBad = await app.inject({
+  method: "PUT",
+  url: "/residents/skyrecall/address",
+  cookies,
+  payload: { address: "Not An Address" },
+});
+check("a malformed address refuses the move", moveBad.statusCode === 400);
+const moved = await app.inject({
+  method: "PUT",
+  url: "/residents/skyrecall/address",
+  cookies,
+  payload: { address: "skyrecall-two" },
+});
+check(
+  "the app moves house",
+  moved.statusCode === 200 && moved.json().resident.slug === "skyrecall-two",
+);
+const atNew = await app.inject({
+  method: "GET",
+  url: "/serve/skyrecall-two/src/index.html",
+});
+check("the new address serves the files", atNew.statusCode === 200);
+const atOld = await app.inject({
+  method: "GET",
+  url: "/serve/skyrecall/src/index.html",
+});
+check(
+  "the old address still points home",
+  atOld.statusCode === 301 && atOld.headers.location === "/serve/skyrecall-two/src/index.html",
+);
+const strangerMove = await app.inject({
+  method: "PUT",
+  url: "/residents/skyrecall-two/address",
+  cookies: cookie3,
+  payload: { address: "thief-town" },
+});
+check("a stranger cannot move another's app", strangerMove.statusCode === 404);
+/* and home again, so the checks below still find it where they left it */
+await app.inject({
+  method: "PUT",
+  url: "/residents/skyrecall-two/address",
+  cookies,
+  payload: { address: "skyrecall" },
+});
+
 /* the repo door refuses malformed names before any network is asked;
    the fetch itself needs GitHub and is proven by the app suite */
 const repoBadOwner = await app.inject({ method: "GET", url: "/fetch/github/bad.owner/app" });

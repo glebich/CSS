@@ -67,6 +67,11 @@ export function platformDb(): DatabaseSync {
       created_at TEXT NOT NULL,
       done_at TEXT
     );
+    CREATE TABLE IF NOT EXISTS address_moves (
+      from_slug TEXT PRIMARY KEY,
+      resident_id TEXT NOT NULL,
+      moved_at TEXT NOT NULL
+    );
     CREATE TABLE IF NOT EXISTS pulses (
       id TEXT PRIMARY KEY,
       resident_id TEXT NOT NULL,

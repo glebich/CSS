@@ -39,6 +39,17 @@ function toResident(r: ResidentRow): Resident {
   };
 }
 
+/** Where an old address points now, so a shared link never dies. */
+export function residentByOldSlug(slug: string): Resident | null {
+  const row = platformDb()
+    .prepare(
+      `SELECT r.* FROM address_moves m JOIN residents r ON r.id = m.resident_id
+       WHERE m.from_slug = ?`,
+    )
+    .get(slug) as ResidentRow | undefined;
+  return row ? toResident(row) : null;
+}
+
 /** The serving door asks by Host header; one query answers by name. */
 export function residentSlugByDomain(host: string): string | null {
   const row = platformDb()
@@ -119,6 +130,40 @@ export function registerResidents(app: FastifyInstance): void {
     platformDb().prepare("DELETE FROM residents WHERE id = ?").run(resident.id);
     return reply.send({ ok: true });
   });
+
+  /* an app moves house: it takes a new address and the old one keeps
+     pointing at it, so every link already shared still arrives */
+  app.put<{ Params: { slug: string }; Body: { address?: string } }>(
+    "/residents/:slug/address",
+    async (req, reply) => {
+      const resident = requireOwnedResident(req, req.params.slug);
+      const next = (req.body?.address ?? "").trim().toLowerCase();
+      if (!SLUG_RE.test(next)) {
+        return reply.code(400).send({ error: "an address: lowercase letters, digits, hyphens" });
+      }
+      if (next === resident.slug) return reply.send({ resident });
+      const db = platformDb();
+      if (residentBySlug(next)) {
+        return reply.code(409).send({ error: "that address is taken" });
+      }
+      const forwarded = db
+        .prepare("SELECT resident_id FROM address_moves WHERE from_slug = ?")
+        .get(next) as { resident_id: string } | undefined;
+      if (forwarded && forwarded.resident_id !== resident.id) {
+        return reply.code(409).send({ error: "that address still points at another app" });
+      }
+      db.prepare("UPDATE residents SET slug = ? WHERE id = ?").run(next, resident.id);
+      /* the address it just left forwards, and the one it moved into
+         stops forwarding anywhere */
+      db.prepare(
+        `INSERT INTO address_moves (from_slug, resident_id, moved_at) VALUES (?, ?, ?)
+         ON CONFLICT (from_slug) DO UPDATE SET resident_id = excluded.resident_id,
+           moved_at = excluded.moved_at`,
+      ).run(resident.slug, resident.id, now());
+      db.prepare("DELETE FROM address_moves WHERE from_slug = ?").run(next);
+      return reply.send({ resident: { ...resident, slug: next }, movedFrom: resident.slug });
+    },
+  );
 
   /* the key turns: a rotation mints a fresh key and the old one stops
      opening anything, in one motion */

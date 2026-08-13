@@ -75,7 +75,10 @@ function ResidentsDesk() {
           <span>{ledger.length} ledger decision{ledger.length === 1 ? "" : "s"}</span>
         </div>
       </div>
-      {Object.entries(registry).map(([slug, row]) => (
+      {/* the desk lists homes, not the signposts left behind by a move */}
+      {Object.entries(registry)
+        .filter(([, row]) => !("movedTo" in row))
+        .map(([slug, row]) => (
         <div key={slug} className="card card-pad">
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <span className="pulse-dot" style={{ animation: "none" }} />
@@ -91,8 +94,8 @@ function ResidentsDesk() {
             <span>{row.files.length} files held</span>
             <span>Moved in {row.savedAt.slice(0, 10)}</span>
           </div>
-        </div>
-      ))}
+          </div>
+        ))}
       {Object.keys(registry).length === 0 && (
         <p style={{ fontSize: 13, color: "var(--gray-small)" }}>
           No dropped apps have taken an address on this machine yet.

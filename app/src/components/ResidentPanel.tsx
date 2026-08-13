@@ -128,7 +128,8 @@ function FileRowView({
 }
 
 export function ResidentPanel() {
-  const { project, realSlug, stack, go, togglePanel, mergeFiles, saveFileText } = useStore();
+  const { project, realSlug, stack, go, togglePanel, mergeFiles, saveFileText, changeAddress } =
+    useStore();
   const slug = project ? realSlug : resident.slug;
   const name = project ? project.inventory.name : resident.name;
 
@@ -157,6 +158,11 @@ export function ResidentPanel() {
   );
   const [domainDraft, setDomainDraft] = useState(slug ? (domains[slug] ?? "") : "");
   const [domainLine, setDomainLine] = useState<string | null>(null);
+
+  /* moving house: the new address, and what stopped it if anything */
+  const [moving, setMoving] = useState(false);
+  const [moveDraft, setMoveDraft] = useState("");
+  const [moveWord, setMoveWord] = useState<string | null>(null);
 
   /* the resident's key, kept from the claim, handed over on request */
   const sdkKey = slug ? (loadJson<Record<string, string>>("osyle.keys", {})[slug] ?? null) : null;
@@ -349,6 +355,71 @@ export function ResidentPanel() {
           <p style={{ fontSize: 12.5, color: "var(--gray-small)" }}>
             No repository connected. The repo door is on the Place step.
           </p>
+        )}
+
+        {project && slug && (
+          <>
+            <SectionLabel>Its address</SectionLabel>
+            <div style={{ display: "grid", gap: 10 }}>
+              {moving ? (
+                <>
+                  <div className="address-field" style={{ marginTop: 0, padding: "9px 14px" }}>
+                    <input
+                      className="address-input"
+                      style={{ fontSize: 15 }}
+                      value={moveDraft}
+                      autoFocus
+                      aria-label="The new address"
+                      spellCheck={false}
+                      onChange={(e) =>
+                        setMoveDraft(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "-"))
+                      }
+                    />
+                    <span className="address-roof" style={{ fontSize: 15 }}>
+                      .osyle.app
+                    </span>
+                  </div>
+                  <p style={{ fontSize: 12, color: "var(--gray-small)" }}>
+                    {slug}.osyle.app keeps pointing here after the move, so
+                    anything you have already shared still arrives.
+                  </p>
+                  <div style={{ display: "flex", gap: 8 }}>
+                    <button
+                      className="pill pill-sm"
+                      onClick={() => {
+                        void changeAddress(moveDraft).then((trouble) => {
+                          setMoveWord(trouble);
+                          if (!trouble) setMoving(false);
+                        });
+                      }}
+                    >
+                      Move it there
+                    </button>
+                    <button className="pill pill-sm" onClick={() => setMoving(false)}>
+                      Keep this one
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <button
+                  className="pill pill-sm"
+                  style={{ justifySelf: "start" }}
+                  onClick={() => {
+                    setMoveDraft(slug);
+                    setMoveWord(null);
+                    setMoving(true);
+                  }}
+                >
+                  Change the address
+                </button>
+              )}
+              {moveWord && (
+                <p className="fade-in" style={{ fontSize: 12, color: "var(--bad)" }}>
+                  {moveWord}
+                </p>
+              )}
+            </div>
+          </>
         )}
 
         <SectionLabel>Settings</SectionLabel>

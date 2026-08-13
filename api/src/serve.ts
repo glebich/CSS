@@ -8,7 +8,7 @@
 import type { FastifyInstance } from "fastify";
 import { platformDb } from "./db.js";
 import { getBlob } from "./blobs.js";
-import { residentBySlug } from "./residents.js";
+import { residentByOldSlug, residentBySlug } from "./residents.js";
 
 const TYPES: Record<string, string> = {
   html: "text/html; charset=utf-8",
@@ -92,6 +92,12 @@ export function registerServe(app: FastifyInstance): void {
     async (req, reply) => {
       const resident = residentBySlug(req.params.slug);
       if (!resident) {
+        /* an address the app has left still knows where it went */
+        const moved = residentByOldSlug(req.params.slug);
+        if (moved) {
+          const rest = (req.params["*"] ?? "").replace(/^\/+/, "");
+          return reply.redirect(`/serve/${moved.slug}/${rest}`, 301);
+        }
         return reply.code(404).type("text/html; charset=utf-8").send(MISS_PAGE);
       }
       const raw = (req.params["*"] ?? "").replace(/^\/+|\/+$/g, "");
