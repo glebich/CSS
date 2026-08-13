@@ -3,6 +3,7 @@ import { artDirector, growthLoops, promptsSeed, resident } from "../data/seed";
 import type { InboxEntry } from "../data/seed";
 import { readLedger } from "../store";
 import { readGrowth } from "../engine/reportcard";
+import { stackHere } from "../stack";
 
 /**
  * The Owner console at #/owner: the operator's room, built for a
@@ -383,20 +384,7 @@ function Health() {
 
 /** The stack's own /health, read live when Real Mode names a base. */
 function StackHealth() {
-  const on = (() => {
-    try {
-      return localStorage.getItem("osyle.realMode") === "true";
-    } catch {
-      return false;
-    }
-  })();
-  const base = (() => {
-    try {
-      return localStorage.getItem("osyle.apiBase") ?? "http://localhost:8787";
-    } catch {
-      return "http://localhost:8787";
-    }
-  })();
+  const { on, base } = stackHere();
   const [health, setHealth] = useState<
     { ok: boolean; db: boolean; blobs: boolean; uptimeSeconds: number } | "down" | null
   >(null);

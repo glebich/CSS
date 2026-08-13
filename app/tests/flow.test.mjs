@@ -192,7 +192,26 @@ check(
   (await page.locator('.works-mark[data-mark="Cursor"] img').getAttribute("alt")) === "Cursor" ||
     (await page.locator('.works-mark[data-mark="Cursor"]').innerText()).includes("Cursor"),
 );
+/* the word on the door: while the real path is unfinished it asks
+   before it opens, and the example stays open to everyone */
 await page.getByText("Drop your app", { exact: false }).last().click();
+await page.waitForTimeout(400);
+check("the real drop asks for the word", await page.locator(".land-gate").isVisible());
+check("the flow does not open on a wrong word", (await page.locator(".flow-steps").count()) === 0);
+await page.locator(".land-gate input").fill("not the word");
+await page.locator(".land-gate .pill-dark").click();
+await page.waitForTimeout(300);
+check("a wrong word is refused", await page.getByText("Not that word.").isVisible());
+await page.locator(".land-gate input").fill("milkinside");
+await page.locator(".land-gate .pill-dark").click();
+await page.waitForTimeout(400);
+check("the right word opens the door", await page.locator(".flow-steps").isVisible());
+/* and it is remembered, so the door is asked once */
+await page.goto("http://localhost:5197/");
+await page.waitForTimeout(500);
+await page.getByText("Drop your app", { exact: false }).last().click();
+await page.waitForTimeout(400);
+check("the door asks only once", (await page.locator(".land-gate").count()) === 0);
 check("place shows the flow steps", await page.locator(".flow-steps").isVisible());
 check(
   "the onboarding keeps a clear desk, no rail",
@@ -1507,6 +1526,43 @@ await floor("http://localhost:5197/#/r/skyrecall", "the resident");
 
 check("no console or page errors", errors.length === 0);
 if (errors.length) console.log(errors.join("\n"));
+
+/* A build that names a stack finds it without anyone touching
+   localStorage. This is the whole point of the deployed site working
+   for a visitor, so it is checked the way a visitor meets it: a second
+   server built with the variable set, on its own port, with its own
+   empty storage. */
+process.env.VITE_OSYLE_API = "http://localhost:8787/";
+const built = await createServer({ root, server: { port: 5198 } });
+await built.listen();
+const visitor = await browser.newPage({ viewport: { width: 1440, height: 810 } });
+await visitor.goto("http://localhost:5198/");
+await visitor.waitForTimeout(900);
+const untouched = await visitor.evaluate(
+  () => localStorage.getItem("osyle.realMode") === null && localStorage.getItem("osyle.apiBase") === null,
+);
+check("the built-in stack needs no localStorage", untouched);
+/* the owner console reads /health straight from whatever base the app
+   decided on, so it proves the whole chain: build variable, decision,
+   live answer */
+await visitor.goto("http://localhost:5198/#/owner");
+await visitor.waitForTimeout(900);
+await visitor.getByText("Health", { exact: true }).click();
+check(
+  "a build that names a stack talks to it",
+  await visitor
+    .getByText("The stack answers")
+    .waitFor({ timeout: 20000 })
+    .then(() => true)
+    .catch(() => false),
+);
+check(
+  "the named stack is not called missing",
+  !(await visitor.getByText("Real Mode is on and a base").isVisible()),
+);
+await visitor.close();
+await built.close();
+delete process.env.VITE_OSYLE_API;
 
 await browser.close();
 await server.close();

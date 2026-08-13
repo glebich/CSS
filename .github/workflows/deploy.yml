@@ -21,6 +21,12 @@ jobs:
         with:
           node-version: 22
       - name: Install and build
+        # OSYLE_API is a repository variable. Set it to the live api's
+        # origin and the deployed site talks to that stack; leave it
+        # unset and the site builds exactly as it did before, knowing
+        # no stack and saying so.
+        env:
+          VITE_OSYLE_API: ${{ vars.OSYLE_API }}
         run: |
           npm ci --workspaces --include-workspace-root
           npm run build --workspace app

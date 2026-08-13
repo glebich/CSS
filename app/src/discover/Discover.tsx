@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { resident } from "../data/seed";
+import { stackHere } from "../stack";
 
 /**
  * Discover at #/discover: where residents are seen. Everything shown
@@ -60,14 +61,7 @@ export function Discover() {
      actually answers earns the chip; silence stays silent */
   const [doors, setDoors] = useState<Record<string, boolean>>({});
   useEffect(() => {
-    let realMode = false;
-    let base = "http://localhost:8787";
-    try {
-      realMode = localStorage.getItem("osyle.realMode") === "true";
-      base = localStorage.getItem("osyle.apiBase") ?? base;
-    } catch {
-      return;
-    }
+    const { on: realMode, base } = stackHere();
     if (!realMode) return;
     const ctl = new AbortController();
     const t = window.setTimeout(() => ctl.abort(), 4000);

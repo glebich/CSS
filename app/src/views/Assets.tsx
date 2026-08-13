@@ -272,11 +272,18 @@ export function Assets() {
           style={{
             display: "grid",
             gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))",
-            gridAutoRows: "1fr",
+            /* a card is never squeezed below the height its own words
+               need: crushing the rows to fit a fixed box cut names in
+               half. The fan keeps its size and scrolls instead. */
+            gridAutoRows: "minmax(128px, max-content)",
+            alignContent: "start",
             gap: 18,
             flex: 1,
             minWidth: 280,
             height: 460,
+            overflowY: "auto",
+            overscrollBehavior: "contain",
+            paddingRight: 4,
           }}
         >
           {project

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useStore } from "../store";
 import { MiniApp } from "../components/MiniApp";
 import { Sparkle, Wordmark } from "../components/chrome";
+import { stackHere, stackIsNamedByBuild } from "../stack";
 
 /** Nominative marks only: we integrate with these, nothing implied.
     A mark with a logo wears it; one without wears its name until its
@@ -327,17 +328,58 @@ function LogoCell({ name, src }: { name: string; src: string }) {
   );
 }
 
+/**
+ * The word on the door. Dropping a real app leads into work that is
+ * still being built, and a visitor who walks in meets it half made, so
+ * that path asks for a word first. The example stays open to everyone.
+ *
+ * This is a doorbell, not a lock: the word ships inside the bundle and
+ * anyone determined can read it. It keeps a passer-by out of unfinished
+ * rooms, which is all it is for.
+ */
+const GATE_WORD = (import.meta.env.VITE_OSYLE_GATE ?? "milkinside").toLowerCase();
+const GATE_KEY = "osyle.gate";
+
+function gateIsOpen(): boolean {
+  try {
+    return localStorage.getItem(GATE_KEY) === GATE_WORD;
+  } catch {
+    return false;
+  }
+}
+
 export function Landing() {
   useRise();
   const { go, resetDemo } = useStore();
   const [sheetOpen, setSheetOpen] = useState(false);
-  const [realMode, setRealMode] = useState(() => {
-    try {
-      return localStorage.getItem("osyle.realMode") === "true";
-    } catch {
-      return false;
+  const [gateAsking, setGateAsking] = useState(false);
+  const [gateWord, setGateWord] = useState("");
+  const [gateWrong, setGateWrong] = useState(false);
+
+  /* the example walks straight in; a real drop knocks first */
+  const enterProduct = () => {
+    if (gateIsOpen()) {
+      go("place");
+      return;
     }
-  });
+    setGateWord("");
+    setGateWrong(false);
+    setGateAsking(true);
+  };
+  const tryTheWord = () => {
+    if (gateWord.trim().toLowerCase() !== GATE_WORD) {
+      setGateWrong(true);
+      return;
+    }
+    try {
+      localStorage.setItem(GATE_KEY, GATE_WORD);
+    } catch {
+      /* the door still opens for this visit */
+    }
+    setGateAsking(false);
+    go("place");
+  };
+  const [realMode, setRealMode] = useState(() => stackHere().on);
   const [anthropicKey, setAnthropicKey] = useState("");
   const [geminiKey, setGeminiKey] = useState("");
   /* the concept film plays when its host answers; the live render steps in when it cannot */
@@ -379,7 +421,7 @@ export function Landing() {
           <a href="#/discover" className="land-quiet-link">
             See who lives here
           </a>
-          <button className="pill pill-dark pill-sm" onClick={() => go("place")}>
+          <button className="pill pill-dark pill-sm" onClick={enterProduct}>
             Drop your app
           </button>
         </div>
@@ -397,7 +439,7 @@ export function Landing() {
             design, and given an address where it keeps living.
           </p>
           <div className="land-hero-ctas rise-load rise-3">
-            <button className="pill pill-dark" onClick={() => go("place")}>
+            <button className="pill pill-dark" onClick={enterProduct}>
               <Sparkle size={13} />
               Drop your app
             </button>
@@ -494,7 +536,7 @@ export function Landing() {
             <WorksMark key={w.name} name={w.name} does={w.does} logo={w.logo} />
           ))}
         </div>
-        <button className="pill pill-dark" style={{ marginTop: 18 }} onClick={() => go("place")}>
+        <button className="pill pill-dark" style={{ marginTop: 18 }} onClick={enterProduct}>
           Drop your app
           <Sparkle size={13} />
         </button>
@@ -570,7 +612,7 @@ export function Landing() {
         <h2 className="rise rise-1">A billion apps are about to be generated. None of them have a home.</h2>
         <p className="land-close-sub">Yours can, today.</p>
         <div className="brand-promises">Safe. Designed. Usable. Tested. Evolving. Shared.</div>
-        <button className="brand-enter" onClick={() => go("place")}>
+        <button className="brand-enter" onClick={enterProduct}>
           <Sparkle size={13} />
           Drop your app
         </button>
@@ -581,6 +623,55 @@ export function Landing() {
           </a>
         </div>
       </footer>
+
+      {gateAsking && (
+        <>
+          <div className="resident-backdrop" onClick={() => setGateAsking(false)} />
+          <div className="glass-panel fade-in land-gate" role="dialog" aria-label="The word on the door">
+            <div className="panel-title" style={{ fontSize: 18 }}>
+              This part is still being built
+            </div>
+            <p style={{ fontSize: 12.5, color: "var(--gray-small)", marginTop: 8, lineHeight: 1.55 }}>
+              Dropping a real app walks into rooms that are half made. The
+              example below is finished and open to everyone. If you have the
+              word, go through.
+            </p>
+            <div className="ask-pill" style={{ minWidth: 0, height: 44, marginTop: 16 }}>
+              <input
+                type="password"
+                placeholder="The word"
+                aria-label="The word on the door"
+                value={gateWord}
+                autoFocus
+                onChange={(e) => {
+                  setGateWord(e.target.value);
+                  setGateWrong(false);
+                }}
+                onKeyDown={(e) => e.key === "Enter" && tryTheWord()}
+              />
+            </div>
+            {gateWrong && (
+              <p style={{ fontSize: 12, color: "var(--gray-small)", marginTop: 8 }}>
+                Not that word.
+              </p>
+            )}
+            <div style={{ display: "flex", gap: 8, marginTop: 14, flexWrap: "wrap" }}>
+              <button className="pill pill-dark pill-sm" onClick={tryTheWord}>
+                Go through
+              </button>
+              <button
+                className="pill pill-sm"
+                onClick={() => {
+                  setGateAsking(false);
+                  go("place");
+                }}
+              >
+                Watch the example instead
+              </button>
+            </div>
+          </div>
+        </>
+      )}
 
       {sheetOpen && (
         <div
@@ -617,8 +708,9 @@ export function Landing() {
             Real Mode
           </label>
           <p style={{ fontSize: 11.5, color: "var(--gray-small)", marginTop: 4, lineHeight: 1.5 }}>
-            The switch is wired; the platform arrives with its stage. Demo
-            Mode never dies in a room.
+            {stackIsNamedByBuild()
+              ? "This build knows a stack and speaks to it. Switch it off to watch the app work with no server at all."
+              : "This build names no stack, so the switch looks for one on this machine at port 8787. Demo Mode never dies in a room."}
           </p>
           <div style={{ marginTop: 14, display: "grid", gap: 8 }}>
             <input

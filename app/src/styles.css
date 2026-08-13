@@ -916,7 +916,7 @@ input {
 .brand-works {
   margin-top: 46px;
   display: flex;
-  gap: 22px;
+  gap: 42px;
   align-items: baseline;
   justify-content: center;
   flex-wrap: wrap;
@@ -974,7 +974,7 @@ input {
 }
 
 .works-mark[data-mark="Claude"] .works-logo {
-  height: 17px;
+  height: 15px;
 }
 
 .works-mark[data-mark="GitHub"] .works-logo {
@@ -982,7 +982,7 @@ input {
 }
 
 .works-mark[data-mark="OpenAI"] .works-logo {
-  height: 26px;
+  height: 31px;
 }
 
 .works-mark[data-mark="Bolt"] .works-logo {
@@ -990,11 +990,11 @@ input {
 }
 
 .works-mark[data-mark="Replit"] .works-logo {
-  height: 30px;
+  height: 33px;
 }
 
 .works-mark[data-mark="Figma"] .works-logo {
-  height: 24px;
+  height: 26px;
 }
 
 
@@ -5782,4 +5782,17 @@ html {
     top: 66px;
     transform: translateX(-50%);
   }
+}
+
+/* the word on the door: a small sheet in the middle of the page */
+.land-gate {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(360px, calc(100vw - 40px));
+  padding: 24px;
+  color: var(--ink-body);
+  text-align: left;
+  z-index: 60;
 }

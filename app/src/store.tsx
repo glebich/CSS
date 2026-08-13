@@ -27,6 +27,7 @@ import {
 import { analyzeProject, filesFromInput, type DroppedFile } from "./engine/analyze";
 import { fetchRepoZip, parseRepoUrl } from "./engine/github";
 import type { AnalyzedProject, ProgressLine, ProjectFile } from "./engine/types";
+import { stackHere } from "./stack";
 
 export type View =
   | "landing"
@@ -837,20 +838,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
    * and spoken to honestly. Unreachable degrades to one quiet line;
    * everything local keeps working, which is the entire doctrine.
    */
-  const stackOn = (() => {
-    try {
-      return localStorage.getItem("osyle.realMode") === "true";
-    } catch {
-      return false;
-    }
-  })();
-  const stackBase = (() => {
-    try {
-      return localStorage.getItem("osyle.apiBase") ?? "http://localhost:8787";
-    } catch {
-      return "http://localhost:8787";
-    }
-  })();
+  const here = stackHere();
+  const stackOn = here.on;
+  const stackBase = here.base;
   const [stackUp, setStackUp] = useState<boolean | null>(null);
   const [stackClaim, setStackClaim] = useState<{
     address: string;
