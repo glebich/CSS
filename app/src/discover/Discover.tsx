@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { resident } from "../data/seed";
 
 /**
@@ -51,6 +52,41 @@ function residents(): Row[] {
 
 export function Discover() {
   const rows = residents();
+
+  /* the knock: when the stack is on, every listed door is tried the
+     way a visitor's browser would try it, and only a door that
+     actually answers earns the chip; silence stays silent */
+  const [doors, setDoors] = useState<Record<string, boolean>>({});
+  useEffect(() => {
+    let realMode = false;
+    let base = "http://localhost:8787";
+    try {
+      realMode = localStorage.getItem("osyle.realMode") === "true";
+      base = localStorage.getItem("osyle.apiBase") ?? base;
+    } catch {
+      return;
+    }
+    if (!realMode) return;
+    const ctl = new AbortController();
+    const t = window.setTimeout(() => ctl.abort(), 4000);
+    void Promise.allSettled(
+      rows
+        .filter((r) => !r.example)
+        .map(async (r) => {
+          const res = await fetch(`${base}/serve/${r.slug}/`, {
+            method: "HEAD",
+            signal: ctl.signal,
+          });
+          if (res.ok) setDoors((prev) => ({ ...prev, [r.slug]: true }));
+        }),
+    ).finally(() => window.clearTimeout(t));
+    return () => {
+      ctl.abort();
+      window.clearTimeout(t);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <main className="canvas canvas-dotted" style={{ minHeight: "100vh", overflowY: "auto" }}>
       <div className="canvas-inner" style={{ maxWidth: 880 }}>
@@ -77,6 +113,14 @@ export function Discover() {
                 <span style={{ fontSize: 18, fontWeight: 550 }}>{r.name}</span>
                 <span className="chip">{r.slug}.osyle.app</span>
                 {r.example && <span className="chip">Example</span>}
+                {doors[r.slug] && (
+                  <span
+                    className="chip"
+                    title={`The stack is serving this app at /serve/${r.slug}/ right now.`}
+                  >
+                    The door answers
+                  </span>
+                )}
                 <span className="topbar-spacer" />
                 <span style={{ fontSize: 15, fontWeight: 550, fontVariantNumeric: "tabular-nums" }}>
                   {r.vitality}

@@ -1208,6 +1208,16 @@ await page.goto("http://localhost:5197/#/discover");
 await page.waitForTimeout(400);
 check("unlisted stays off discover", (await page.getByText("sunrise.osyle.app").count()) === 0);
 check("public residents remain seen", await page.getByText("clean.osyle.app").isVisible());
+/* the knock: the claimed resident's served door earns its chip */
+check(
+  "an answering door is seen on discover",
+  await page
+    .getByText("The door answers")
+    .first()
+    .waitFor({ timeout: 6000 })
+    .then(() => true)
+    .catch(() => false),
+);
 await goToPlace();
 
 /* back to the example for the remaining checks */
