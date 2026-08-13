@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { sdk, useStore } from "../store";
 import { Page, Sparkle } from "../components/chrome";
 
@@ -18,10 +18,138 @@ const pilot = db.auth.signIn("maria@example.com");
 // Key-value: small facts worth remembering
 db.kv.set("streak", db.kv.get("streak", 0) + 1);`;
 
+function storedKey(slug: string | null): string | null {
+  if (!slug) return null;
+  try {
+    const raw = localStorage.getItem("osyle.keys");
+    return raw ? ((JSON.parse(raw) as Record<string, string>)[slug] ?? null) : null;
+  } catch {
+    return null;
+  }
+}
+
+/** The client this app would actually import, written with its own
+    address, its own transport, and its own key when it has one. */
+function clientFor(slug: string, base: string, key: string | null): string {
+  const head = key
+    ? `const db = createClient("${slug}", {\n  transport: "http",\n  baseUrl: "${base}",\n  key: "${key}",\n});`
+    : `const db = createClient("${slug}");\n\n// The http transport and this app's key arrive with the claim on\n// the stack. Until then the same calls run on local storage.`;
+  return `import { createClient } from "@osyle/sdk";
+
+${head}
+
+// Rows: this app's own isolated database
+db.rows("sessions").insert({ kind: "first", ok: true });
+
+// Auth-lite: magic-link shaped, no passwords ever
+db.auth.signIn("someone@example.com");
+
+// Key-value: small facts worth remembering
+db.kv.set("streak", 1);`;
+}
+
+/**
+ * The SDK room for a real app: the client it would import, written
+ * with its own name, and an honest word on where its database stands.
+ * No borrowed users, and no users invented for it.
+ */
+function RealSdk() {
+  const { project, realSlug, stack, go, togglePanel } = useStore();
+  const [copied, setCopied] = useState(false);
+  const [answers, setAnswers] = useState<boolean | null>(null);
+  const slug = realSlug ?? "your-app";
+  const key = storedKey(realSlug);
+  const snippet = clientFor(slug, stack.base, key);
+
+  useEffect(() => {
+    if (!stack.on || stack.up !== true || !realSlug || !key) return;
+    fetch(`${stack.base}/rdb/${realSlug}/rows/sessions/count`, {
+      headers: { "x-osyle-key": key },
+    })
+      .then((r) => setAnswers(r.ok))
+      .catch(() => setAnswers(false));
+  }, [stack.on, stack.up, stack.base, realSlug, key]);
+
+  return (
+    <Page>
+      <h1 className="statement statement-page">
+        Your app&apos;s own <span className="quiet">database.</span>
+      </h1>
+      <p style={{ color: "var(--gray-meta)", marginTop: 8, maxWidth: 660 }}>
+        {project?.inventory.name ?? "This app"} carries an isolated end-user
+        database: rows, sign-in without passwords, and small facts that survive
+        a refresh, with no backend to build. Below is the client it would
+        import, written with its own name.
+      </p>
+
+      <div className="section-label" style={{ marginTop: 30 }}>
+        Where the database stands
+      </div>
+      <div className="card card-pad" style={{ maxWidth: 660 }}>
+        <div style={{ fontSize: 15, fontWeight: 510 }}>
+          {answers === true
+            ? "Open and answering"
+            : key
+              ? answers === false
+                ? "The stack holds it, but the door did not answer"
+                : "Asking the stack"
+              : "Waiting for the claim"}
+        </div>
+        <p style={{ color: "var(--gray-meta)", fontSize: 13, marginTop: 8 }}>
+          {answers === true
+            ? `The database is live at ${stack.base}/rdb/${slug}, and it opens only for this app's key. Rows appear here once the app ships with the client below wired in; nothing is written for it in the meantime.`
+            : key
+              ? "The key is in your hands and the resident exists. If this persists, check that the stack is running."
+              : "Claim the app on the stack from the address, and its database, its key, and the http transport all arrive together."}
+        </p>
+      </div>
+
+      <div className="section-label" style={{ marginTop: 30 }}>
+        The client, yours to paste
+      </div>
+      <pre
+        className="mono card card-solid"
+        style={{
+          padding: 22,
+          whiteSpace: "pre-wrap",
+          color: "var(--ink-soft)",
+          lineHeight: 1.7,
+          maxWidth: 720,
+        }}
+      >
+        {snippet}
+      </pre>
+
+      <div style={{ display: "flex", justifyContent: "center", gap: 10, marginTop: 34 }}>
+        <button
+          className="pill pill-dark"
+          onClick={() => {
+            navigator.clipboard?.writeText(snippet).catch(() => undefined);
+            setCopied(true);
+          }}
+        >
+          {copied ? "Copied" : "Copy the client"}
+          <Sparkle size={13} />
+        </button>
+        <button className="pill" onClick={() => togglePanel("resident")}>
+          Your app
+        </button>
+        <button className="pill" onClick={() => go("home")}>
+          Back to the home
+        </button>
+      </div>
+    </Page>
+  );
+}
+
 /** The SDK surface: rows, auth-lite, key-value. Real software, real users. */
 export function Sdk() {
   const [, bump] = useState(0);
-  const { go, togglePanel } = useStore();
+  const { go, togglePanel, project } = useStore();
+
+  /* a real app gets its own client and its own database; the pilots
+     below are the example's people and stay with the example */
+  if (project) return <RealSdk />;
 
   const drills = sdk.rows("drills");
   const user = sdk.auth.user();

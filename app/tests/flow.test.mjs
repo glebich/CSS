@@ -1251,6 +1251,29 @@ check(
 );
 await page.getByText("Back to the work").click();
 await page.waitForTimeout(400);
+
+/* the SDK room: a real app is handed its own client, never the
+   example's slug */
+await page.getByText("The journeys").click();
+await page.waitForTimeout(900);
+check(
+  "the client is written with the app's own name",
+  await page.getByText('createClient("sunrise"', { exact: false }).isVisible(),
+);
+check(
+  "the example's resident is not pasted into a real app",
+  (await page.getByText('createClient("skyrecall")').count()) === 0,
+);
+check(
+  "the client carries the app's own key",
+  await page.getByText("transport: \"http\"", { exact: false }).isVisible(),
+);
+check(
+  "the database says where it stands",
+  await page.getByText("Where the database stands", { exact: false }).isVisible(),
+);
+await page.getByText("Back to the home").click();
+await page.waitForTimeout(400);
 await page.goto("http://localhost:5197/#/discover");
 await page.waitForTimeout(400);
 check("unlisted stays off discover", (await page.getByText("sunrise.osyle.app").count()) === 0);
