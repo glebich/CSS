@@ -6,7 +6,7 @@ import { Sparkle, Wordmark } from "../components/chrome";
 /** Nominative marks only: we integrate with these, nothing implied.
     A mark with a logo wears it; one without wears its name until its
     logo arrives, and never a placeholder pretending to be a logo. */
-const WORKS_WITH: Array<{ name: string; does: string; logo?: string }> = [
+const WORKS_WITH: Array<{ name: string; does: string; logo?: string; invert?: boolean }> = [
   {
     name: "GitHub",
     does: "Connect a repository and Osyle reads the app from it",
@@ -22,16 +22,45 @@ const WORKS_WITH: Array<{ name: string; does: string; logo?: string }> = [
     does: "Cursor projects import as files, a zip, or a repo",
     logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/42/Cursor_logo.svg/3840px-Cursor_logo.svg.png",
   },
-  { name: "Claude", does: "Your Claude key powers live Studio edits with Real Mode" },
+  {
+    name: "Claude",
+    does: "Your Claude key powers live Studio edits with Real Mode",
+    logo: "https://i.logos-download.com/114232/31116-s1280-fa091cbf2b0bebc0fad188b896376d53.png/Claude_Logo_2023-s1280.png",
+  },
   { name: "v0", does: "v0 output imports as files, a zip, or a repo" },
-  { name: "Bolt", does: "Bolt projects import as files, a zip, or a repo" },
-  { name: "Replit", does: "Replit projects import as files, a zip, or a repo" },
-  { name: "Figma", does: "Figma exports arrive as materials for the identity" },
+  {
+    name: "Bolt",
+    does: "Bolt projects import as files, a zip, or a repo",
+    logo: "https://vectorseek.com/wp-content/uploads/2025/07/bolt-ai-logo-01.png",
+  },
+  {
+    name: "Replit",
+    does: "Replit projects import as files, a zip, or a repo",
+    /* the light logotype is drawn for dark ground; this page is paper,
+       so it is turned over to be seen at all */
+    logo: "https://replit-creators.replit.app/logos/Logotype-Transparent-Light@512h.png",
+    invert: true,
+  },
+  {
+    name: "Figma",
+    does: "Figma exports arrive as materials for the identity",
+    logo: "https://1000logos.net/wp-content/uploads/2024/09/Figma-Logo.png",
+  },
 ];
 
 /** One mark: the logo when there is one and it loads, the name when
     there is not, and the name again if the logo refuses to arrive. */
-function WorksMark({ name, does, logo }: { name: string; does: string; logo?: string }) {
+function WorksMark({
+  name,
+  does,
+  logo,
+  invert,
+}: {
+  name: string;
+  does: string;
+  logo?: string;
+  invert?: boolean;
+}) {
   const [shown, setShown] = useState(!!logo);
   return (
     /* the mark is found by its name whether it wears a logo or the
@@ -39,7 +68,7 @@ function WorksMark({ name, does, logo }: { name: string; does: string; logo?: st
     <span className="works-mark" data-mark={name} title={does}>
       {shown && logo ? (
         <img
-          className="works-logo"
+          className={`works-logo${invert ? " is-inverted" : ""}`}
           src={logo}
           alt={name}
           loading="lazy"
@@ -435,7 +464,7 @@ export function Landing() {
         </p>
         <div className="land-works" style={{ padding: "18px 0 0" }}>
           {WORKS_WITH.map((w) => (
-            <WorksMark key={w.name} name={w.name} does={w.does} logo={w.logo} />
+            <WorksMark key={w.name} name={w.name} does={w.does} logo={w.logo} invert={w.invert} />
           ))}
         </div>
         <button className="pill pill-dark" style={{ marginTop: 18 }} onClick={() => go("place")}>

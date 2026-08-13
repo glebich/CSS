@@ -961,6 +961,16 @@ input {
   opacity: 1;
 }
 
+/* a logotype drawn light, for dark ground, is turned over so it can be
+   seen on paper at all */
+.works-logo.is-inverted {
+  filter: grayscale(1) invert(1);
+}
+
+.works-mark:hover .works-logo.is-inverted {
+  filter: invert(1);
+}
+
 /* the six promises, one quiet line above the foot */
 .brand-promises {
   position: absolute;

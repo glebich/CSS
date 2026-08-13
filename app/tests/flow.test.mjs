@@ -66,6 +66,8 @@ page.on("console", (m) => {
     !text.includes("freebiesupply") &&
     !text.includes("wikimedia") &&
     !text.includes("logos-download") &&
+    !text.includes("replit.app") &&
+    !text.includes("vectorseek") &&
     !text.includes("ERR_TUNNEL_CONNECTION_FAILED")
   ) {
     errors.push(`console: ${text}`);
