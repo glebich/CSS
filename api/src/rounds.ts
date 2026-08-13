@@ -177,7 +177,7 @@ export function latestPulse(residentId: string): Pulse | null {
 
 /** One sweep: look at every resident whose pulse has gone stale.
     Returns how many looks were taken, so callers and tests can see. */
-export function runRound(): number {
+export async function runRound(): Promise<number> {
   const db = platformDb();
   const floor = new Date(Date.now() - LOOK_EVERY_MS).toISOString();
   const due = db
@@ -188,6 +188,9 @@ export function runRound(): number {
     )
     .all(floor) as unknown as Array<{ id: string }>;
   for (const r of due) {
+    /* the caretaker walks between the visitors, never through them: a
+       look reads files and would hold the loop for everyone waiting */
+    await new Promise((resolve) => setImmediate(resolve));
     try {
       examineResident(r.id);
     } catch (err) {
@@ -204,8 +207,8 @@ export function runRound(): number {
 /** The clock, started by the server process, never by tests. */
 export function startRounds(): void {
   if (process.env.OSYLE_ROUNDS === "off") return;
-  setTimeout(() => runRound(), 15_000);
-  setInterval(() => runRound(), SWEEP_MS);
+  setTimeout(() => void runRound(), 15_000);
+  setInterval(() => void runRound(), SWEEP_MS);
 }
 
 export function registerRounds(app: FastifyInstance): void {

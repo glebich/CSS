@@ -536,9 +536,9 @@ check("a shed name stops answering", servedGone.statusCode === 404);
 
 /* the round: the caretaker's look, on the clock and on demand */
 const { runRound } = await import("../dist/rounds.js");
-const looked = runRound();
+const looked = await runRound();
 check("the round looks at every resident", looked >= 2);
-check("a fresh pulse is not retaken within the day", runRound() === 0);
+check("a fresh pulse is not retaken within the day", (await runRound()) === 0);
 const pulseGet = await app.inject({
   method: "GET",
   url: "/residents/skyrecall/pulse",

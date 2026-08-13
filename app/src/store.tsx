@@ -105,6 +105,44 @@ export function readLedger(): LedgerEntry[] {
   return loadJson<LedgerEntry[]>(LEDGER_KEY, []);
 }
 
+/**
+ * What an address may be: a letter first, then letters, digits, and
+ * hyphens, two to thirty characters. The same law the stack keeps, so
+ * a name chosen here is a name the stack will accept.
+ */
+export const ADDRESS_RE = /^[a-z][a-z0-9-]{1,29}$/;
+
+/** The example's own address is never available to a real app. */
+export const ADDRESS_RESERVED = ["skyrecall", "osyle", "www", "api", "admin"];
+
+/** The first suggestion, drawn from what the files were called. */
+export function suggestAddress(name: string): string {
+  const base = name
+    .toLowerCase()
+    .replace(/\.zip$/, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 30);
+  if (!base || ADDRESS_RESERVED.includes(base) || !/^[a-z]/.test(base)) {
+    return `app-${base || "one"}`.slice(0, 30);
+  }
+  return base;
+}
+
+/** Why an address cannot be worn, in one sentence, or null when it can. */
+export function addressTrouble(slug: string): string | null {
+  const s = slug.trim().toLowerCase();
+  if (!s) return "An address needs a name.";
+  if (!/^[a-z]/.test(s)) return "It starts with a letter.";
+  if (!/^[a-z0-9-]+$/.test(s)) return "Letters, digits, and hyphens only.";
+  if (s.length < 2) return "A little longer, at least two characters.";
+  if (s.length > 30) return "A little shorter, thirty characters at most.";
+  if (ADDRESS_RESERVED.includes(s)) return "That name is the platform's own.";
+  const registry = loadJson<Record<string, unknown>>("osyle.residents", {});
+  if (registry[s]) return "Another app already lives there.";
+  return null;
+}
+
 /** Away long enough that the resident has a story to tell. */
 const RETURN_AFTER_MS = 4 * 60 * 60 * 1000;
 
@@ -199,7 +237,7 @@ interface Store {
   claimOnStack: (email: string) => Promise<string | null>;
   /** the residency: persist the dropped app and serve it at its address */
   realSlug: string | null;
-  giveAddress: () => void;
+  giveAddress: (chosen?: string) => void;
   progress: ProgressLine[];
   realDecisions: Record<string, "accepted" | "aside">;
   decideReal: (findingId: string, decision: "accepted" | "aside") => void;
@@ -608,17 +646,19 @@ export function StoreProvider({ children }: { children: ReactNode }) {
    * this machine and the address serves them. GitHub keeps the code;
    * the address keeps the life.
    */
-  const giveAddress = useCallback(() => {
+  /* the address is the person's to choose; what the files were called
+     is only ever the first suggestion */
+  const giveAddress = useCallback((chosen?: string) => {
     if (!project) return;
-    let slug = project.inventory.name
-      .toLowerCase()
-      .replace(/\.zip$/, "")
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-+|-+$/g, "")
-      .slice(0, 30);
-    /* the address route wants a letter first; digits get a quiet prefix */
-    if (!slug || slug === "skyrecall" || !/^[a-z]/.test(slug)) slug = `app-${slug || "one"}`;
+    const wanted = (chosen ?? "").trim().toLowerCase();
+    let slug = ADDRESS_RE.test(wanted) ? wanted : suggestAddress(project.inventory.name);
     const registry = loadJson<Record<string, unknown>>("osyle.residents", {});
+    /* never quietly move into an address someone already holds */
+    if (registry[slug] && slug !== realSlug) {
+      let n = 2;
+      while (registry[`${slug}-${n}`]) n += 1;
+      slug = `${slug}-${n}`;
+    }
     const textFiles = [...project.files.values()]
       .filter((f) => f.text !== null)
       .slice(0, 40)
@@ -648,7 +688,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     endJob(job, `It lives at ${slug}.osyle.app now.`);
     setPanel("none");
     setView("address");
-  }, [project, styleId, record, beginJob, endJob]);
+  }, [project, styleId, record, beginJob, endJob, realSlug]);
 
   const analyzeFiles = useCallback(async (dropped: DroppedFile[]) => {
     const first = dropped[0] instanceof File ? dropped[0] : dropped[0]?.file;

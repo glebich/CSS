@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { useStore } from "../store";
+import { addressTrouble, suggestAddress, useStore } from "../store";
 import { Icon, InstrumentBurst, Page, Sparkle } from "../components/chrome";
 import { bumpGrowth, drawReportCard } from "../engine/reportcard";
 import { motionFor, styleCatalog } from "../data/seed";
@@ -127,6 +127,10 @@ export function Report() {
   /* the prompt stands in the open; hiding it is the choice, not finding it */
   const [promptOpen, setPromptOpen] = useState(true);
   const [cardDrawn, setCardDrawn] = useState(false);
+  /* the address is picked before it is given, never derived in silence */
+  const [naming, setNaming] = useState(false);
+  const [chosen, setChosen] = useState("");
+  const trouble = naming ? addressTrouble(chosen) : null;
 
   async function downloadReportCard() {
     if (!project) return;
@@ -414,11 +418,65 @@ export function Report() {
           <button className="pill" onClick={() => void downloadReportCard()}>
             {cardDrawn ? "The card is yours" : "Download the report card"}
           </button>
-          <button className="pill pill-dark" onClick={giveAddress}>
+          <button
+            className="pill pill-dark"
+            onClick={() => {
+              setChosen(suggestAddress(project.inventory.name));
+              setNaming(true);
+            }}
+          >
             Give it the address
             <Sparkle size={13} />
           </button>
         </div>
+
+        {/* the address is chosen here, before it is given: what the
+            files were called is only the first suggestion */}
+        {naming && (
+          <div className="address-pick card card-pad fade-in">
+            <div className="instrument-label">Choose its address</div>
+            <p style={{ fontSize: 13, color: "var(--gray-meta)", marginTop: 6 }}>
+              This is where the app will live, and where anyone you send will
+              find it. Your own domain can point at it later.
+            </p>
+            <div className="address-field">
+              <input
+                className="address-input"
+                value={chosen}
+                autoFocus
+                aria-label="The address"
+                spellCheck={false}
+                onChange={(e) =>
+                  setChosen(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "-"))
+                }
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !addressTrouble(chosen)) giveAddress(chosen);
+                  if (e.key === "Escape") setNaming(false);
+                }}
+              />
+              <span className="address-roof">.osyle.app</span>
+            </div>
+            <p
+              className="address-word"
+              style={{ color: trouble ? "var(--bad)" : "var(--gray-small)" }}
+            >
+              {trouble ?? `${chosen}.osyle.app is free. It is yours.`}
+            </p>
+            <div style={{ display: "flex", gap: 10, marginTop: 14, justifyContent: "center" }}>
+              <button
+                className="pill pill-dark"
+                disabled={!!trouble}
+                onClick={() => giveAddress(chosen)}
+              >
+                Give it this address
+                <Sparkle size={13} />
+              </button>
+              <button className="pill" onClick={() => setNaming(false)}>
+                Not yet
+              </button>
+            </div>
+          </div>
+        )}
         {promptOpen && (
           <div className="fade-in" style={{ position: "relative", marginTop: 16 }}>
             {/* the copy lives inside the prompt it copies */}

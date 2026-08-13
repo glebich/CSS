@@ -33,6 +33,9 @@ const api = spawn("node", ["dist/server.js"], {
     OSYLE_DATA: dataDir,
     PORT: String(PORT),
     OSYLE_RATE_MAX: "100000",
+    /* the drill measures what a visitor waits for; the caretaker's
+       rounds are real work but they are not the thing being timed */
+    OSYLE_ROUNDS: "off",
     NODE_ENV: "test",
   },
   stdio: ["ignore", "ignore", "inherit"],

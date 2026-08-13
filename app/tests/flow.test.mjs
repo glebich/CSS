@@ -819,9 +819,34 @@ check(
    The residency: the examined app moves in, and the address serves
    the actual dropped files, not a metaphor for them. */
 await page.getByText("Give it the address").click();
+await page.waitForTimeout(400);
+/* the address is chosen, never assigned: the suggestion is offered and
+   the person may take it or name their own */
+check(
+  "the address is offered for choosing first",
+  (await page.locator(".address-input").inputValue()) === "app-3-files",
+);
+await page.locator(".address-input").fill("sky-recall");
+await page.waitForTimeout(150);
+check(
+  "a free address says it is free",
+  await page.getByText("sky-recall.osyle.app is free", { exact: false }).isVisible(),
+);
+await page.locator(".address-input").fill("skyrecall");
+await page.waitForTimeout(150);
+check(
+  "the platform's own name is refused",
+  await page.getByText("That name is the platform's own", { exact: false }).isVisible(),
+);
+/* a name of the person's own, not the one the files happened to carry */
+await page.locator(".address-input").fill("my-first-app");
+await page.getByText("Give it this address").click();
 await page.waitForTimeout(500);
 check("the ceremony opens", await page.getByText("It lives here now.").isVisible());
-check("the address is spoken", await page.getByText("app-3-files.osyle.app").first().isVisible());
+check(
+  "the chosen address is the one given",
+  await page.getByText("my-first-app.osyle.app").first().isVisible(),
+);
 check(
   "the ceremony stands alone, no breadcrumb competing",
   (await page.locator(".flow-steps").count()) === 0,
@@ -835,7 +860,7 @@ await page.getByText("Download the store kit").click();
 const kit = await kitDownload;
 check(
   "the store kit downloads complete",
-  kit !== null && kit.suggestedFilename() === "app-3-files-store-kit.zip",
+  kit !== null && kit.suggestedFilename() === "my-first-app-store-kit.zip",
 );
 await page.getByText("Invite a builder").click();
 await page.waitForTimeout(200);
@@ -849,7 +874,7 @@ await page.waitForTimeout(1800);
 check(
   "the claim comes back with the address",
   await page
-    .getByText("Claimed. app-3-files.osyle.app is registered on the stack.")
+    .getByText("Claimed. my-first-app.osyle.app is registered on the stack.")
     .isVisible(),
 );
 check(
@@ -867,7 +892,7 @@ check(
 check(
   "the stack actually serves the claimed page",
   await page.evaluate(async () => {
-    const r = await fetch("http://localhost:8787/serve/app-3-files/");
+    const r = await fetch("http://localhost:8787/serve/my-first-app/");
     return r.ok && (r.headers.get("content-type") || "").includes("text/html");
   }),
 );
@@ -877,7 +902,7 @@ check(
   "the vault holds the files, versioned from day one",
   await page.getByText("3 files in the Vault, versioned from day one.", { exact: false }).isVisible(),
 );
-await page.goto("http://localhost:5197/#/r/app-3-files");
+await page.goto("http://localhost:5197/#/r/my-first-app");
 await page.waitForTimeout(700);
 check(
   "the dropped app is served at its address",
@@ -885,7 +910,7 @@ check(
 );
 check(
   "the resident footer marks the life",
-  await page.getByText("app-3-files.osyle.app, alive at Osyle").isVisible(),
+  await page.getByText("my-first-app.osyle.app, alive at Osyle").isVisible(),
 );
 await page.reload();
 await page.waitForTimeout(700);
@@ -925,8 +950,14 @@ check(
   improveText.includes("heuristic") && improveText.includes("WCAG"),
 );
 await page.getByText("Give it the address").click();
+await page.waitForTimeout(400);
+check(
+  "a folder drop suggests its folder's name",
+  (await page.locator(".address-input").inputValue()) === "clean",
+);
+await page.getByText("Give it this address").click();
 await page.waitForTimeout(500);
-check("a folder drop is named by its folder", await page.getByText("clean.osyle.app").first().isVisible());
+check("the suggestion can simply be taken", await page.getByText("clean.osyle.app").first().isVisible());
 
 /* dropped audio is carried whole and genuinely served at the address */
 await page.goto("http://localhost:5197/#/r/clean");
@@ -942,7 +973,7 @@ await page.goto("http://localhost:5197/#/owner");
 await page.waitForTimeout(500);
 check(
   "the desk lists the moved-in apps",
-  (await page.getByText("app-3-files.osyle.app").isVisible()) &&
+  (await page.getByText("my-first-app.osyle.app").isVisible()) &&
     (await page.getByText("clean.osyle.app").isVisible()),
 );
 await page.getByText("Growth", { exact: true }).click();
@@ -960,7 +991,7 @@ check(
 );
 check(
   "moved-in apps are seen on discover",
-  (await page.getByText("app-3-files.osyle.app").isVisible()) &&
+  (await page.getByText("my-first-app.osyle.app").isVisible()) &&
     (await page.getByText("clean.osyle.app").isVisible()),
 );
 await goToPlace();
@@ -1159,6 +1190,12 @@ await page.waitForTimeout(300);
 /* settings open once the app has its address; the claim makes the
    resident real on the stack so the domain can follow */
 await page.getByText("Give it the address").click();
+await page.waitForTimeout(400);
+check(
+  "a connected repo suggests the repo's own name",
+  (await page.locator(".address-input").inputValue()) === "sunrise",
+);
+await page.getByText("Give it this address").click();
 await page.waitForTimeout(500);
 await page.getByPlaceholder("you@yourdomain.com").fill("resident@example.com");
 await page.getByText("Claim it on the stack").click();

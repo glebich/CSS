@@ -4941,6 +4941,56 @@ input {
   padding-bottom: 24px;
 }
 
+/* -------------------------------------------- choosing the address */
+
+.address-pick {
+  max-width: 520px;
+  margin: 20px auto 0;
+  text-align: center;
+}
+
+/* the name and its roof read as one address, the way it will be typed */
+.address-field {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  margin-top: 16px;
+  padding: 12px 18px;
+  border-radius: var(--r-pill);
+  background: #fff;
+  box-shadow: inset 0 0 0 1px var(--hairline);
+}
+
+.address-input {
+  font: inherit;
+  font-size: 19px;
+  font-weight: 550;
+  letter-spacing: -0.01em;
+  color: var(--ink-strong);
+  text-align: right;
+  border: none;
+  outline: none;
+  background: transparent;
+  min-width: 0;
+  flex: 1 1 auto;
+  padding: 0;
+}
+
+.address-roof {
+  font-size: 19px;
+  font-weight: 510;
+  letter-spacing: -0.01em;
+  color: var(--gray-small);
+  flex: none;
+}
+
+.address-word {
+  font-size: 12.5px;
+  margin-top: 10px;
+  min-height: 18px;
+}
+
 /* ------------------------------------------------ the loop, as a loop */
 
 .land-loop-lede {
