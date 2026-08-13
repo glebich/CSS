@@ -63,7 +63,23 @@ address, those stop being a hidden switch and become the default; that
 is a one-line change in `app/src/store.tsx` and the same in the two
 surfaces that read them.
 
-Magic links are minted and stored but never sent, because no mail
-provider is wired. Until one is, a person can only claim an app in the
-same browser session that created it. Signing in from another machine
-needs that mail step, whatever the host.
+## The letters
+
+Magic links are now posted through Resend when the stack is given a
+key. Set these beside the others, and never in the repository:
+
+- `OSYLE_RESEND_KEY`, the provider key.
+- `OSYLE_MAIL_FROM`, an address on a domain verified in Resend, for
+  example `Osyle <hello@osyle.xyz>`. Resend refuses to send from a
+  domain it has not verified, so this is a DNS step in their dashboard
+  before the first letter goes anywhere.
+- `OSYLE_API_ORIGIN`, `https://api.osyle.xyz`, so the link in the
+  letter is absolute and comes back to the right machine.
+- `OSYLE_APP_ORIGIN`, `https://osyle.xyz`, which is both the only
+  origin the browser may call with credentials and the only place a
+  letter's link will send anyone.
+
+Without a key nothing pretends: the door answers `sent: false`, says
+no provider is configured, and hands the link back so a local stack
+still works. With a key, a person can open the letter on any machine
+and land in the app already signed in.

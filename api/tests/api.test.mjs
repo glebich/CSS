@@ -45,6 +45,41 @@ const cookie = verify.cookies.find((c) => c.name === "osyle_session");
 check("session cookie is set", !!cookie);
 const cookies = { osyle_session: cookie.value };
 
+/* with no mail provider the door says so rather than claiming to have
+   posted a letter nobody will receive */
+check(
+  "a stack with no mailer admits it",
+  link.json().sent === false &&
+    String(link.json().note).includes("no mail provider"),
+);
+/* a link opened from a letter lands in the app, signed in */
+const fromLetter = await app.inject({
+  method: "POST",
+  url: "/auth/link",
+  payload: { email: "returning@example.com" },
+});
+const landed = await app.inject({
+  method: "GET",
+  url: `${fromLetter.json().devLink}&next=${encodeURIComponent("http://localhost:5173")}`,
+});
+check(
+  "the letter's link lands in the app, signed in",
+  landed.statusCode === 302 &&
+    landed.headers.location === "http://localhost:5173" &&
+    landed.cookies.some((c) => c.name === "osyle_session"),
+);
+/* anywhere else is not followed, whoever asks */
+const elsewhere = await app.inject({
+  method: "POST",
+  url: "/auth/link",
+  payload: { email: "elsewhere@example.com" },
+});
+const refused = await app.inject({
+  method: "GET",
+  url: `${elsewhere.json().devLink}&next=${encodeURIComponent("https://not-osyle.example")}`,
+});
+check("a link is never followed off the app's own origin", refused.statusCode === 200);
+
 const spent = await app.inject({ method: "GET", url: link.json().devLink });
 check("a spent link refuses", spent.statusCode === 400);
 

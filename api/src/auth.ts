@@ -7,6 +7,18 @@
 import type { FastifyInstance, FastifyRequest } from "fastify";
 import { platformDb, id, token, now } from "./db.js";
 import { allow, walled } from "./limits.js";
+import { mailReady, sendMagicLink } from "./mail.js";
+
+/** Where the app lives, so a letter can send someone back to it. */
+const APP_ORIGIN = process.env.OSYLE_APP_ORIGIN ?? "http://localhost:5173";
+
+/** This api's own address, as the machine that received the call saw it. */
+function apiOrigin(req: FastifyRequest): string {
+  if (process.env.OSYLE_API_ORIGIN) return process.env.OSYLE_API_ORIGIN;
+  const host = req.headers.host ?? "localhost:8787";
+  const proto = (req.headers["x-forwarded-proto"] as string) ?? req.protocol ?? "http";
+  return `${proto}://${host}`;
+}
 
 const SESSION_COOKIE = "osyle_session";
 const DEV_MODE = process.env.NODE_ENV !== "production";
@@ -56,13 +68,25 @@ export function registerAuth(app: FastifyInstance): void {
     db.prepare(
       "INSERT INTO magic_links (token, email, created_at) VALUES (?, ?, ?)",
     ).run(link, email, now());
-    // Production hands this to the mailer. Dev hands it straight back.
+    const path = `/auth/verify?token=${link}`;
+    /* the letter carries an absolute way back, through this api and on
+       into the app, so it works from any machine that opens the mail */
+    const trouble = mailReady()
+      ? await sendMagicLink(email, `${apiOrigin(req)}${path}&next=${encodeURIComponent(APP_ORIGIN)}`)
+      : "no mail provider is configured on this stack";
+    if (mailReady() && trouble) {
+      return reply.code(502).send({ sent: false, error: trouble });
+    }
+    /* dev, or a stack with no mailer, hands the link straight back
+       rather than claiming to have posted it */
     return reply.send(
-      DEV_MODE ? { sent: true, devLink: `/auth/verify?token=${link}` } : { sent: true },
+      mailReady()
+        ? { sent: true }
+        : { sent: false, devLink: path, note: "no mail provider is configured on this stack" },
     );
   });
 
-  app.get<{ Querystring: { token?: string } }>("/auth/verify", async (req, reply) => {
+  app.get<{ Querystring: { token?: string; next?: string } }>("/auth/verify", async (req, reply) => {
     const db = platformDb();
     const link = db
       .prepare("SELECT email, used, created_at FROM magic_links WHERE token = ?")
@@ -94,14 +118,17 @@ export function registerAuth(app: FastifyInstance): void {
       user.id,
       now(),
     );
-    return reply
-      .setCookie(SESSION_COOKIE, session, {
-        path: "/",
-        httpOnly: true,
-        sameSite: "lax",
-        secure: !DEV_MODE,
-      })
-      .send({ ok: true, user });
+    const signedIn = reply.setCookie(SESSION_COOKIE, session, {
+      path: "/",
+      httpOnly: true,
+      sameSite: "lax",
+      secure: !DEV_MODE,
+    });
+    /* a link opened from a letter belongs in the app, not on a page of
+       JSON; only the app's own origin is ever followed */
+    const next = req.query.next ?? "";
+    if (next && next === APP_ORIGIN) return signedIn.redirect(next, 302);
+    return signedIn.send({ ok: true, user });
   });
 
   app.get("/auth/me", async (req, reply) => {
