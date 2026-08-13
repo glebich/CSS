@@ -1406,6 +1406,57 @@ check(
   (await page.getByText("Nothing lives at", { exact: false }).count()) === 0,
 );
 
+/* the door for coming back: the account this browser already holds,
+   the way out, and a letter that opens it again from anywhere */
+await page.goto("http://localhost:5197/");
+await page.waitForTimeout(700);
+await page.getByLabel("Your account").click();
+await page.waitForTimeout(900);
+check(
+  "the account door knows who is here",
+  await page.locator(".resident-panel").getByText("resident@example.com").isVisible(),
+);
+check(
+  "signed in, the apps on the stack are listed",
+  await page.locator(".resident-panel").getByText("The apps you hold").isVisible(),
+);
+await page.locator(".resident-panel").getByText("Sign out").click();
+await page.waitForTimeout(800);
+check(
+  "signing out leaves the apps waiting",
+  await page
+    .locator(".resident-panel")
+    .getByText("Signed out on this machine", { exact: false })
+    .isVisible(),
+);
+check(
+  "signed out, the door offers a way back",
+  await page.locator(".resident-panel").getByPlaceholder("you@yourdomain.com").isVisible(),
+);
+await page
+  .locator(".resident-panel")
+  .getByPlaceholder("you@yourdomain.com")
+  .fill("resident@example.com");
+await page.locator(".resident-panel").getByText("Send me a way in").click();
+await page.waitForTimeout(1000);
+check(
+  "a stack with no mailer hands the way in over",
+  await page.locator(".resident-panel").getByText("Open the way in").isVisible(),
+);
+await page.locator(".resident-panel").getByText("Open the way in").click();
+await page.waitForTimeout(1000);
+await page.goto("http://localhost:5197/");
+await page.waitForTimeout(700);
+await page.getByLabel("Your account").click();
+await page.waitForTimeout(900);
+check(
+  "the letter's link signs a person in for real",
+  await page.locator(".resident-panel").getByText("resident@example.com").isVisible(),
+);
+await page.locator(".resident-panel").getByLabel("Close the panel").click();
+await page.waitForTimeout(300);
+
+
 
 await goToPlace();
 

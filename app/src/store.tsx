@@ -333,8 +333,8 @@ interface Store {
   device: Device;
   setDevice: (d: Device) => void;
   /* floating panels */
-  panel: "none" | "mood" | "personas" | "run" | "resident";
-  togglePanel: (p: "mood" | "personas" | "run" | "resident") => void;
+  panel: "none" | "mood" | "personas" | "run" | "resident" | "account";
+  togglePanel: (p: "mood" | "personas" | "run" | "resident" | "account") => void;
   /* the findings desk: one decision per finding, then back to rest */
   decisions: Record<string, "accepted" | "aside">;
   decide: (issueId: string, decision: "accepted" | "aside") => void;
@@ -397,7 +397,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [launchGoal, setLaunchGoal] = useState<string | null>(null);
   const [launchSuccess, setLaunchSuccess] = useState<string | null>(null);
   const [device, setDevice] = useState<Device>("mobile");
-  const [panel, setPanel] = useState<"none" | "mood" | "personas" | "run" | "resident">("none");
+  const [panel, setPanel] = useState<
+    "none" | "mood" | "personas" | "run" | "resident" | "account"
+  >("none");
   const [decisions, setDecisions] = useState<Record<string, "accepted" | "aside">>(
     () => loadJson(DECISIONS_KEY, {}),
   );
@@ -1284,7 +1286,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     return id;
   }, [record]);
 
-  const togglePanel = useCallback((p: "mood" | "personas" | "run" | "resident") => {
+  const togglePanel = useCallback((p: "mood" | "personas" | "run" | "resident" | "account") => {
     setPanel((prev) => (prev === p ? "none" : p));
   }, []);
 

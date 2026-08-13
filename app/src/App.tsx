@@ -3,6 +3,7 @@ import { StoreProvider, useStore } from "./store";
 import { AskFloat, SideBar, TopBar } from "./components/chrome";
 import { MoodPanel, PersonasPanel, RunOverlay } from "./components/panels";
 import { ResidentPanel } from "./components/ResidentPanel";
+import { AccountPanel } from "./components/AccountPanel";
 import { WorkspacePreview } from "./components/Workspace";
 import { NoticeStack } from "./components/Notices";
 import { LiquidDefs } from "./components/Liquid";
@@ -123,6 +124,7 @@ function Shell() {
           {inResident && panel === "mood" && <MoodPanel />}
           {panel === "personas" && <PersonasPanel />}
           {panel === "resident" && <ResidentPanel />}
+          {panel === "account" && <AccountPanel />}
           {panel === "run" && <RunOverlay />}
         </div>
       </div>

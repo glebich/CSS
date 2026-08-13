@@ -267,7 +267,14 @@ export function TopBar({ inResident }: { inResident: boolean }) {
         {project ? "Start over" : "Reset demo"}
       </button>
       {inResident && !project && <DeviceSwitcher />}
-      <span className="avatar-chip">GK</span>
+      <button
+        className="avatar-chip"
+        onClick={() => togglePanel("account")}
+        title="Your account, and the way back to your apps"
+        aria-label="Your account"
+      >
+        GK
+      </button>
     </header>
   );
 }
