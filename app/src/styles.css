@@ -1302,6 +1302,12 @@ input {
   align-items: baseline;
 }
 
+/* the last line in a stream closes the card; a divider under it would
+   promise another line that never comes */
+.inbox-item:last-child {
+  border-bottom: none;
+}
+
 .inbox-dot {
   width: 6px;
   height: 6px;

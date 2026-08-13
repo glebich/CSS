@@ -1227,12 +1227,14 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
   );
+  /* the seeded stream is the example's own story; a real app carries
+     its record instead, built from the ledger and the stack's rounds */
   const inbox = useMemo(
     () =>
-      [...composedNotes, ...extraInbox, ...inboxSeed].map((e) =>
+      [...composedNotes, ...extraInbox, ...(project ? [] : inboxSeed)].map((e) =>
         readIds.has(e.id) ? { ...e, read: true } : e,
       ),
-    [composedNotes, extraInbox, readIds],
+    [composedNotes, extraInbox, readIds, project],
   );
 
   const markRead = useCallback((entryId: string) => {

@@ -1232,6 +1232,25 @@ check(
 );
 await page.getByText("Back to the home").click();
 await page.waitForTimeout(400);
+
+/* the Inbox for a real app: its own record, none of the example's story */
+await page.getByText("Inbox", { exact: true }).click();
+await page.waitForTimeout(900);
+check(
+  "a real app reads its own record",
+  await page.getByText("Moved onto the stack at", { exact: false }).first().isVisible(),
+);
+check(
+  "the example's stream stays with the example",
+  (await page.getByText("weather briefing").count()) === 0 &&
+    (await page.getByText("Weekly review").count()) === 0,
+);
+check(
+  "the record carries the examination it began with",
+  await page.getByText("Examined. Vitality", { exact: false }).first().isVisible(),
+);
+await page.getByText("Back to the work").click();
+await page.waitForTimeout(400);
 await page.goto("http://localhost:5197/#/discover");
 await page.waitForTimeout(400);
 check("unlisted stays off discover", (await page.getByText("sunrise.osyle.app").count()) === 0);
