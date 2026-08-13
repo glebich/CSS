@@ -943,6 +943,24 @@ input {
   color: var(--ink-body);
 }
 
+/* the logos sit at one optical weight beside the names still waiting
+   for theirs: grayed and quiet, their own color on approach */
+.works-logo {
+  height: 19px;
+  width: auto;
+  max-width: 108px;
+  object-fit: contain;
+  display: block;
+  filter: grayscale(1);
+  opacity: 0.62;
+  transition: filter var(--t-liquid), opacity var(--t-liquid);
+}
+
+.works-mark:hover .works-logo {
+  filter: none;
+  opacity: 1;
+}
+
 /* the six promises, one quiet line above the foot */
 .brand-promises {
   position: absolute;
@@ -2909,7 +2927,7 @@ input {
   align-items: center;
   justify-content: center;
   flex-wrap: wrap;
-  gap: 10px 14px;
+  gap: 14px 24px;
 }
 
 .land-close {

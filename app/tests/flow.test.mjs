@@ -64,6 +64,8 @@ page.on("console", (m) => {
     !text.includes("magnific") &&
     !text.includes("shutterstock") &&
     !text.includes("freebiesupply") &&
+    !text.includes("wikimedia") &&
+    !text.includes("logos-download") &&
     !text.includes("ERR_TUNNEL_CONNECTION_FAILED")
   ) {
     errors.push(`console: ${text}`);

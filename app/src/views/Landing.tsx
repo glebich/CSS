@@ -3,17 +3,52 @@ import { useStore } from "../store";
 import { MiniApp } from "../components/MiniApp";
 import { Sparkle, Wordmark } from "../components/chrome";
 
-/** Nominative marks only: we integrate with these, nothing implied. */
-const WORKS_WITH: Array<{ name: string; does: string }> = [
-  { name: "GitHub", does: "Connect a repository and Osyle reads the app from it" },
-  { name: "Lovable", does: "Lovable output imports as files, a zip, or a repo" },
-  { name: "Cursor", does: "Cursor projects import as files, a zip, or a repo" },
+/** Nominative marks only: we integrate with these, nothing implied.
+    A mark with a logo wears it; one without wears its name until its
+    logo arrives, and never a placeholder pretending to be a logo. */
+const WORKS_WITH: Array<{ name: string; does: string; logo?: string }> = [
+  {
+    name: "GitHub",
+    does: "Connect a repository and Osyle reads the app from it",
+    logo: "https://upload.wikimedia.org/wikipedia/commons/5/54/GitHub_Logo.png",
+  },
+  {
+    name: "Lovable",
+    does: "Lovable output imports as files, a zip, or a repo",
+    logo: "https://i.logos-download.com/114333/31864-bcf98d2366aebe43b78dae62f0b34cb3.png/Lovable_Logo_2025.png",
+  },
+  {
+    name: "Cursor",
+    does: "Cursor projects import as files, a zip, or a repo",
+    logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/42/Cursor_logo.svg/3840px-Cursor_logo.svg.png",
+  },
   { name: "Claude", does: "Your Claude key powers live Studio edits with Real Mode" },
   { name: "v0", does: "v0 output imports as files, a zip, or a repo" },
   { name: "Bolt", does: "Bolt projects import as files, a zip, or a repo" },
   { name: "Replit", does: "Replit projects import as files, a zip, or a repo" },
   { name: "Figma", does: "Figma exports arrive as materials for the identity" },
 ];
+
+/** One mark: the logo when there is one and it loads, the name when
+    there is not, and the name again if the logo refuses to arrive. */
+function WorksMark({ name, does, logo }: { name: string; does: string; logo?: string }) {
+  const [shown, setShown] = useState(!!logo);
+  return (
+    <span className="works-mark" title={does}>
+      {shown && logo ? (
+        <img
+          className="works-logo"
+          src={logo}
+          alt={name}
+          loading="lazy"
+          onError={() => setShown(false)}
+        />
+      ) : (
+        name
+      )}
+    </span>
+  );
+}
 
 const LENSES = [
   "Accessibility and contrast",
@@ -398,9 +433,7 @@ export function Landing() {
         </p>
         <div className="land-works" style={{ padding: "18px 0 0" }}>
           {WORKS_WITH.map((w) => (
-            <span key={w.name} className="works-mark" title={w.does}>
-              {w.name}
-            </span>
+            <WorksMark key={w.name} name={w.name} does={w.does} logo={w.logo} />
           ))}
         </div>
         <button className="pill pill-dark" style={{ marginTop: 18 }} onClick={() => go("place")}>
