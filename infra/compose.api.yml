@@ -1,0 +1,49 @@
+# The stack, alone.
+#
+# `docker-compose.yml` beside this file runs five containers, which is
+# the shape this will need when Postgres and MinIO take over storage.
+# None of that is used today: the api keeps everything on its sqlite
+# and filesystem drivers. Running four containers that do nothing is a
+# poor way to stand something up for the first time.
+#
+# So this file is the api and its disk, and nothing else. It needs a
+# box with Docker on it and a reverse proxy in front for TLS.
+#
+#   cp api.env.example api.env      # then fill it in
+#   docker compose -f compose.api.yml up -d --build
+#   curl http://localhost:8787/health
+#
+# The named volume is the whole of the data. Back it up (ops/backup.sh
+# reads the same directory) and never delete it casually: it holds
+# every resident, every stored byte, every per-resident database.
+services:
+  api:
+    build:
+      context: ..
+      dockerfile: infra/api.Dockerfile
+    restart: unless-stopped
+    env_file:
+      - api.env
+    environment:
+      # the volume below, said again here so the container cannot be
+      # pointed at a path that is not persistent
+      OSYLE_DATA: /data
+    volumes:
+      - osyle_data:/data
+    ports:
+      - "127.0.0.1:8787:8787"
+    healthcheck:
+      # the api's own health door: it answers with the storage state,
+      # not merely with a socket that happens to accept
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://127.0.0.1:8787/health').then(r=>r.json()).then(j=>process.exit(j.ok?0:1)).catch(()=>process.exit(1))"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  osyle_data:

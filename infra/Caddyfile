@@ -4,17 +4,17 @@
 # when that stage lands. TLS via the tunnel or the DNS challenge,
 # depending on how the box reaches the world.
 
-osyle.app {
+osyle.xyz {
 	root * /srv/app
 	try_files {path} /index.html
 	file_server
 }
 
-api.osyle.app {
+api.osyle.xyz {
 	reverse_proxy api:8787
 }
 
-*.osyle.app {
+*.osyle.xyz {
 	root * /srv/app
 	try_files {path} /index.html
 	file_server

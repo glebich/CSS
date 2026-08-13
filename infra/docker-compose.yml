@@ -27,7 +27,7 @@ services:
       NODE_ENV: production
       PORT: "8787"
       OSYLE_DATA: /data
-      OSYLE_APP_ORIGIN: https://osyle.app
+      OSYLE_APP_ORIGIN: https://osyle.xyz
     volumes:
       - osyle_data:/data
     expose:

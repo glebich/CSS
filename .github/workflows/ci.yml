@@ -36,3 +36,24 @@ jobs:
         run: |
           node ops/drill.mjs
           node ops/rehearsal.mjs
+
+  # The image is how the stack actually reaches a host, so a broken
+  # one is a broken deployment however green the suites are. Build it
+  # and make it answer its own health door before calling it good.
+  image:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the api image
+        run: docker build -f infra/api.Dockerfile -t osyle-api:ci .
+      - name: The image answers its own health door
+        run: |
+          docker run -d --name osyle-ci -e OSYLE_DATA=/data -p 8787:8787 osyle-api:ci
+          for i in $(seq 1 30); do
+            if curl -fsS http://localhost:8787/health > /tmp/health.json; then break; fi
+            sleep 1
+          done
+          cat /tmp/health.json
+          node -e "const h=require('/tmp/health.json'); if(!h.ok||!h.db||!h.blobs){console.error('the image is unwell');process.exit(1)}"
+          docker rm -f osyle-ci

@@ -4,3 +4,7 @@ tsconfig.tsbuildinfo
 api/data
 backups
 .env
+
+# the filled environment: two of its values are secrets, and the
+# example beside it is the one that belongs in the repository
+infra/api.env
