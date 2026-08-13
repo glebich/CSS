@@ -23,7 +23,26 @@ const PEOPLE = Number(process.env.DRILL_PEOPLE ?? 200);
 const AT_ONCE = 20;
 const PORT = 8791;
 const BASE = `http://127.0.0.1:${PORT}`;
-const P95_BUDGET_MS = 250;
+/*
+ * Two gates, because one number could not do the job.
+ *
+ * The absolute budget says nobody waits pathologically. It was
+ * calibrated on a development machine, where p95 lands near 45 ms, and
+ * a shared CI runner is two to five times slower at everything: the
+ * same healthy code measured 267 ms there. So the ceiling is settable,
+ * and CI sets its own. A budget that fails on the runner's mood
+ * measures the runner, not the stack.
+ *
+ * The tail ratio is the gate that actually catches regressions, and it
+ * does not care how fast the machine is. It asks whether the stack
+ * degrades under load: how much worse the unlucky request is than the
+ * typical one. Healthy here is about 2 on a quiet machine and about 6
+ * on a busy runner. When the caretaker's sweep once blocked the event
+ * loop, p50 did not move and p95 went eight times worse, which is
+ * exactly the shape this catches and an absolute budget nearly missed.
+ */
+const P95_BUDGET_MS = Number(process.env.DRILL_P95_MS ?? 250);
+const TAIL_RATIO_MAX = Number(process.env.DRILL_TAIL_RATIO ?? 10);
 
 const dataDir = mkdtempSync(join(tmpdir(), "osyle-drill-"));
 const api = spawn("node", ["dist/server.js"], {
@@ -146,14 +165,25 @@ try {
   console.log(`p50 latency         ${p50.toFixed(1)} ms`);
   console.log(`p95 latency         ${p95.toFixed(1)} ms`);
   console.log(`worst latency       ${worst.toFixed(1)} ms`);
+  const tail = p50 > 0 ? p95 / p50 : 0;
+  console.log(`tail ratio          ${tail.toFixed(1)} x  (p95 over p50)`);
   for (const e of errors.slice(0, 10)) console.log(`error: ${e}`);
 
   const rowsOk = count.count === PEOPLE * 3;
-  const ok = errors.length === 0 && rowsOk && p95 <= P95_BUDGET_MS;
+  const withinBudget = p95 <= P95_BUDGET_MS;
+  const tailOk = tail <= TAIL_RATIO_MAX;
+  const ok = errors.length === 0 && rowsOk && withinBudget && tailOk;
   console.log(
     ok
       ? "\nthe drill passes"
-      : `\nthe drill fails: ${errors.length} errors, rows ${rowsOk ? "complete" : "missing"}, p95 budget ${P95_BUDGET_MS} ms`,
+      : `\nthe drill fails: ${[
+          errors.length > 0 ? `${errors.length} errors` : null,
+          rowsOk ? null : "rows missing",
+          withinBudget ? null : `p95 ${p95.toFixed(1)} ms over the ${P95_BUDGET_MS} ms budget`,
+          tailOk ? null : `tail ${tail.toFixed(1)}x over the ${TAIL_RATIO_MAX}x ceiling`,
+        ]
+          .filter(Boolean)
+          .join(", ")}`,
   );
   process.exitCode = ok ? 0 : 1;
 } finally {
