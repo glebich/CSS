@@ -26,7 +26,7 @@ import {
 } from "./data/seed";
 import { analyzeProject, filesFromInput, type DroppedFile } from "./engine/analyze";
 import { fetchRepoZip, parseRepoUrl } from "./engine/github";
-import type { AnalyzedProject, ProgressLine } from "./engine/types";
+import type { AnalyzedProject, ProgressLine, ProjectFile } from "./engine/types";
 
 export type View =
   | "landing"
@@ -141,6 +141,47 @@ export function addressTrouble(slug: string): string | null {
   const registry = loadJson<Record<string, unknown>>("osyle.residents", {});
   if (registry[s]) return "Another app already lives there.";
   return null;
+}
+
+const PROJECT_KEY = "osyle.project";
+/* what a browser will hold without complaint: the text that makes the
+   preview and the lenses real, and a little of the media */
+const KEEP_TEXT_CHARS = 200_000;
+const KEEP_FILES = 60;
+const KEEP_MEDIA_CHARS = 3_000_000;
+
+interface KeptProject {
+  slug: string | null;
+  project: Omit<AnalyzedProject, "files"> & { files: ProjectFile[] };
+}
+
+/**
+ * The examined app survives a reload. It is the person's own work; a
+ * refresh should not hand them back the example. Files are kept to a
+ * budget, and anything dropped is dropped honestly rather than
+ * silently overflowing the browser's storage.
+ */
+function keepProject(project: AnalyzedProject, slug: string | null): void {
+  let mediaLeft = KEEP_MEDIA_CHARS;
+  const files = [...project.files.values()].slice(0, KEEP_FILES).map((f) => {
+    const dataUri =
+      f.dataUri && f.dataUri.length <= mediaLeft ? ((mediaLeft -= f.dataUri.length), f.dataUri) : undefined;
+    return {
+      path: f.path,
+      bytes: f.bytes,
+      text: f.text === null ? null : f.text.slice(0, KEEP_TEXT_CHARS),
+      ...(dataUri ? { dataUri } : {}),
+    };
+  });
+  saveJson(PROJECT_KEY, { slug, project: { ...project, files } } satisfies KeptProject);
+}
+
+function readKeptProject(): { project: AnalyzedProject; slug: string | null } | null {
+  const kept = loadJson<KeptProject | null>(PROJECT_KEY, null);
+  if (!kept?.project?.inventory) return null;
+  const files = new Map<string, ProjectFile>();
+  for (const f of kept.project.files ?? []) files.set(f.path, f);
+  return { project: { ...kept.project, files }, slug: kept.slug };
 }
 
 /** Away long enough that the resident has a story to tell. */
@@ -342,7 +383,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [tabs, setTabs] = useState<Tab[]>([DEMO_TAB]);
   const [activeTab, setActiveTab] = useState(DEMO_TAB.id);
   const [uploadPhase, setUploadPhase] = useState<"idle" | "reading" | "understood">("idle");
-  const [project, setProject] = useState<AnalyzedProject | null>(null);
+  /* an examined app outlives the tab: a refresh finds it where it was */
+  const kept = useRef(readKeptProject());
+  const [project, setProject] = useState<AnalyzedProject | null>(kept.current?.project ?? null);
   const [progress, setProgress] = useState<ProgressLine[]>([]);
   const [realDecisions, setRealDecisions] = useState<Record<string, "accepted" | "aside">>({});
   const [styleId, setStyleIdRaw] = useState(() => loadJson(STYLE_KEY, "st-paper"));
@@ -641,7 +684,13 @@ export function StoreProvider({ children }: { children: ReactNode }) {
    * The real path: parse what was actually dropped, measure it, and let
    * the theater speak only true lines. Nothing here is invented.
    */
-  const [realSlug, setRealSlug] = useState<string | null>(null);
+  const [realSlug, setRealSlug] = useState<string | null>(kept.current?.slug ?? null);
+
+  /* whatever changes the examined app or its address, the copy that
+     survives a reload follows, without any call site remembering to */
+  useEffect(() => {
+    if (project) keepProject(project, realSlug);
+  }, [project, realSlug]);
 
   /**
    * The residency, real: the dropped app's readable files persist on
@@ -1362,6 +1411,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       CAPTION_KEY,
       AUDIENCE_KEY,
       STUDIO_KEY,
+      PROJECT_KEY,
       "osyle.residents",
       "osyle.owner.composed",
       "osyle.owner.prompts",

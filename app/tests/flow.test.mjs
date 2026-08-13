@@ -1077,6 +1077,30 @@ check(
   await page.getByText("below the AA floor", { exact: false }).first().isVisible(),
 );
 
+/* a refresh keeps the person's own app; it does not hand back the
+   example along with everything they had already decided */
+await page.reload();
+await page.waitForTimeout(900);
+check(
+  "the examined app survives a reload",
+  (await page.locator(".tab").getByText("sunrise").isVisible()) &&
+    (await page.getByText("SkyRecall").count()) === 0,
+);
+/* the refresh lands on the app's own home; its report is one door away
+   and still made of the person's own files */
+const backToReport = page.getByText("in the report", { exact: false }).first();
+if (await backToReport.isVisible().catch(() => false)) {
+  await backToReport.click();
+} else {
+  await page.getByText("Open the report").click();
+}
+await page.waitForTimeout(800);
+check(
+  "the report it was reading is still the real one",
+  (await page.locator(".instrument").isVisible()) &&
+    (await page.getByText("below the AA floor", { exact: false }).first().isVisible()),
+);
+
 /* nothing speaks in the example's voice while a real project is open */
 check("the tab wears the project's name", await page.locator(".tab").getByText("sunrise").isVisible());
 check("the browser title carries the project", (await page.title()).includes("sunrise"));
@@ -1381,14 +1405,17 @@ check(
 );
 
 
-await page.goto("http://localhost:5197/");
-await page.waitForTimeout(500);
-await page.getByText("Your app", { exact: true }).click();
-await page.waitForTimeout(400);
 await goToPlace();
 
-/* back to the example for the remaining checks */
-await page.getByText("Reset demo").click();
+/* back to the example for the remaining checks. A real app is still
+   open, so the door reads Start over; it says Reset demo only when the
+   example is the only thing here */
+const startOver = page.getByText("Start over", { exact: true });
+if (await startOver.isVisible().catch(() => false)) {
+  await startOver.click();
+} else {
+  await page.getByText("Reset demo").click();
+}
 await page.waitForTimeout(500);
 await page.getByText("Drop your app", { exact: false }).last().click();
 await page.getByText("See the example").click();
