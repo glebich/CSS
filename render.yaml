@@ -1,0 +1,51 @@
+# The shortest road to a live api.
+#
+# Render reads this file and builds the whole service from it: the
+# image, the disk, the health check, and every setting except the two
+# secrets, which it asks for rather than reading from the repository.
+#
+# In the browser, no terminal:
+#   1. render.com, New, Blueprint
+#   2. connect this repository, pick the branch
+#   3. it finds this file and asks for the two secrets below
+#   4. Apply
+#
+# A few minutes later there is a URL. Add it to the repository as the
+# variable OSYLE_API and the live site starts speaking to it.
+services:
+  - type: web
+    name: osyle-api
+    runtime: docker
+    dockerfilePath: ./infra/api.Dockerfile
+    dockerContext: .
+    # the smallest paid instance: a free one sleeps, and a stack that
+    # sleeps loses every app it was serving until someone pokes it
+    plan: starter
+    healthCheckPath: /health
+    # Everything. Every resident, every stored byte, every
+    # per-resident database. Without this disk the service is
+    # ephemeral and a restart is a wipe.
+    disk:
+      name: osyle-data
+      mountPath: /data
+      sizeGB: 1
+    envVars:
+      - key: OSYLE_DATA
+        value: /data
+      - key: NODE_ENV
+        value: production
+      # the only origin the browser may call with credentials, and the
+      # only place a letter's link will send anyone
+      - key: OSYLE_APP_ORIGIN
+        value: https://osyle.xyz
+      # the api's own public address, so a link inside a letter comes
+      # back to the right machine. Fill this in with the URL Render
+      # gives the service, once it exists.
+      - key: OSYLE_API_ORIGIN
+        sync: false
+      # the mail provider key: a secret, so Render asks for it and it
+      # never lives in this repository
+      - key: OSYLE_RESEND_KEY
+        sync: false
+      - key: OSYLE_MAIL_FROM
+        value: Osyle <hello@osyle.xyz>

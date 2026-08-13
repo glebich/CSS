@@ -854,7 +854,13 @@ await page.waitForTimeout(400);
    the person may take it or name their own */
 check(
   "the address is offered for choosing first",
-  (await page.locator(".address-input").inputValue()) === "app-3-files",
+  (await page.locator(".address-input").inputValue()) === "sunrise-tracker",
+);
+/* and it is offered from what the app calls itself, not from how many
+   files happened to be dragged in */
+check(
+  "the app is named by the app, not by the drag",
+  (await page.locator(".tab").first().innerText()).includes("Sunrise Tracker"),
 );
 await page.locator(".address-input").fill("sky-recall");
 await page.waitForTimeout(150);

@@ -134,3 +134,68 @@ export function buildUnderstanding(files: Map<string, ProjectFile>, inv: Invento
   if (title) return `The page calls itself ${title.trim()}.`;
   return `A ${inv.framework} project of ${inv.fileCount} files. It does not yet say what it is for; that is a finding in itself.`;
 }
+
+/**
+ * What the app calls itself.
+ *
+ * A drop is named after how it arrived: a folder gives its folder
+ * name, a single file gives its filename, and loose files gave a
+ * count, so an app could be introduced everywhere as "3 files". That
+ * is a fact about the drag, not about the app.
+ *
+ * The app almost always says its own name somewhere: in its
+ * package.json, in the title of the page it serves, in the first
+ * heading of its README. Read it from there, and fall back to how it
+ * arrived only when it truly says nothing.
+ */
+export function appName(files: Map<string, ProjectFile>, fallback: string): string {
+  const all = [...files.values()];
+  const clean = (raw: string): string | null => {
+    const s = raw
+      .trim()
+      /* scoped package names carry an owner nobody needs to read */
+      .replace(/^@[^/]+\//, "")
+      .replace(/[-_]+/g, " ")
+      .replace(/\s+/g, " ")
+      .slice(0, 60)
+      .trim();
+    return s.length >= 2 ? s : null;
+  };
+
+  const pkg = all.find((f) => /(^|\/)package\.json$/i.test(f.path) && f.text);
+  if (pkg?.text) {
+    try {
+      const named = (JSON.parse(pkg.text) as { name?: string }).name;
+      if (named) {
+        const out = clean(named);
+        if (out) return out;
+      }
+    } catch {
+      /* an unreadable package.json is a finding elsewhere, not here */
+    }
+  }
+
+  const html =
+    all.find((f) => /(^|\/)index\.html?$/i.test(f.path) && f.text) ??
+    all.find((f) => /\.html?$/i.test(f.path) && f.text);
+  const title = html?.text?.match(/<title[^>]*>([^<]{2,80})<\/title>/i)?.[1];
+  if (title) {
+    /* page titles often carry a tagline behind a separator */
+    const out = clean(title.split(/\s+[|–—-]\s+/)[0]);
+    if (out) return out;
+  }
+  const h1 = html?.text?.match(/<h1[^>]*>\s*([^<]{2,80})\s*<\/h1>/i)?.[1];
+  if (h1) {
+    const out = clean(h1);
+    if (out) return out;
+  }
+
+  const readme = all.find((f) => /readme\.md$/i.test(f.path) && f.text);
+  const heading = readme?.text?.match(/^#\s+(.{2,80})$/m)?.[1];
+  if (heading) {
+    const out = clean(heading);
+    if (out) return out;
+  }
+
+  return fallback;
+}

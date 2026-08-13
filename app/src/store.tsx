@@ -31,6 +31,7 @@ import {
   whatArrivedInstead,
   type DroppedFile,
 } from "./engine/analyze";
+import { appName } from "./engine/inventory";
 import { fetchRepoZip, parseRepoUrl } from "./engine/github";
 import type { AnalyzedProject, ProgressLine, ProjectFile } from "./engine/types";
 import { stackHere } from "./stack";
@@ -801,8 +802,13 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       }
       setRefusal(null);
       const truncated = files.size >= 40;
+      /* a folder, a zip, and a repository all arrive already named by
+         the person who made them, and that name is kept. Loose files
+         arrive as a count, which describes the drag rather than the
+         app, so there the app is asked what it calls itself. */
+      const trueName = /^\d+ files$/.test(name) ? appName(files, name) : name;
       const analyzed = await analyzeProject(
-        name,
+        trueName,
         files,
         (line) => setProgress((prev) => [...prev, line]),
         truncated,
