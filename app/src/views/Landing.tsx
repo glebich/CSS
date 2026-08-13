@@ -27,6 +27,11 @@ const WORKS_WITH: Array<{ name: string; does: string; logo?: string; invert?: bo
     does: "Your Claude key powers live Studio edits with Real Mode",
     logo: "https://i.logos-download.com/114232/31116-s1280-fa091cbf2b0bebc0fad188b896376d53.png/Claude_Logo_2023-s1280.png",
   },
+  {
+    name: "OpenAI",
+    does: "Code built with ChatGPT imports as files, a zip, or a repo",
+    logo: "https://1000logos.net/wp-content/uploads/2024/07/OpenAI-Logo-2022.png",
+  },
   { name: "v0", does: "v0 output imports as files, a zip, or a repo" },
   {
     name: "Bolt",
