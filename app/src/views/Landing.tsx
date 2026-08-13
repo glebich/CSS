@@ -34,7 +34,9 @@ const WORKS_WITH: Array<{ name: string; does: string; logo?: string }> = [
 function WorksMark({ name, does, logo }: { name: string; does: string; logo?: string }) {
   const [shown, setShown] = useState(!!logo);
   return (
-    <span className="works-mark" title={does}>
+    /* the mark is found by its name whether it wears a logo or the
+       word, so nothing downstream depends on which one showed */
+    <span className="works-mark" data-mark={name} title={does}>
       {shown && logo ? (
         <img
           className="works-logo"

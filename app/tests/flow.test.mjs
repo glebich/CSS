@@ -179,9 +179,16 @@ check(
 );
 check(
   "every mark says what its integration does",
-  (await page.locator(".works-mark", { hasText: "GitHub" }).getAttribute("title"))?.includes(
+  (await page.locator('.works-mark[data-mark="GitHub"]').getAttribute("title"))?.includes(
     "reads the app from it",
   ) ?? false,
+);
+/* a mark carrying a logo still names itself, for anyone reading with
+   their ears rather than their eyes */
+check(
+  "a logo mark keeps its name for a screen reader",
+  (await page.locator('.works-mark[data-mark="Cursor"] img').getAttribute("alt")) === "Cursor" ||
+    (await page.locator('.works-mark[data-mark="Cursor"]').innerText()).includes("Cursor"),
 );
 await page.getByText("Drop your app", { exact: false }).last().click();
 check("place shows the flow steps", await page.locator(".flow-steps").isVisible());
