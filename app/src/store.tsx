@@ -24,7 +24,13 @@ import {
   type Persona,
   inboxSeed,
 } from "./data/seed";
-import { analyzeProject, filesFromInput, type DroppedFile } from "./engine/analyze";
+import {
+  analyzeProject,
+  appSurface,
+  filesFromInput,
+  whatArrivedInstead,
+  type DroppedFile,
+} from "./engine/analyze";
 import { fetchRepoZip, parseRepoUrl } from "./engine/github";
 import type { AnalyzedProject, ProgressLine, ProjectFile } from "./engine/types";
 import { stackHere } from "./stack";
@@ -268,6 +274,9 @@ interface Store {
   droppedName: string | null;
   /** the name of a real drop being read right now, before the project exists */
   pendingDrop: string | null;
+  /** why the last drop was not examined, when it was not an app */
+  refusal: string | null;
+  clearRefusal: () => void;
   /* the real engine: an actually analyzed project, or null for the example */
   project: AnalyzedProject | null;
   analyzeFiles: (dropped: DroppedFile[]) => Promise<void>;
@@ -590,6 +599,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [readIds, setReadIds] = useState<Set<string>>(new Set());
   const [droppedName, setDroppedName] = useState<string | null>(null);
   const [pendingDrop, setPendingDrop] = useState<string | null>(null);
+  /* what the last drop was told, when it was not an app at all */
+  const [refusal, setRefusal] = useState<string | null>(null);
+  const clearRefusal = useCallback(() => setRefusal(null), []);
   const [seenTips, setSeenTips] = useState<Set<string>>(
     () => new Set(loadJson<string[]>(SEEN_KEY, [])),
   );
@@ -774,6 +786,20 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         setView("place");
         return;
       }
+      /* the honest stop: a folder of documents is not an app, and
+         examining it would hand back a confident number about nothing.
+         Say what arrived and leave the person where they can fix it. */
+      if (appSurface(files) === 0) {
+        setRefusal(
+          `${whatArrivedInstead(files)} Osyle examines the app itself, so drop its files, a zip of them, or connect its repository.`,
+        );
+        setUploadPhase("idle");
+        setPendingDrop(null);
+        setProgress([]);
+        setView("place");
+        return;
+      }
+      setRefusal(null);
       const truncated = files.size >= 40;
       const analyzed = await analyzeProject(
         name,
@@ -1458,6 +1484,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     finishReading,
     droppedName,
     pendingDrop,
+    refusal,
+    clearRefusal,
     project,
     analyzeFiles,
     analyzeRepo,

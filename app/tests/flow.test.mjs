@@ -1309,6 +1309,18 @@ await page.locator(".resident-panel").getByLabel("Close the panel").click();
 await page.waitForTimeout(300);
 await page.getByText("Go to its home").click();
 await page.waitForTimeout(500);
+/* a real app is not stranded on one screen: the rail carries it, and
+   says plainly which rooms are still the example's alone */
+check("a real app's home carries the rail", await page.locator(".sidebar").isVisible());
+check(
+  "the rooms that are real for a drop are walkable",
+  (await page.locator(".sidebar .side-row:not(.is-waiting)").count()) >= 7,
+);
+check(
+  "a room the example alone wears says so",
+  (await page.locator('.sidebar .side-row.is-waiting[aria-label="Studio"]').getAttribute("title")) ===
+    "The example wears this today. Your app gets it when the stage ships.",
+);
 await page.getByText("Watch the traffic").click();
 await page.waitForTimeout(1200);
 check(
@@ -1332,7 +1344,7 @@ await page.getByText("Back to the home").click();
 await page.waitForTimeout(400);
 
 /* the Inbox for a real app: its own record, none of the example's story */
-await page.getByText("Inbox", { exact: true }).click();
+await page.locator("main").getByText("Inbox", { exact: true }).click();
 await page.waitForTimeout(900);
 check(
   "a real app reads its own record",
@@ -1523,6 +1535,28 @@ await floor("http://localhost:5197/#/discover", "discover");
 await floor("http://localhost:5197/#/mark/skyrecall", "the hallmark");
 await floor("http://localhost:5197/#/owner", "the owner console");
 await floor("http://localhost:5197/#/r/skyrecall", "the resident");
+
+/* the honest stop: a folder of documents is not an app, and saying so
+   is worth more than a confident number about nothing */
+await goToPlace();
+await page.locator('input[type="file"]:not([webkitdirectory])').setInputFiles([
+  { name: "Bylaws.pdf", mimeType: "application/pdf", buffer: Buffer.from("%PDF-1.4 stub") },
+  { name: "Board Consent.pdf", mimeType: "application/pdf", buffer: Buffer.from("%PDF-1.4 stub") },
+  { name: "Stock Ledger.pdf", mimeType: "application/pdf", buffer: Buffer.from("%PDF-1.4 stub") },
+]);
+await page.waitForTimeout(1500);
+check("a drop with no app in it is refused", await page.locator(".place-refusal").isVisible());
+check(
+  "the refusal names what actually arrived",
+  (await page.locator(".place-refusal").innerText()).includes("3 .pdf"),
+);
+check(
+  "the refusal never invents a score",
+  (await page.locator(".instrument").count()) === 0,
+);
+await page.locator(".place-refusal").getByText("Try again").click();
+await page.waitForTimeout(300);
+check("the refusal clears when asked", (await page.locator(".place-refusal").count()) === 0);
 
 check("no console or page errors", errors.length === 0);
 if (errors.length) console.log(errors.join("\n"));

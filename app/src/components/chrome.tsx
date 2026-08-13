@@ -286,6 +286,21 @@ const NAV: Array<{ view: View; label: string; icon: IconName }> = [
   { view: "transform", label: "Preview", icon: "eye" },
 ];
 
+/* Which rooms carry a real app's own content today. The rest are the
+   example's rooms only; showing them live for someone's own app would
+   put the demo's data under their name, so they wait and say so. */
+const DRESSED_LATER = "The example wears this today. Your app gets it when the stage ships.";
+
+const REAL_FOR_A_DROP = new Set<View>([
+  "home",
+  "exam",
+  "findings",
+  "address",
+  "monitor",
+  "inbox",
+  "sdk",
+]);
+
 const LIFE_NAV: Array<{ view: View; label: string; icon: IconName }> = [
   { view: "address", label: "Address", icon: "home" },
   { view: "monitor", label: "Monitor", icon: "monitor" },
@@ -436,6 +451,7 @@ function SideRow({
   sheet,
   badge,
   waiting,
+  waitingNote,
   onClick,
 }: {
   icon: IconName;
@@ -444,6 +460,8 @@ function SideRow({
   sheet?: boolean;
   badge?: boolean;
   waiting?: boolean;
+  /** why this room waits, when it is not simply waiting for launch */
+  waitingNote?: string;
   onClick: () => void;
 }) {
   return (
@@ -452,7 +470,7 @@ function SideRow({
       onClick={waiting ? undefined : onClick}
       aria-label={label}
       aria-disabled={waiting || undefined}
-      title={waiting ? "Opens once the app launches" : undefined}
+      title={waiting ? (waitingNote ?? "Opens once the app launches") : undefined}
     >
       <span className="side-row-icon">
         <Icon name={icon} size={17} />
@@ -468,11 +486,18 @@ function SideRow({
  * macOS style. Rooms navigate; Run, Mood, and People open sheets over
  * the work and wear a quiet tint to say so.
  */
+/** Why a room waits for a real app, in one sentence. */
+function waitFor(view: View): string | undefined {
+  return REAL_FOR_A_DROP.has(view) ? undefined : DRESSED_LATER;
+}
+
 export function SideBar({ preview = false }: { preview?: boolean }) {
   const { view, go, inbox, panel, togglePanel, project } = useStore();
   const unread = inbox.filter((e) => !e.read).length;
-  /* A real project lives on one Report; navigation would only dilute it. */
-  if (project) return null;
+  /* The Report keeps a clear desk: one surface, nothing competing.
+     Everywhere else a real app now has rooms worth walking, the same
+     as the example, so it gets the same rail rather than no way out. */
+  if (project && view === "report") return null;
   const active = (v: View) =>
     v === view ||
     (v === "transform" && view === "reveal") ||
@@ -497,7 +522,8 @@ export function SideBar({ preview = false }: { preview?: boolean }) {
           key={item.view}
           icon={item.icon}
           label={item.label}
-          waiting={preview}
+          waiting={preview || (!!project && !REAL_FOR_A_DROP.has(item.view))}
+          waitingNote={project ? waitFor(item.view) : undefined}
           active={!preview && active(item.view)}
           onClick={() => go(item.view)}
         />
@@ -509,7 +535,8 @@ export function SideBar({ preview = false }: { preview?: boolean }) {
           key={item.view}
           icon={item.icon}
           label={item.label}
-          waiting={preview}
+          waiting={preview || (!!project && !REAL_FOR_A_DROP.has(item.view))}
+          waitingNote={project ? waitFor(item.view) : undefined}
           active={!preview && active(item.view)}
           badge={!preview && item.view === "inbox" && unread > 0}
           onClick={() => go(item.view)}
@@ -521,7 +548,8 @@ export function SideBar({ preview = false }: { preview?: boolean }) {
         icon="mood"
         label="Mood"
         sheet
-        waiting={preview}
+        waiting={preview || !!project}
+        waitingNote={project ? DRESSED_LATER : undefined}
         active={panel === "mood"}
         onClick={() => togglePanel("mood")}
       />
@@ -529,7 +557,8 @@ export function SideBar({ preview = false }: { preview?: boolean }) {
         icon="persona"
         label="People"
         sheet
-        waiting={preview}
+        waiting={preview || !!project}
+        waitingNote={project ? DRESSED_LATER : undefined}
         active={panel === "personas"}
         onClick={() => togglePanel("personas")}
       />

@@ -982,7 +982,7 @@ input {
 }
 
 .works-mark[data-mark="OpenAI"] .works-logo {
-  height: 31px;
+  height: 34px;
 }
 
 .works-mark[data-mark="Bolt"] .works-logo {
@@ -5795,4 +5795,15 @@ html {
   color: var(--ink-body);
   text-align: left;
   z-index: 60;
+}
+
+/* the honest stop on the Place: what arrived was not an app */
+.place-refusal {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(440px, calc(100vw - 48px));
+  z-index: 3;
+  text-align: left;
 }

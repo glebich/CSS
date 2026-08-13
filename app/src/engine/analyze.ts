@@ -37,6 +37,42 @@ export const VITALITY_WEIGHTS: Array<{ key: string; weight: number }> = [
 /** A dropped file, optionally carrying the path a folder walk found it at. */
 export type DroppedFile = File | { file: File; path: string };
 
+/**
+ * What an app is actually made of. A drop with none of this is not an
+ * app, however many files it carries, and measuring it would produce a
+ * confident number about nothing. A folder of contracts once scored 96.
+ */
+const APP_SURFACE =
+  /\.(html?|css|scss|sass|less|styl|[jt]sx?|mjs|cjs|vue|svelte|astro|py|rb|php|go|rs|java|kt|swift|dart|ex|exs)$/i;
+
+/** How many files in this drop are something an app runs on. */
+export function appSurface(files: Map<string, ProjectFile>): number {
+  let n = 0;
+  for (const f of files.values()) if (APP_SURFACE.test(f.path)) n += 1;
+  return n;
+}
+
+/**
+ * One honest sentence naming what arrived instead of an app, built
+ * from the actual extensions rather than a guess. Used only when the
+ * drop has no app surface at all.
+ */
+export function whatArrivedInstead(files: Map<string, ProjectFile>): string {
+  const byKind = new Map<string, number>();
+  for (const f of files.values()) {
+    const dot = f.path.lastIndexOf(".");
+    const ext = dot > 0 ? f.path.slice(dot).toLowerCase() : "no extension";
+    byKind.set(ext, (byKind.get(ext) ?? 0) + 1);
+  }
+  const kinds = [...byKind.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 3)
+    .map(([ext, n]) => `${n} ${ext}`)
+    .join(", ");
+  const total = files.size;
+  return `${total} file${total === 1 ? "" : "s"} arrived (${kinds}), and none of them is code an app runs on.`;
+}
+
 /* Media that can be carried whole: type by extension, size capped and
    said aloud where the cap applies. Audio gets more room than images. */
 const MEDIA_TYPES: Array<{ test: RegExp; mime: string; maxBytes: number }> = [

@@ -58,7 +58,7 @@ async function walkEntry(
 }
 
 export function Place() {
-  const { beginUpload, analyzeFiles, analyzeRepo } = useStore();
+  const { beginUpload, analyzeFiles, analyzeRepo, refusal, clearRefusal } = useStore();
   const [dragging, setDragging] = useState(false);
   const [repoText, setRepoText] = useState("");
   const [repoOpen, setRepoOpen] = useState(false);
@@ -152,6 +152,19 @@ export function Place() {
           )}
         </h1>
       </div>
+      {/* the honest stop: what arrived was not an app, said plainly,
+          where the person can still do something about it */}
+      {refusal && (
+        <div className="card card-pad fade-in place-refusal">
+          <div style={{ fontWeight: 550, fontSize: 15 }}>That is not an app yet</div>
+          <p style={{ fontSize: 13, color: "var(--gray-meta)", marginTop: 8, lineHeight: 1.55 }}>
+            {refusal}
+          </p>
+          <button className="pill pill-sm" style={{ marginTop: 14 }} onClick={clearRefusal}>
+            Try again
+          </button>
+        </div>
+      )}
       <div
         className="place-doors"
         style={{
