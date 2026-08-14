@@ -2,13 +2,7 @@ import { useState } from "react";
 import { useStore } from "../store";
 import { Icon, Page, Sparkle } from "../components/chrome";
 import { launchReview, personas, styleCatalog } from "../data/seed";
-
-function moodWords(energy: number, style: number, tone: number): string {
-  const a = energy >= 60 ? "Energetic" : "Calm";
-  const b = style >= 60 ? "bold" : "minimal";
-  const c = tone <= 35 ? "playful" : "serious";
-  return `${a}, ${b}, ${c}`;
-}
+import { moodWords } from "../engine/direction";
 
 /** A review value that opens into a textarea where it stands. */
 function EditableValue({

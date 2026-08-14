@@ -866,6 +866,23 @@ check(
   "the repair prompt carries the evidence",
   promptText.includes("styles.css") && promptText.includes("Grounding:"),
 );
+/* the Style step and the Mood dials are not decoration: what was
+   chosen there is what the builder is asked for */
+check(
+  "the prompt carries the chosen style with its real values",
+  promptText.includes("Design direction, chosen by the app's owner:") &&
+    promptText.includes("Night Shift") &&
+    /corner radius \d+px/.test(promptText),
+);
+check(
+  "the prompt turns the mood dials into instructions",
+  /Mood: (Calm|Energetic), (minimal|bold), (playful|serious)\./.test(promptText) &&
+    /Motion (stays under|may be)/.test(promptText),
+);
+check(
+  "the prompt names the audience the owner named",
+  promptText.includes("Built for Sam Okafor"),
+);
 check(
   "the copy lives inside the prompt",
   await page.locator(".prompt-copy").isVisible(),

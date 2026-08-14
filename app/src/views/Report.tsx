@@ -5,6 +5,7 @@ import { bumpGrowth, drawReportCard } from "../engine/reportcard";
 import { motionFor, styleCatalog } from "../data/seed";
 import { buildSrcDoc, transformCss } from "../engine/analyze";
 import type { AnalyzedProject, RealFinding } from "../engine/types";
+import { directionLines } from "../engine/direction";
 
 /**
  * The Report: one page, the whole truth, in the order a person needs
@@ -27,7 +28,11 @@ function buildGlance(name: string, vitality: number): string {
 
 
 /** The whole plan as one prompt, ready for the tool that builds. */
-function buildRepairPrompt(project: AnalyzedProject, chosen: RealFinding[]): string {
+function buildRepairPrompt(
+  project: AnalyzedProject,
+  chosen: RealFinding[],
+  direction: string[],
+): string {
   const lines: string[] = [];
   if (chosen.length > 0) {
     lines.push(`Repair plan for ${project.inventory.name}, from an Osyle examination of ${project.inventory.fileCount} files.`);
@@ -43,6 +48,10 @@ function buildRepairPrompt(project: AnalyzedProject, chosen: RealFinding[]): str
       lines.push(`   Grounding: ${f.grounding}`);
       lines.push("");
     });
+    if (direction.length > 0) {
+      lines.push(...direction);
+      lines.push("");
+    }
     lines.push("After the repairs, list what changed, file by file.");
     return lines.join("\n");
   }
@@ -63,6 +72,10 @@ function buildRepairPrompt(project: AnalyzedProject, chosen: RealFinding[]): str
   lines.push("4. Lab-test Core Web Vitals on a mid-range phone; budget script under 300 KB shipped.");
   lines.push("5. Read every string aloud; delete urgency, guilt, and filler. Calm converts better than pressure over time.");
   lines.push("");
+  if (direction.length > 0) {
+    lines.push(...direction);
+    lines.push("");
+  }
   lines.push("After the pass, list what changed, file by file.");
   return lines.join("\n");
 }
@@ -122,7 +135,18 @@ function FindingCard({ finding }: { finding: RealFinding }) {
 }
 
 export function Report() {
-  const { project, realDecisions, styleId, setStyleId, comfort, giveAddress, realSlug } = useStore();
+  const {
+    project,
+    realDecisions,
+    styleId,
+    setStyleId,
+    comfort,
+    giveAddress,
+    realSlug,
+    mood,
+    people,
+    personaId,
+  } = useStore();
   const [copied, setCopied] = useState(false);
   /* the prompt stands in the open; hiding it is the choice, not finding it */
   const [promptOpen, setPromptOpen] = useState(true);
@@ -179,7 +203,15 @@ export function Report() {
     [project, before, style, comfort],
   );
 
-  const repairPrompt = buildRepairPrompt(project, planFindings);
+  /* the taste chosen in the Style step and on the Mood dials is what
+     the builder is actually asked for, rather than decoration the
+     person spent time on and never received */
+  const audience = people.find((p) => p.id === personaId && p.id.startsWith("p-own-")) ?? null;
+  const repairPrompt = buildRepairPrompt(
+    project,
+    planFindings,
+    directionLines(style, mood, audience),
+  );
 
   return (
     <Page wide>
