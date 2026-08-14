@@ -108,9 +108,16 @@ export function MoodPanel() {
  * with the age dial breathing a live reach estimate.
  */
 export function PersonasPanel() {
-  const { personaId, setPersonaId, togglePanel, people, updatePersona, addPersona } = useStore();
+  const { personaId, setPersonaId, togglePanel, people, updatePersona, addPersona, project } =
+    useStore();
   const [editingId, setEditingId] = useState<string | null>(null);
-  const active = people.find((p) => p.id === personaId) ?? people[0];
+  /* The three pilots are the example's audience. A real app's audience
+     is whoever its owner says it is, and until they say, it is empty:
+     listing someone else's users under your product is a lie the
+     Launch review already stopped telling. Personas a person adds
+     carry their own id, so the two are never confused. */
+  const mine = project ? people.filter((p) => p.id.startsWith("p-own-")) : people;
+  const active = mine.find((p) => p.id === personaId) ?? mine[0];
   const drag = useDragValue(() => undefined);
   return (
     <aside className="glass-panel floating-panel fade-in" style={{ width: 320 }}>
@@ -120,7 +127,13 @@ export function PersonasPanel() {
         </svg>
       </button>
       <div className="panel-title">Who this is for</div>
-      {people.map((p) =>
+      {project && mine.length === 0 && (
+        <p style={{ fontSize: 12.5, color: "var(--gray-small)", lineHeight: 1.55, marginTop: 4 }}>
+          Nobody yet. Add the people this app is actually for; the
+          example&apos;s pilots belong to the example.
+        </p>
+      )}
+      {mine.map((p) =>
         editingId === p.id ? (
           <div key={p.id} className="persona-card is-active persona-editing">
             <span className="persona-portrait" style={{ background: p.portrait }}>
@@ -223,22 +236,31 @@ export function PersonasPanel() {
       <button
         className="pill pill-sm"
         style={{ marginTop: 4 }}
-        onClick={() => setEditingId(addPersona())}
+        onClick={() => {
+          const id = addPersona();
+          setPersonaId(id);
+          setEditingId(id);
+        }}
       >
-        Add a persona
+        {project && mine.length === 0 ? "Add the first person" : "Add a persona"}
       </button>
-      <div className="age-track" {...drag}>
-        <div
-          className="mood-fill"
-          style={{ width: `${((active.age - 18) / (65 - 18)) * 100}%` }}
-        />
-        <span className="mood-name" style={{ top: 9, fontSize: 12.5 }}>
-          Age {active.age}
-        </span>
-        <span className="mood-max" style={{ bottom: 10, fontSize: 11 }}>
-          {active.reach.startsWith("about") ? `${active.reach}, an estimate` : active.reach}
-        </span>
-      </div>
+      {/* the age dial reads a person; with nobody named there is
+          nothing for it to read, so it waits rather than showing a
+          number about no one */}
+      {active && (
+        <div className="age-track" {...drag}>
+          <div
+            className="mood-fill"
+            style={{ width: `${((active.age - 18) / (65 - 18)) * 100}%` }}
+          />
+          <span className="mood-name" style={{ top: 9, fontSize: 12.5 }}>
+            Age {active.age}
+          </span>
+          <span className="mood-max" style={{ bottom: 10, fontSize: 11 }}>
+            {active.reach.startsWith("about") ? `${active.reach}, an estimate` : active.reach}
+          </span>
+        </div>
+      )}
 
       <p style={{ fontSize: 11.5, color: "var(--gray-tertiary)", marginTop: 10, lineHeight: 1.5 }}>
         The primary persona changes the render, the Twin, and what counts as

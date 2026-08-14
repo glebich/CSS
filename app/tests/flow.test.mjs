@@ -119,6 +119,27 @@ async function walkToReport(checkLaunchIsHonest = false) {
         "Sunrise Tracker: The page calls itself",
       ),
     );
+    /* and the door it points at opens on an empty room, not on the
+       example's three pilots wearing a stranger's product */
+    await page.getByText("Name your audience").click();
+    await page.waitForTimeout(400);
+    check(
+      "a real app's audience starts empty",
+      (await page.getByText("Nobody yet", { exact: false }).isVisible()) &&
+        (await page.locator(".persona-card").count()) === 0,
+    );
+    await page.getByText("Add the first person").click();
+    await page.waitForTimeout(400);
+    check("the first person can be named", (await page.locator(".persona-input").count()) > 0);
+    await page.locator(".persona-input").first().fill("Sam Okafor");
+    await page.getByText("Done").click();
+    await page.waitForTimeout(300);
+    await page.locator(".floating-panel").getByLabel("Close personas").click();
+    await page.waitForTimeout(400);
+    check(
+      "the named person becomes the app's audience",
+      (await page.locator(".review-card").innerText()).includes("Sam Okafor"),
+    );
   }
   await page.getByText("Enhance the app").click();
   await page.waitForTimeout(1000);
