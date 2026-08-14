@@ -98,9 +98,28 @@ async function goToPlace() {
 /* one walk for every drop: after the materials, a real app takes the
    same road as the example, style, launch, enhance, then the report
    through the home's own door */
-async function walkToReport() {
+async function walkToReport(checkLaunchIsHonest = false) {
   await page.getByText("Explore a style", { exact: false }).last().click({ timeout: 25000 });
   await page.getByText("Continue with", { exact: false }).click();
+  if (checkLaunchIsHonest) {
+    /* the launch review is where the example's story used to be
+       handed to a stranger's app as if it were theirs */
+    check(
+      "a real app is not given the example's audience",
+      (await page.getByText("Nobody named yet", { exact: false }).isVisible()) &&
+        (await page.getByText("Maria Chen", { exact: false }).count()) === 0,
+    );
+    check(
+      "a real app is not given the example's idea of success",
+      (await page.getByText("A pilot completes a first drill", { exact: false }).count()) === 0,
+    );
+    check(
+      "the project line does not say the name twice",
+      !(await page.locator(".review-card").innerText()).includes(
+        "Sunrise Tracker: The page calls itself",
+      ),
+    );
+  }
   await page.getByText("Enhance the app").click();
   await page.waitForTimeout(1000);
   const decide = page.getByText("in the report", { exact: false }).first();
@@ -765,7 +784,7 @@ check(
     .then(() => true)
     .catch(() => false),
 );
-await walkToReport();
+await walkToReport(true);
 
 /* one Report, the whole truth, no other chrome competing with it */
 check("the chrome steps aside for the report", (await page.locator(".sidebar").count()) === 0);

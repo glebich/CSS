@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useStore } from "../store";
 import { Icon, Page, Sparkle } from "../components/chrome";
-import { launchReview, styleCatalog } from "../data/seed";
+import { launchReview, personas, styleCatalog } from "../data/seed";
 
 function moodWords(energy: number, style: number, tone: number): string {
   const a = energy >= 60 ? "Energetic" : "Calm";
@@ -85,6 +85,12 @@ export function Launch() {
   } = useStore();
   const persona = people.find((p) => p.id === personaId) ?? people[0];
   const style = styleCatalog.find((s) => s.id === styleId) ?? styleCatalog[0];
+  /* The example's pilots belong to the example. A real app arrives
+     with nobody named, and saying "Maria Chen, 51, airline captain" is
+     inventing an audience for someone else's product. Until a person
+     names their own, the row says so and points at the door. */
+  const seededPerson = personas.some((p) => p.id === persona?.id);
+  const audienceIsBorrowed = !!project && seededPerson;
 
   return (
     <Page>
@@ -101,19 +107,24 @@ export function Launch() {
           <span className="review-label">{project ? "The project" : "Primary goal"}</span>
           <EditableValue
             label="Primary goal"
-            value={
-              launchGoal ??
-              (project
-                ? `${project.inventory.name}: ${project.understanding}`
-                : launchReview.goal)
-            }
+            /* the name is already worn by the tab and the address; the
+               sentence beside it should add something, not repeat it */
+            value={launchGoal ?? (project ? project.understanding : launchReview.goal)}
             onSave={setLaunchGoal}
           />
         </div>
         <div className="review-row">
           <span className="review-label">Audience</span>
           <span className="review-value">
-            {persona.name}, {persona.age}, {persona.role.toLowerCase()}. {persona.line}.
+            {audienceIsBorrowed ? (
+              <span style={{ color: "var(--gray-small)" }}>
+                Nobody named yet. The example&apos;s pilots are not your audience.
+              </span>
+            ) : (
+              <>
+                {persona.name}, {persona.age}, {persona.role.toLowerCase()}. {persona.line}.
+              </>
+            )}
           </span>
           {/* the audience is changeable right here, not a fait accompli */}
           <button
@@ -121,14 +132,19 @@ export function Launch() {
             style={{ flex: "none" }}
             onClick={() => togglePanel("personas")}
           >
-            Change the personas
+            {audienceIsBorrowed ? "Name your audience" : "Change the personas"}
           </button>
         </div>
         <div className="review-row">
           <span className="review-label">Success</span>
           <EditableValue
             label="Success"
-            value={launchSuccess ?? launchReview.success}
+            value={
+              launchSuccess ??
+              (project
+                ? "Not set yet. Say what a good week looks like for this app."
+                : launchReview.success)
+            }
             onSave={setLaunchSuccess}
           />
         </div>
