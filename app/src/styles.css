@@ -2285,3 +2285,840 @@ input {
     margin-right: 0;
   }
 }
+
+/* ---------------------------------------------------------------------------
+   The landing: light paper, one dark frame.
+   The page is light. The hero is the one dark surface, a rounded frame
+   inset on the paper, and it earns that shape: on arrival it fills the
+   viewport under the nav, and the first sixty percent of a viewport of
+   scroll settles it into the card. Progress rides on --p, 0 to 1.
+   The phone is the Figma frame (Blue UI Design, 2292:6611) in markup.
+--------------------------------------------------------------------------- */
+
+.lp {
+  --p: 0;
+  --lp-inset: 22px;
+  --lp-nav: 72px;
+  --lp-blue: #2f5bff;
+  --lp-blue-deep: #0b1b6b;
+  --lp-lavender: #a9a4ff;
+  --lp-frame-ink: rgba(245, 244, 255, 0.92);
+  --lp-frame-quiet: rgba(245, 244, 255, 0.55);
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: var(--paper);
+  color: var(--ink-body);
+  scroll-behavior: smooth;
+}
+
+.lp .quiet {
+  color: var(--gray-tertiary);
+  font-weight: 400;
+}
+
+/* ------------------------------------------------------------ the nav */
+
+.lp-nav {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  height: var(--lp-nav);
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  padding: 0 calc(var(--lp-inset) + 10px);
+  background: var(--paper);
+}
+
+.lp-wordmark {
+  font-size: 17px;
+  font-weight: 510;
+  letter-spacing: 0.42em;
+  text-indent: 0.1em;
+  color: var(--ink);
+}
+
+.lp-nav-links {
+  display: flex;
+  gap: 22px;
+  margin-left: 12px;
+  flex: 1;
+}
+
+.lp-nav-links a {
+  font-size: 13px;
+  color: var(--gray-small);
+  text-decoration: none;
+  transition: color var(--t-fast);
+}
+
+.lp-nav-links a:hover {
+  color: var(--ink);
+}
+
+/* Exactly one dark control on the light page: the primary action */
+.lp-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 56px;
+  padding: 0 26px;
+  border-radius: var(--r-pill);
+  background: var(--ink-strong);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 510;
+  letter-spacing: -0.01em;
+  box-shadow: 0 2px 8px rgba(20, 18, 16, 0.16), 0 16px 40px rgba(20, 18, 16, 0.18);
+  transition: transform var(--t-fast), box-shadow var(--t-fast);
+}
+
+.lp-cta:hover {
+  transform: translateY(-1px);
+}
+
+.lp-cta-sm {
+  height: 40px;
+  padding: 0 18px;
+  font-size: 13.5px;
+  box-shadow: none;
+}
+
+/* Inside the frame the action inverts: white on the dark */
+.lp-frame .lp-cta {
+  background: #fff;
+  color: var(--brand-black);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), 0 16px 40px rgba(0, 0, 0, 0.35);
+}
+
+/* ------------------------------------------------------------ the stage */
+
+.lp-stage {
+  position: relative;
+  height: calc(100vh - var(--lp-nav) + 60vh);
+}
+
+.lp-hero {
+  position: sticky;
+  top: var(--lp-nav);
+  height: calc(100vh - var(--lp-nav));
+  padding: 0 calc(var(--p) * var(--lp-inset)) calc(var(--p) * var(--lp-inset));
+}
+
+/* The frame: edge to edge at --p 0, a 40px card at --p 1 */
+.lp-frame {
+  position: relative;
+  height: 100%;
+  border-radius: calc(var(--p) * 40px);
+  background: #06060a;
+  color: var(--lp-frame-ink);
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  grid-template-rows: 1fr auto;
+  padding: clamp(28px, 4vw, 56px) clamp(28px, 4.5vw, 64px);
+  box-shadow: 0 calc(var(--p) * 30px) calc(var(--p) * 60px) rgba(20, 18, 16, calc(var(--p) * 0.18));
+}
+
+/* The horizon: the blue the phone screen ends in, rising from below */
+.lp-frame-horizon {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(90% 55% at 68% 118%, rgba(47, 91, 255, 0.75) 0%, rgba(11, 27, 107, 0.55) 38%, transparent 70%),
+    linear-gradient(180deg, transparent 55%, rgba(11, 27, 107, 0.35) 100%);
+  pointer-events: none;
+}
+
+/* A quiet white light in the top left, where the words are */
+.lp-frame-glow {
+  position: absolute;
+  width: 640px;
+  height: 640px;
+  left: -220px;
+  top: -260px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.14) 0%, rgba(123, 107, 255, 0.1) 40%, transparent 70%);
+  filter: blur(30px);
+  pointer-events: none;
+}
+
+.lp-hero-copy {
+  position: relative;
+  z-index: 1;
+  align-self: center;
+  max-width: 620px;
+  opacity: calc(1 - var(--p) * 0.05);
+}
+
+.lp-eyebrow {
+  display: block;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--lp-frame-quiet);
+  margin-bottom: 26px;
+}
+
+.lp-headline {
+  font-size: clamp(42px, 5.6vw, 84px);
+  line-height: 0.98;
+  font-weight: 510;
+  letter-spacing: -0.03em;
+  color: #fff;
+}
+
+/* The quiet words are not gray. They are Thin. */
+.lp-headline-quiet {
+  font-weight: 200;
+  letter-spacing: -0.02em;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.lp-lede {
+  margin-top: 26px;
+  max-width: 460px;
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--lp-frame-quiet);
+}
+
+.lp-hero-copy .lp-cta {
+  margin-top: 36px;
+}
+
+.lp-hero-visual {
+  position: relative;
+  z-index: 1;
+  grid-row: 1 / span 2;
+  grid-column: 2;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  min-height: 0;
+  /* the phone rises a little as the frame settles */
+  transform: translateY(calc(var(--p) * -18px));
+}
+
+/* ------------------------------------------------------------ the stats */
+
+.lp-stats {
+  position: relative;
+  z-index: 1;
+  grid-column: 1;
+  display: flex;
+  gap: 0;
+  align-self: end;
+  margin-top: 28px;
+  opacity: calc(0.55 + var(--p) * 0.45);
+  transform: translateY(calc((1 - var(--p)) * 10px));
+}
+
+.lp-stat {
+  flex: 1;
+  padding: 0 22px 0 18px;
+  border-left: 1px solid rgba(255, 255, 255, 0.22);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.lp-stat dt {
+  font-size: clamp(28px, 2.8vw, 40px);
+  font-weight: 400;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  color: #fff;
+  font-variant-numeric: tabular-nums;
+}
+
+.lp-stat dd {
+  font-size: 12.5px;
+  color: var(--lp-frame-ink);
+  margin-top: 8px;
+}
+
+.lp-stat-more {
+  font-size: 11px;
+  color: var(--lp-frame-quiet);
+}
+
+/* ------------------------------------------------------------ the phone */
+
+.lp-phone-image {
+  display: block;
+  height: min(78vh, 720px);
+  width: auto;
+  max-width: 100%;
+  filter: drop-shadow(0 30px 60px rgba(0, 0, 0, 0.5));
+}
+
+.lp-phone {
+  --ph-w: clamp(220px, 20vw, 312px);
+  width: var(--ph-w);
+  aspect-ratio: 1033 / 2181;
+  max-height: 84vh;
+  padding: calc(var(--ph-w) * 0.026);
+  border-radius: calc(var(--ph-w) * 0.19);
+  background: linear-gradient(160deg, #3a3a40 0%, #141417 32%, #0b0b0e 70%, #26262b 100%);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.16),
+    0 1px 0 rgba(255, 255, 255, 0.08),
+    0 40px 80px rgba(0, 0, 0, 0.55),
+    0 12px 28px rgba(0, 0, 0, 0.4);
+  flex: none;
+  font-size: calc(var(--ph-w) * 0.036);
+  container-type: inline-size;
+}
+
+.lp-phone-screen {
+  position: relative;
+  height: 100%;
+  border-radius: calc(var(--ph-w) * 0.165);
+  overflow: hidden;
+  background:
+    radial-gradient(120% 40% at 50% 112%, rgba(66, 118, 255, 0.95) 0%, rgba(24, 56, 200, 0.8) 32%, transparent 68%),
+    linear-gradient(180deg, #000 0%, #000 42%, #020617 62%, #061542 82%, #0f2c9e 100%);
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 7.2% 6.4% 4.6%;
+  text-align: center;
+}
+
+.lp-phone-camera {
+  position: absolute;
+  top: 3.4%;
+  left: 50%;
+  width: 6.4%;
+  aspect-ratio: 1;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 40%, #2a2a33, #000 70%);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.lp-phone-date {
+  margin-top: 5.5%;
+  font-size: 0.86em;
+  color: rgba(255, 255, 255, 0.86);
+}
+
+.lp-phone-temp {
+  margin-left: 0.6em;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+/* The clock is outlined, not filled: a hairline of gray on the black */
+.lp-phone-clock {
+  margin-top: 1%;
+  font-size: 4.9em;
+  line-height: 1.02;
+  font-weight: 200;
+  letter-spacing: -0.06em;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(160, 160, 175, 0.55);
+  font-variant-numeric: tabular-nums;
+}
+
+.lp-phone-hey {
+  margin-top: 2%;
+  font-size: 1.14em;
+  font-weight: 510;
+  color: var(--lp-lavender);
+}
+
+.lp-phone-lines {
+  margin-top: 4%;
+  font-size: 0.86em;
+  line-height: 1.5;
+  color: #7d8cff;
+}
+
+.lp-phone-card {
+  position: relative;
+  border-radius: 1.2em;
+  background: rgba(16, 24, 64, 0.6);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(10px);
+  text-align: left;
+  overflow: hidden;
+}
+
+.lp-phone-ride {
+  width: 100%;
+  margin-top: 8%;
+  padding: 1.3em 1.4em 1.2em;
+  min-height: 7.4em;
+}
+
+.lp-phone-map {
+  position: absolute;
+  inset: 0 0 0 48%;
+  background:
+    linear-gradient(115deg, transparent 52%, rgba(148, 92, 255, 0.85) 52%, rgba(148, 92, 255, 0.85) 60%, transparent 60%),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.05) 0 2px, transparent 2px 12px),
+    linear-gradient(180deg, rgba(40, 46, 80, 0.9), rgba(20, 24, 50, 0.9));
+  mask-image: linear-gradient(90deg, transparent, #000 35%);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 35%);
+}
+
+.lp-phone-card-title {
+  position: relative;
+  font-size: 1em;
+  font-weight: 510;
+}
+
+.lp-phone-card-sub {
+  position: relative;
+  margin-top: 0.3em;
+  font-size: 0.78em;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.lp-phone-plate {
+  position: relative;
+  margin-top: 1em;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  font-size: 0.72em;
+  font-weight: 510;
+  letter-spacing: 0.04em;
+}
+
+.lp-phone-plate span:last-child {
+  padding: 0.35em 0.9em;
+  border-radius: 999px;
+  background: #fff;
+  color: #000;
+}
+
+.lp-phone-plate-dot {
+  width: 1.6em;
+  height: 1.6em;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: inset 0 0 0 0.45em #000, inset 0 0 0 0.6em #fff;
+}
+
+.lp-phone-row {
+  width: 100%;
+  margin-top: 6%;
+  display: grid;
+  grid-template-columns: 1fr 1.15fr;
+  gap: 6%;
+  align-items: stretch;
+}
+
+/* The people card: a soft blob holding four faces */
+.lp-phone-people {
+  border-radius: 46% 54% 50% 50% / 55% 45% 55% 45%;
+  background: rgba(40, 60, 150, 0.45);
+  min-height: 8.6em;
+}
+
+.lp-phone-face {
+  position: absolute;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.9);
+}
+
+.lp-phone-face.f1 { width: 34%; aspect-ratio: 1; left: 12%; top: 16%; background: linear-gradient(135deg, #f1c27d, #8d5524); }
+.lp-phone-face.f2 { width: 44%; aspect-ratio: 1; right: 8%; top: 26%; background: linear-gradient(135deg, #e0ac69, #5b3a1a); }
+.lp-phone-face.f3 { width: 28%; aspect-ratio: 1; left: 16%; bottom: 14%; background: linear-gradient(135deg, #ffd7b5, #b56b3b); }
+.lp-phone-face.f4 { width: 22%; aspect-ratio: 1; left: 44%; top: 8%; background: linear-gradient(135deg, #c68642, #3a1f0a); }
+
+.lp-phone-chat {
+  padding: 1.1em 1.1em 1em;
+}
+
+.lp-phone-chat-bubble {
+  display: block;
+  width: 1.4em;
+  height: 1.4em;
+  border-radius: 50% 50% 50% 0.2em;
+  background: #fff;
+  opacity: 0.85;
+  margin-bottom: 0.5em;
+}
+
+.lp-phone-chat-when {
+  margin-left: 0.4em;
+  font-size: 0.75em;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.lp-phone-pay {
+  margin-top: 0.8em;
+  display: inline-block;
+  padding: 0.35em 0.9em;
+  border-radius: 999px;
+  font-size: 0.78em;
+  font-weight: 510;
+  background: rgba(255, 255, 255, 0.14);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.25);
+}
+
+.lp-phone-dots {
+  margin-top: auto;
+  display: flex;
+  gap: 0.5em;
+  padding-top: 1em;
+}
+
+.lp-phone-dots span {
+  width: 0.4em;
+  height: 0.4em;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.35);
+}
+
+.lp-phone-dots .on {
+  background: #fff;
+}
+
+.lp-phone-dock {
+  width: 100%;
+  margin-top: 1.2em;
+  display: flex;
+  align-items: center;
+  gap: 0.55em;
+}
+
+.lp-phone-app {
+  width: 2.5em;
+  height: 2.5em;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9em;
+  font-weight: 510;
+  color: var(--lp-blue);
+}
+
+.lp-phone-app.a2 {
+  background: conic-gradient(#ea4335 0 25%, #fbbc05 0 50%, #34a853 0 75%, #4285f4 0);
+  mask: radial-gradient(circle, transparent 30%, #000 31%);
+  -webkit-mask: radial-gradient(circle, transparent 30%, #000 31%);
+}
+
+.lp-phone-app.a3 {
+  background: #2f5bff;
+  box-shadow: inset 0 0 0 0.5em rgba(255, 255, 255, 0.9);
+}
+
+.lp-phone-dock-gap {
+  flex: 1;
+}
+
+.lp-phone-pill {
+  width: 4em;
+  height: 2.4em;
+  border-radius: 1.2em;
+  background: rgba(255, 255, 255, 0.16);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.28);
+}
+
+/* ------------------------------------------------------------ sections */
+
+.lp-section {
+  position: relative;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 0 40px;
+}
+
+.lp-intro {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 160px;
+  gap: 40px;
+  padding-top: 110px;
+  padding-bottom: 110px;
+  border-bottom: 1px solid var(--hairline);
+}
+
+/* The two-tone paragraph: what matters in ink, the rest in the quiet */
+.lp-two-tone {
+  font-size: clamp(22px, 2.3vw, 30px);
+  line-height: 1.28;
+  font-weight: 400;
+  letter-spacing: -0.015em;
+  color: var(--ink-strong);
+  max-width: 760px;
+}
+
+.lp-two-tone-sm {
+  font-size: clamp(19px, 1.9vw, 26px);
+}
+
+.lp-side-label {
+  font-size: 11px;
+  color: var(--gray-small);
+  text-align: right;
+  padding-top: 8px;
+}
+
+.lp-promise-section {
+  padding-top: 90px;
+  padding-bottom: 60px;
+}
+
+.lp-promise-head {
+  display: grid;
+  grid-template-columns: 300px minmax(0, 1fr);
+  gap: 40px;
+  padding-bottom: 48px;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.lp-h2 {
+  font-size: clamp(40px, 4.4vw, 56px);
+  line-height: 1;
+  font-weight: 510;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+}
+
+/* The six promises, still one line, now on the paper */
+.lp .brand-promises {
+  position: static;
+  margin-top: 22px;
+  color: var(--gray-small);
+}
+
+.lp-promise-list {
+  list-style: none;
+  margin-top: 8px;
+}
+
+.lp-promise {
+  display: grid;
+  grid-template-columns: 300px minmax(0, 1fr);
+  gap: 40px;
+  align-items: start;
+  padding: 26px 0;
+  border-bottom: 1px solid var(--hairline);
+}
+
+/* One promise is raised on a card, the way the reference lifts its second row */
+.lp-promise.is-raised {
+  margin: 8px -32px;
+  padding: 32px;
+  border-radius: 32px;
+  background: rgba(255, 255, 255, 0.6);
+  border-bottom: none;
+  box-shadow: var(--shadow-card);
+}
+
+.lp-promise-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid rgba(20, 18, 16, 0.18);
+  font-size: 12.5px;
+  color: var(--ink-strong);
+  font-variant-numeric: tabular-nums;
+}
+
+.lp-promise-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-top: 4px;
+}
+
+.lp-promise-word {
+  font-size: 11px;
+  color: var(--gray-small);
+  letter-spacing: 0.02em;
+}
+
+.lp-promise-line {
+  font-size: 15px;
+  color: var(--ink-body);
+  max-width: 560px;
+}
+
+.lp-works {
+  padding-top: 40px;
+  padding-bottom: 40px;
+}
+
+/* The rail on the paper: same marks, ink instead of white */
+.lp .brand-works {
+  margin-top: 0;
+  gap: 26px;
+}
+
+.lp .works-label {
+  color: var(--gray-tertiary);
+}
+
+.lp .works-mark {
+  color: rgba(38, 38, 38, 0.5);
+}
+
+.lp .works-mark:hover {
+  color: var(--ink);
+}
+
+/* ------------------------------------------------------------ the foot */
+
+.lp-foot {
+  position: relative;
+  max-width: 1120px;
+  margin: 60px auto 0;
+  padding: 100px 40px 60px;
+  border-top: 1px solid var(--hairline);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.lp-foot-statement {
+  font-size: clamp(44px, 6.4vw, 96px);
+  line-height: 0.96;
+  font-weight: 510;
+  letter-spacing: -0.035em;
+  color: var(--ink);
+}
+
+.lp-foot .lp-headline-quiet {
+  color: var(--ink);
+}
+
+.lp-foot-actions {
+  margin-top: 44px;
+  display: flex;
+  align-items: center;
+  gap: 26px;
+}
+
+.lp-foot-link {
+  font-size: 14px;
+  color: var(--gray-secondary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: color var(--t-fast);
+}
+
+.lp-foot-link:hover {
+  color: var(--ink);
+}
+
+.lp .brand-foot.lp-foot-line {
+  position: static;
+  margin-top: 90px;
+  color: var(--gray-tertiary);
+}
+
+/* ------------------------------------------------------------ narrow */
+
+@media (max-width: 960px) {
+  .lp-frame {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+    padding: 28px 24px 24px;
+  }
+
+  .lp-hero-copy {
+    align-self: start;
+    margin-top: 20px;
+  }
+
+  .lp-headline {
+    font-size: clamp(36px, 8vw, 56px);
+  }
+
+  .lp-lede {
+    display: none;
+  }
+
+  /* The phone rises from the frame's bottom edge and is cropped by it */
+  .lp-hero-visual {
+    grid-row: 2;
+    grid-column: 1;
+    align-items: flex-start;
+    overflow: hidden;
+    margin: 12px -24px -24px;
+    padding-top: 24px;
+    transform: none;
+  }
+
+  .lp-phone {
+    --ph-w: clamp(200px, 52vw, 300px);
+    max-height: none;
+    transform: translateY(calc(var(--p) * -12px));
+  }
+
+  .lp-stats {
+    display: none;
+  }
+
+  .lp-intro,
+  .lp-promise-head,
+  .lp-promise {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 18px;
+  }
+
+  .lp-side-label {
+    text-align: left;
+  }
+
+  .lp-promise.is-raised {
+    margin: 8px 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .lp {
+    --lp-inset: 12px;
+  }
+
+  .lp-nav-links {
+    display: none;
+  }
+
+  .lp-section {
+    padding-left: 22px;
+    padding-right: 22px;
+  }
+
+  .lp-foot {
+    padding-left: 22px;
+    padding-right: 22px;
+  }
+
+  .lp-foot-actions {
+    flex-direction: column;
+    gap: 18px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lp {
+    scroll-behavior: auto;
+  }
+
+  .lp-stage {
+    height: calc(100vh - var(--lp-nav));
+  }
+
+  .lp-hero {
+    position: relative;
+    top: 0;
+  }
+}

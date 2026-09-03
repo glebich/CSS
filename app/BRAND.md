@@ -51,3 +51,18 @@ gradient at 51.4 percent, the 43px blur, screen blending), not the export.
 It is used only as the favicon. Before launch, export node `2106:4` and
 its sibling variants from the file and replace this asset in place; no
 code changes are needed. Acceptance criterion 45 stays open until then.
+
+## The landing hero: the Blue UI phone
+
+The landing (`src/views/Landing.tsx`) is light paper with one dark
+surface: the hero frame, which opens edge to edge under the nav and
+settles into a 40px rounded card over the first sixty percent of a
+viewport of scroll (progress rides on the `--p` custom property).
+
+Its hero image is Figma file `d9Fl4WYdMCD8ZKfWapRdU9` (Blue, UI Design),
+node `2292:6611`, the Pixel 10 Pro XL "Obsidian" render with the 08:45
+lock screen. The same network policy that blocks the logo export blocks
+this one, so the phone is rebuilt in markup and CSS from the render
+(`.lp-phone`). To use the export itself: save the node as PNG at
+`public/brand/hero-phone.png` and set `HERO_IMAGE` in `Landing.tsx` to
+`"brand/hero-phone.png"`. Nothing else changes.
